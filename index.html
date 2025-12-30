@@ -3,314 +3,161 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Gravel Coach</title>
+    <title>Gravel Coach Sync</title>
     
     <link rel="icon" type="image/png" href="Icon.png">
     <link rel="apple-touch-icon" href="Icon.png">
-    <link rel="shortcut icon" href="Icon.png">
     
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#1A2233">
 
     <style>
+        /* CSS WIE VORHER + LADE-ANIMATION */
         :root {
-            --bg: #F4F6F8;
-            --card-bg: #ffffff;
-            --header-bg: #1A2233;
-            --accent-orange: #D69E68;
-            --accent-red-bg: #FFF0F0;
-            --accent-red-text: #D32F2F;
-            --code-bg: #0F172A;
-            --code-text: #4ADE80;
-            --text-main: #333;
-            --text-sub: #666;
-            --tech-bg: #F0F4FF;
-            --tech-border: #4A90E2;
+            --bg: #F4F6F8; --card-bg: #ffffff; --header-bg: #1A2233;
+            --accent-orange: #D69E68; --accent-red-bg: #FFF0F0; --accent-red-text: #D32F2F;
+            --code-bg: #0F172A; --code-text: #4ADE80; --text-main: #333; --text-sub: #666;
+            --tech-bg: #F0F4FF; --tech-border: #4A90E2;
         }
-
         @media (prefers-color-scheme: dark) {
             :root {
-                --bg: #121212;
-                --card-bg: #1E1E1E;
-                --header-bg: #2C3E50;
-                --accent-red-bg: #2D1A1A;
-                --accent-red-text: #FF8A80;
-                --text-main: #eee;
-                --text-sub: #aaa;
-                --tech-bg: #1A2634;
+                --bg: #121212; --card-bg: #1E1E1E; --header-bg: #2C3E50;
+                --accent-red-bg: #2D1A1A; --accent-red-text: #FF8A80;
+                --text-main: #eee; --text-sub: #aaa; --tech-bg: #1A2634;
             }
         }
-
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            background-color: var(--bg);
-            color: var(--text-main);
-            margin: 0;
-            padding: 15px;
-            padding-bottom: 80px;
-            /* Verhindert "Bounce" Effekt beim Scrollen */
-            overscroll-behavior-y: none; 
+            background-color: var(--bg); color: var(--text-main);
+            margin: 0; padding: 15px; padding-bottom: 80px; overscroll-behavior-y: none;
         }
 
-        /* HEADER & BADGES */
         header { margin-bottom: 20px; }
         h1 { font-size: 1.5em; margin: 0 0 5px 0; color: var(--text-main); }
-        h1 span { color: var(--accent-orange); }
-        .sub-header { font-size: 0.9em; color: var(--text-sub); margin-bottom: 15px; }
+        h1 span { color: var(--accent-orange); font-size: 0.6em; vertical-align: middle; background: rgba(214, 158, 104, 0.1); padding: 2px 6px; border-radius: 4px; }
+        .sub-header { font-size: 0.9em; color: var(--text-sub); margin-bottom: 15px; display: flex; align-items: center; gap: 8px;}
 
-        .stats-row {
-            display: flex;
-            gap: 10px;
-            overflow-x: auto;
-            padding-bottom: 5px;
-        }
-        .badge-box {
-            background: var(--card-bg);
-            border: 1px solid rgba(0,0,0,0.1);
-            padding: 8px 12px;
-            border-radius: 8px;
-            text-align: center;
-            min-width: 80px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-        }
+        /* STATUS DOT */
+        .status-dot { height: 8px; width: 8px; background-color: #bbb; border-radius: 50%; display: inline-block; }
+        .status-dot.online { background-color: #4ADE80; box-shadow: 0 0 5px #4ADE80; }
+        .status-dot.error { background-color: #D32F2F; }
+
+        .stats-row { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 5px; }
+        .badge-box { background: var(--card-bg); border: 1px solid rgba(0,0,0,0.1); padding: 8px 12px; border-radius: 8px; text-align: center; min-width: 80px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
         .badge-label { font-size: 0.7em; color: #999; text-transform: uppercase; font-weight: bold; }
         .badge-val { font-size: 1.1em; font-weight: 800; color: var(--text-main); margin-top: 2px; }
         .badge-red { color: #D32F2F; }
 
-        /* TABS */
-        .tabs-container {
-            display: flex;
-            gap: 10px;
-            overflow-x: auto;
-            margin-bottom: 20px;
-            scrollbar-width: none; 
-        }
-        .tab {
-            background: var(--card-bg);
-            color: var(--text-sub);
-            padding: 10px 20px;
-            border-radius: 20px;
-            font-weight: 600;
-            font-size: 0.9em;
-            white-space: nowrap;
-            border: 1px solid transparent;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        .tab.active {
-            background: var(--accent-orange);
-            color: #fff;
-            box-shadow: 0 4px 10px rgba(214, 158, 104, 0.4);
-        }
+        .tabs-container { display: flex; gap: 10px; overflow-x: auto; margin-bottom: 20px; scrollbar-width: none; }
+        .tab { background: var(--card-bg); color: var(--text-sub); padding: 10px 20px; border-radius: 20px; font-weight: 600; font-size: 0.9em; white-space: nowrap; cursor: pointer; transition: all 0.2s; }
+        .tab.active { background: var(--accent-orange); color: #fff; box-shadow: 0 4px 10px rgba(214, 158, 104, 0.4); }
 
-        /* CARD */
-        .card {
-            background: var(--card-bg);
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
-            margin-bottom: 25px;
-            transition: opacity 0.3s;
-        }
+        .card { background: var(--card-bg); border-radius: 12px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.08); margin-bottom: 25px; transition: opacity 0.3s; }
         .card.done { opacity: 0.6; filter: grayscale(0.8); }
-
-        .card-header {
-            background: var(--header-bg);
-            padding: 15px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
+        .card-header { background: var(--header-bg); padding: 15px; display: flex; justify-content: space-between; align-items: center; }
         
-        /* DATE EDITABLE */
-        .date-wrapper { position: relative; }
-        .date-badge {
-            background: var(--accent-orange);
-            color: #fff;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 0.8em;
-            font-weight: bold;
-            margin-right: 10px;
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-        }
-        .date-badge::after {
-            content: '✎';
-            font-size: 0.8em;
-            margin-left: 5px;
-            opacity: 0.7;
-        }
-        .date-input {
-            position: absolute;
-            left: 0; top: 0;
-            width: 100%; height: 100%;
-            opacity: 0;
-            cursor: pointer;
-        }
-
+        .date-badge { background: var(--accent-orange); color: #fff; padding: 4px 8px; border-radius: 4px; font-size: 0.8em; font-weight: bold; margin-right: 10px; }
         .card-title { color: #fff; font-weight: 700; font-size: 1.1em; flex-grow: 1; }
         .card-duration { color: rgba(255,255,255,0.7); font-weight: bold; font-size: 0.9em; }
         .card-body { padding: 15px; }
         .description { margin-bottom: 15px; line-height: 1.5; font-size: 0.95em; }
 
-        /* CODE BLOCK */
-        .code-container {
-            background: var(--code-bg);
-            border-radius: 8px;
-            padding: 15px;
-            margin-bottom: 15px;
-        }
-        .code-text {
-            font-family: 'Courier New', monospace;
-            color: var(--code-text);
-            font-size: 0.85em;
-            line-height: 1.4;
-            white-space: pre-wrap;
-            margin: 0;
-        }
+        .code-container { background: var(--code-bg); border-radius: 8px; padding: 15px; margin-bottom: 15px; }
+        .code-text { font-family: 'Courier New', monospace; color: var(--code-text); font-size: 0.85em; line-height: 1.4; white-space: pre-wrap; margin: 0; }
 
-        /* INFO BOXES */
-        .info-box {
-            background: var(--accent-red-bg);
-            border-radius: 8px;
-            padding: 12px;
-            margin-bottom: 10px;
-            border-left: 4px solid var(--accent-red-text);
-        }
-        .info-label {
-            color: var(--accent-red-text);
-            font-size: 0.7em;
-            font-weight: bold;
-            letter-spacing: 1px;
-            margin-bottom: 4px;
-            text-transform: uppercase;
-        }
+        .info-box { background: var(--accent-red-bg); border-radius: 8px; padding: 12px; margin-bottom: 10px; border-left: 4px solid --accent-red-text; border-left: 4px solid var(--accent-red-text); }
+        .info-label { color: var(--accent-red-text); font-size: 0.7em; font-weight: bold; letter-spacing: 1px; margin-bottom: 4px; text-transform: uppercase; }
         .info-text { font-size: 0.9em; line-height: 1.4; color: var(--text-main); }
 
-        /* VIDEO / TECH BOX */
-        .tech-box {
-            background: var(--tech-bg);
-            border-left-color: var(--tech-border);
-            position: relative;
-        }
+        .tech-box { background: var(--tech-bg); border-left-color: var(--tech-border); position: relative; }
         .tech-box .info-label { color: var(--tech-border); }
-        .video-btn {
-            display: inline-block;
-            margin-top: 8px;
-            background: #ff0000;
-            color: white;
-            text-decoration: none;
-            padding: 4px 10px;
-            border-radius: 4px;
-            font-size: 0.8em;
-            font-weight: bold;
-        }
+        .video-btn { display: inline-block; margin-top: 8px; background: #ff0000; color: white; text-decoration: none; padding: 4px 10px; border-radius: 4px; font-size: 0.8em; font-weight: bold; }
 
-        /* ACTIONS */
-        .action-row {
-            display: flex;
-            justify-content: flex-end;
-            margin-top: 10px;
-        }
-        .done-btn {
-            background: transparent;
-            border: 2px solid #ddd;
-            padding: 8px 16px;
-            border-radius: 20px;
-            color: var(--text-sub);
-            font-weight: 600;
-            cursor: pointer;
-        }
-        .done-btn.active {
-            background: var(--accent-orange);
-            border-color: var(--accent-orange);
-            color: white;
-        }
+        .action-row { display: flex; justify-content: flex-end; margin-top: 10px; }
+        .done-btn { background: transparent; border: 2px solid #ddd; padding: 8px 16px; border-radius: 20px; color: var(--text-sub); font-weight: 600; cursor: pointer; }
+        .done-btn.active { background: var(--accent-orange); border-color: var(--accent-orange); color: white; }
 
-        /* SETTINGS MODAL */
-        #settings-modal {
-            display: none;
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.9);
-            z-index: 1000;
-            padding: 30px;
-            box-sizing: border-box;
-        }
-        .fab {
-            position: fixed;
-            top: 15px; right: 15px;
-            background: rgba(255,255,255,0.9);
-            width: 35px; height: 35px;
-            border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            font-size: 1.2em;
-            z-index: 90;
-        }
-        textarea { width: 100%; height: 150px; background: #333; color: #fff; border-radius: 8px; padding: 10px; box-sizing: border-box; }
-        .modal-btn { background: var(--accent-orange); width: 100%; padding: 15px; border:none; border-radius:8px; font-weight:bold; margin-top:10px; color:#fff;}
+        /* REFRESH BUTTON */
+        .fab { position: fixed; top: 15px; right: 15px; background: rgba(255,255,255,0.9); width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 5px rgba(0,0,0,0.1); font-size: 1.2em; z-index: 90; cursor: pointer; }
     </style>
 </head>
 <body>
 
-    <div class="fab" onclick="openSettings()">⚙️</div>
+    <div class="fab" onclick="location.reload()">↻</div>
 
     <header>
-        <h1>Ultra Gravel <span>v5.1</span></h1>
-        <div class="sub-header" id="plan-date-range">Plan laden...</div>
+        <h1>Ultra Gravel <span>SYNC</span></h1>
+        <div class="sub-header">
+            <span id="status-dot" class="status-dot"></span>
+            <span id="status-text" style="margin-left: 8px;">Verbinde mit GitHub...</span>
+        </div>
 
         <div class="stats-row">
-            <div class="badge-box">
-                <div class="badge-label">FTP</div>
-                <div class="badge-val">185W</div>
-            </div>
-            <div class="badge-box">
-                <div class="badge-label">KRAFT</div>
-                <div class="badge-val">Milon 2x</div>
-            </div>
-            <div class="badge-box">
-                <div class="badge-label">CARBS</div>
-                <div class="badge-val badge-red">MNSTRY</div>
-            </div>
+            <div class="badge-box"><div class="badge-label">FTP</div><div class="badge-val">185W</div></div>
+            <div class="badge-box"><div class="badge-label">KRAFT</div><div class="badge-val">Milon 2x</div></div>
+            <div class="badge-box"><div class="badge-label">CARBS</div><div class="badge-val badge-red">MNSTRY</div></div>
         </div>
     </header>
 
     <div class="tabs-container" id="week-tabs"></div>
     <div id="workout-list"></div>
 
-    <div id="settings-modal">
-        <h2 style="color:white; margin-top:0;">Plan Importieren</h2>
-        <p style="color:#aaa; font-size:0.9em;">JSON Code Block hier einfügen:</p>
-        <textarea id="import-area"></textarea>
-        <button class="modal-btn" onclick="savePlan()">Speichern</button>
-        <button class="modal-btn" style="background:#444; margin-top:10px;" onclick="closeSettings()">Abbrechen</button>
-        <button class="modal-btn" style="background:#D32F2F; margin-top:30px;" onclick="resetData()">Reset</button>
-    </div>
-
     <script>
         let workouts = [];
         let activeWeek = "Woche 1";
+        // Wir speichern nur den Status lokal: { "2024-01-01_Titel": true }
+        let progressData = {}; 
 
-        function init() {
-            const stored = localStorage.getItem('gravelPlanV5');
-            if(stored) {
-                try { workouts = JSON.parse(stored); } catch(e) { workouts = []; }
-            }
-            renderTabs();
-            renderWorkouts();
-            updateDateRange();
+        async function init() {
+            loadLocalProgress();
+            await fetchPlanFromGitHub();
         }
 
-        function updateDateRange() {
-            if(workouts.length > 0) {
-                // Sort first to show correct range
-                workouts.sort((a,b) => new Date(a.date) - new Date(b.date));
-                const start = new Date(workouts[0].date).toLocaleDateString();
-                document.getElementById('plan-date-range').innerText = `Plan ab ${start}`;
+        function loadLocalProgress() {
+            const stored = localStorage.getItem('gravelProgress');
+            if(stored) {
+                try { progressData = JSON.parse(stored); } catch(e) { progressData = {}; }
+            }
+        }
+
+        async function fetchPlanFromGitHub() {
+            const statusDot = document.getElementById('status-dot');
+            const statusText = document.getElementById('status-text');
+
+            try {
+                // Hier wird die training.json geladen
+                // Ein Zeitstempel (?t=...) verhindert, dass der Browser alte Daten aus dem Cache nimmt
+                const response = await fetch('training.json?t=' + new Date().getTime());
+                
+                if (!response.ok) throw new Error("Datei nicht gefunden");
+                
+                const json = await response.json();
+                
+                if(Array.isArray(json)) {
+                    workouts = json;
+                    statusDot.className = 'status-dot online';
+                    statusText.innerText = 'Plan aktuell';
+                    
+                    // Wir suchen die erste Woche, falls noch keine aktiv ist
+                    if(workouts.length > 0 && !workouts.find(w => w.week === activeWeek)) {
+                        activeWeek = workouts[0].week;
+                    }
+                    
+                    renderTabs();
+                    renderWorkouts();
+                }
+            } catch (error) {
+                console.error(error);
+                statusDot.className = 'status-dot error';
+                statusText.innerText = 'Fehler: training.json fehlt?';
+                
+                document.getElementById('workout-list').innerHTML = `
+                    <div style="text-align:center; margin-top:40px; color:#666;">
+                        <h3>Keine Daten gefunden</h3>
+                        <p>Bitte erstelle die Datei <b>training.json</b> in deinem GitHub Repository.</p>
+                    </div>
+                `;
             }
         }
 
@@ -319,12 +166,6 @@
             const container = document.getElementById('week-tabs');
             container.innerHTML = '';
             
-            if(weeks.length === 0) {
-                container.innerHTML = '<div class="tab active">Leer</div>';
-                return;
-            }
-            if(!weeks.includes(activeWeek)) activeWeek = weeks[0];
-
             weeks.forEach(week => {
                 const btn = document.createElement('div');
                 btn.className = `tab ${week === activeWeek ? 'active' : ''}`;
@@ -346,23 +187,19 @@
                 .filter(w => w.week === activeWeek)
                 .sort((a,b) => new Date(a.date) - new Date(b.date));
 
-            if(filtered.length === 0) {
-                container.innerHTML = '<div style="text-align:center; color:#999; margin-top:50px;">Kein Training in dieser Woche.</div>';
-                return;
-            }
-
             filtered.forEach((w) => {
-                const globalIndex = workouts.indexOf(w);
-                
+                // Wir generieren eine ID aus Datum und Titel, um den Haken zu speichern
+                const id = w.date + "_" + w.title;
+                const isDone = progressData[id] === true;
+
                 const dateObj = new Date(w.date);
                 const dateStr = dateObj.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit' });
                 const dayName = dateObj.toLocaleDateString('de-DE', { weekday: 'short' });
                 
-                const doneClass = w.done ? 'done' : '';
-                const btnText = w.done ? 'Erledigt ✓' : 'Als erledigt markieren';
-                const btnActive = w.done ? 'active' : '';
+                const doneClass = isDone ? 'done' : '';
+                const btnText = isDone ? 'Erledigt ✓' : 'Als erledigt markieren';
+                const btnActive = isDone ? 'active' : '';
 
-                // Video Logic
                 let techHtml = w.technique || 'Grundposition';
                 if(w.video_url) {
                     techHtml += `<br><a href="${w.video_url}" target="_blank" class="video-btn">▶ Video ansehen</a>`;
@@ -371,32 +208,17 @@
                 const html = `
                 <div class="card ${doneClass}">
                     <div class="card-header">
-                        <div class="date-wrapper">
-                            <span class="date-badge">${dayName} ${dateStr}</span>
-                            <input type="date" class="date-input" value="${w.date}" onchange="updateDate(${globalIndex}, this.value)">
-                        </div>
+                        <div><span class="date-badge">${dayName} ${dateStr}</span></div>
                         <div class="card-title">${w.title}</div>
                         <div class="card-duration">${w.duration}</div>
                     </div>
                     <div class="card-body">
                         <div class="description">${w.desc}</div>
-                        
-                        <div class="code-container">
-                            <div class="code-text">${w.intervals_code || '-'}</div>
-                        </div>
-
-                        <div class="info-box">
-                            <div class="info-label">MNSTRY</div>
-                            <div class="info-text">${w.nutrition || '-'}</div>
-                        </div>
-
-                        <div class="info-box tech-box">
-                            <div class="info-label">Technik</div>
-                            <div class="info-text">${techHtml}</div>
-                        </div>
-
+                        <div class="code-container"><div class="code-text">${w.intervals_code || '-'}</div></div>
+                        <div class="info-box"><div class="info-label">MNSTRY</div><div class="info-text">${w.nutrition || '-'}</div></div>
+                        <div class="info-box tech-box"><div class="info-label">Technik</div><div class="info-text">${techHtml}</div></div>
                         <div class="action-row">
-                            <button class="done-btn ${btnActive}" onclick="toggleDone(${globalIndex})">${btnText}</button>
+                            <button class="done-btn ${btnActive}" onclick="toggleDone('${id}')">${btnText}</button>
                         </div>
                     </div>
                 </div>
@@ -405,46 +227,16 @@
             });
         }
 
-        function toggleDone(index) {
-            workouts[index].done = !workouts[index].done;
-            saveAndRender();
-        }
-
-        function updateDate(index, newDate) {
-            if(!newDate) return;
-            workouts[index].date = newDate;
-            saveAndRender();
-        }
-
-        function saveAndRender() {
-            localStorage.setItem('gravelPlanV5', JSON.stringify(workouts));
-            updateDateRange();
+        function toggleDone(id) {
+            // Status umschalten
+            if (progressData[id]) {
+                delete progressData[id];
+            } else {
+                progressData[id] = true;
+            }
+            // Speichern
+            localStorage.setItem('gravelProgress', JSON.stringify(progressData));
             renderWorkouts();
-        }
-
-        function openSettings() { document.getElementById('settings-modal').style.display = 'block'; }
-        function closeSettings() { document.getElementById('settings-modal').style.display = 'none'; }
-        
-        function savePlan() {
-            const input = document.getElementById('import-area').value;
-            try {
-                const json = JSON.parse(input);
-                if(Array.isArray(json)) {
-                    json.forEach(w => { if(w.done === undefined) w.done = false; });
-                    workouts = json;
-                    saveAndRender();
-                    renderTabs(); 
-                    closeSettings();
-                    if(workouts.length > 0) activeWeek = workouts[0].week;
-                    renderTabs();
-                    renderWorkouts();
-                } else { alert("Muss Array sein [...]"); }
-            } catch(e) { alert("JSON Fehler"); }
-        }
-
-        function resetData() {
-            localStorage.removeItem('gravelPlanV5');
-            location.reload();
         }
 
         init();
