@@ -1,0 +1,90 @@
+[
+  {
+    "date": "2025-12-30",
+    "week": "Woche 1",
+    "title": "Sweetspot & Torque Intro",
+    "duration": "1h",
+    "desc": "Wir starten mit Kraftausdauer. Die niedrige Trittfrequenz (Torque) simuliert die Muskelspannung am Berg, obwohl du im Flachen fährst.",
+    "intervals_code": "- 15m 50% Warmup\n- 2x 10m 88% 60rpm (5m 50% recovery)\n- 10m 50% Cooldown",
+    "nutrition": "1 Flasche Wasser mit 1.5 Scoops Power Carb (ca. 70g).",
+    "technique": "Runder Tritt: Ziehe das Pedal aktiv hoch, nicht nur drücken.",
+    "video_url": "https://www.youtube.com/watch?v=pdl92_gIDhw"
+  },
+  {
+    "date": "2026-01-04",
+    "week": "Woche 1",
+    "title": "Endurance & Low Cadence",
+    "duration": "2.5h",
+    "desc": "Grundlage mit Kraft-Einlagen. Versuche bei den 60rpm-Abschnitten ruhig im Oberkörper zu bleiben (Core-Stabilität).",
+    "intervals_code": "- 20m 55%\n- 3x 10m 78% 60rpm (10m 55% recovery)\n- 80m 65% Endurance\n- 10m 50%",
+    "nutrition": "Pro Stunde 1 Scoop Power Carb. Insg. 2.5 Scoops.",
+    "technique": "Aerodynamik: Fahre die Intervalle im Unterlenker.",
+    "video_url": "https://www.youtube.com/watch?v=ldvFqQeKAFU"
+  },
+  {
+    "date": "2026-01-06",
+    "week": "Woche 2",
+    "title": "Threshold & RPM Contrast",
+    "duration": "1h",
+    "desc": "Intensiv! Der Wechsel zwischen 60rpm (Kraft) und 95rpm (Frequenz) bei gleicher Wattzahl schult die neuromuskuläre Effizienz.",
+    "intervals_code": "- 15m 55% Warmup\n- 3x 8m 95% (4m 60rpm / 4m 95rpm) (4m 50% R)\n- 10m 50%",
+    "nutrition": "High Carb: 1 Flasche Wasser + 60g Carbs.",
+    "technique": "Kadenz-Kontrolle: Vermeide Wippen im Sattel bei hoher Frequenz.",
+    "video_url": "https://www.youtube.com/watch?v=Tq_wdIXXKcY"
+  },
+  {
+    "date": "2026-01-11",
+    "week": "Woche 2",
+    "title": "Long Gravel Ride (Sand)",
+    "duration": "3h",
+    "desc": "Suche dir bewusst schlechte Wege. Sand und Matsch zwingen dich zu mehr Balance. Bleib entspannt.",
+    "intervals_code": "- 180m 60-70% FTP (Free Ride)\n- Fokus: 5x kurze Sand-Passagen durchdrücken",
+    "nutrition": "3h Fahrt = 3 Scoops Power Carb + 1 Riegel nach 1.5h.",
+    "technique": "Sand fahren: Gewicht nach hinten, leichter Gang, Lenker locker.",
+    "video_url": "https://www.youtube.com/watch?v=M5fqQFSgB2Q"
+  },
+  {
+    "date": "2026-01-13",
+    "week": "Woche 3",
+    "title": "VO2max Micro-Bursts",
+    "duration": "1h",
+    "desc": "Kurz und hart. Diese 30/30 Intervalle heben deine maximale Sauerstoffaufnahme an. Zähne zusammenbeißen!",
+    "intervals_code": "- 15m 50%\n- 2x 10m (30s 120% / 30s 50%) (5m 50% R)\n- 15m 50%",
+    "nutrition": "Wasser mit Elektrolyten (kurze Einheit).",
+    "technique": "Wiegetritt: Die ersten 5 Sek. im Stehen beschleunigen.",
+    "video_url": "https://www.youtube.com/watch?v=bOIs8MfkCME"
+  },
+  {
+    "date": "2026-01-18",
+    "week": "Woche 3",
+    "title": "Big Gear Endurance",
+    "duration": "3h",
+    "desc": "Die Königsetappe im Januar. Kette rechts! Wir simulieren lange, flache Anstiege gegen den Wind.",
+    "intervals_code": "- 30m 60%\n- 4x 15m 80-85% 'Sweetspot' 60rpm (10m 60% R)\n- Rest 65%",
+    "nutrition": "Wettkampf-Simulation: 80g Carbs pro Stunde testen.",
+    "technique": "Kurven auf Schotter: Rad unter dir neigen (Bike-Body-Separation).",
+    "video_url": "https://www.youtube.com/watch?v=GF0LfwuK-rc"
+  },
+  {
+    "date": "2026-01-20",
+    "week": "Woche 4",
+    "title": "Recovery Spin",
+    "duration": "45m",
+    "desc": "Erholungswoche. Ganz locker kurbeln, um die Beine auszuschütteln. Kein Druck!",
+    "intervals_code": "- 45m 50-55% FTP steady state",
+    "nutrition": "Nur Wasser.",
+    "technique": "Souplesse: Versuche so geschmeidig wie möglich zu treten.",
+    "video_url": ""
+  },
+  {
+    "date": "2026-01-25",
+    "week": "Woche 4",
+    "title": "Social Ride / Free",
+    "duration": "2h",
+    "desc": "Spaßfahrt. Kopf frei bekommen. Fahre, worauf du Lust hast, aber vermeide rote Bereiche.",
+    "intervals_code": "- 120m HR < 75% Max (Zone 1/2)",
+    "nutrition": "1 Riegel als Reserve.",
+    "technique": "Blickführung: Schau weit voraus in die Kurve.",
+    "video_url": "https://www.youtube.com/watch?v=t1Eqt6tZdw4"
+  }
+]
