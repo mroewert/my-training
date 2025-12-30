@@ -3,7 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Gravel Coach v5.0</title>
+    <title>Gravel Coach</title>
+    
+    <link rel="icon" type="image/png" href="Icon.png">
+    <link rel="apple-touch-icon" href="Icon.png">
+    <link rel="shortcut icon" href="Icon.png">
+    
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#1A2233">
+
     <style>
         :root {
             --bg: #F4F6F8;
@@ -40,6 +49,8 @@
             margin: 0;
             padding: 15px;
             padding-bottom: 80px;
+            /* Verhindert "Bounce" Effekt beim Scrollen */
+            overscroll-behavior-y: none; 
         }
 
         /* HEADER & BADGES */
@@ -249,7 +260,7 @@
     <div class="fab" onclick="openSettings()">⚙️</div>
 
     <header>
-        <h1>Ultra Gravel <span>v5.0</span></h1>
+        <h1>Ultra Gravel <span>v5.1</span></h1>
         <div class="sub-header" id="plan-date-range">Plan laden...</div>
 
         <div class="stats-row">
@@ -331,7 +342,6 @@
             const container = document.getElementById('workout-list');
             container.innerHTML = '';
 
-            // Filter for week, but sort by Date
             const filtered = workouts
                 .filter(w => w.week === activeWeek)
                 .sort((a,b) => new Date(a.date) - new Date(b.date));
@@ -342,7 +352,6 @@
             }
 
             filtered.forEach((w) => {
-                // We need the ID from the main array
                 const globalIndex = workouts.indexOf(w);
                 
                 const dateObj = new Date(w.date);
@@ -409,12 +418,10 @@
 
         function saveAndRender() {
             localStorage.setItem('gravelPlanV5', JSON.stringify(workouts));
-            // Recalculate range and tabs if needed (e.g. if moved to another week context, though keeping week label static is better for now)
             updateDateRange();
             renderWorkouts();
         }
 
-        /* SETTINGS */
         function openSettings() { document.getElementById('settings-modal').style.display = 'block'; }
         function closeSettings() { document.getElementById('settings-modal').style.display = 'none'; }
         
@@ -426,9 +433,8 @@
                     json.forEach(w => { if(w.done === undefined) w.done = false; });
                     workouts = json;
                     saveAndRender();
-                    renderTabs(); // Re-render tabs in case weeks changed
+                    renderTabs(); 
                     closeSettings();
-                    // Reset to first week
                     if(workouts.length > 0) activeWeek = workouts[0].week;
                     renderTabs();
                     renderWorkouts();
