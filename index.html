@@ -506,6 +506,15 @@
             gap: 10px;
         }
 
+        .weather-alert.good {
+            background: linear-gradient(90deg, rgba(34, 197, 94, 0.15), transparent);
+            border-left-color: var(--status-green);
+        }
+
+        .weather-good {
+            color: var(--status-green) !important;
+        }
+
         .weather-icon {
             font-size: 24px;
         }
@@ -1681,21 +1690,19 @@
                     `;
                 }
 
-                // Weather HTML
+                // Weather HTML - always show for future workouts
                 let weatherHtml = '';
-                if (weather && isFutureDate(workout.date) && !isCompleted) {
+                if (weather && !isCompleted) {
                     const warning = weatherWarning;
-                    if (warning || weather.rainProb > 30) {
-                        weatherHtml = `
-                            <div class="weather-alert">
-                                <span class="weather-icon">${getWeatherIcon(weather.code)}</span>
-                                <div class="weather-info">
-                                    <div class="weather-temp">${weather.temp}°C | ${weather.rainProb}% Regen</div>
-                                    ${warning ? `<div class="weather-desc">${warning.text}</div>` : ''}
-                                </div>
+                    weatherHtml = `
+                        <div class="weather-alert ${warning ? 'has-warning' : 'good'}">
+                            <span class="weather-icon">${getWeatherIcon(weather.code)}</span>
+                            <div class="weather-info">
+                                <div class="weather-temp">${weather.temp}°C | ${weather.rainProb}% Regen</div>
+                                ${warning ? `<div class="weather-desc">${warning.text}</div>` : '<div class="weather-desc weather-good">Gute Bedingungen</div>'}
                             </div>
-                        `;
-                    }
+                        </div>
+                    `;
                 }
 
                 // Coach Notes HTML
