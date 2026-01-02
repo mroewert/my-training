@@ -1310,6 +1310,53 @@
         </div>
     </div>
 
+    <!-- Edit Workout Modal -->
+    <div class="modal-overlay" id="modal-edit">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Workout bearbeiten</h2>
+                <button class="modal-close" onclick="closeEdit()">✕</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">Datum</label>
+                    <input type="date" class="form-input" id="edit-date">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Titel</label>
+                    <input type="text" class="form-input" id="edit-title">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Dauer</label>
+                    <input type="text" class="form-input" id="edit-duration" placeholder="z.B. 1h oder 90m">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Beschreibung</label>
+                    <textarea class="form-input" id="edit-desc" style="min-height: 60px;"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Nutrition</label>
+                    <textarea class="form-input" id="edit-nutrition" style="min-height: 60px;"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Coach-Notiz</label>
+                    <textarea class="form-input" id="edit-coach-notes" placeholder="Anpassungshinweise vom AI Coach" style="min-height: 60px;"></textarea>
+                </div>
+
+                <button class="btn-primary" onclick="saveEdit()">Speichern</button>
+                
+                <div class="divider"></div>
+                
+                <button class="btn-danger" onclick="deleteWorkoutFromEdit()">🗑 Workout löschen</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         // ============================================
         // STATE
@@ -1929,7 +1976,7 @@
                             </div>
                             <div class="card-header-right">
                                 <span class="card-duration">${workout.duration}</span>
-                                <button class="btn-edit" onclick="toggleEdit('${workout.id}')">✎</button>
+                                <button class="btn-edit" onclick="openEdit('${workout.id}')">✎</button>
                             </div>
                         </div>
                     </div>
@@ -1961,10 +2008,7 @@
                         ${coachNotesHtml}
                         
                         <div class="card-actions">
-                            <div class="card-actions-left">
-                                <button class="btn-action btn-delete hidden" onclick="deleteWorkout('${workout.id}')">🗑 Löschen</button>
-                            </div>
-                            <div class="card-actions-right">
+                            <div class="card-actions-right" style="margin-left: auto;">
                                 ${!isCompleted ? `<button class="btn-action btn-log" onclick="openLog('${workout.id}')">Training loggen</button>` : ''}
                                 <button class="btn-action btn-complete ${isCompleted ? 'active' : ''}" onclick="toggleComplete('${workout.id}')">
                                     ${isCompleted ? '✓ Erledigt' : 'Erledigt'}
@@ -1991,6 +2035,68 @@
         // ============================================
         // ACTIONS
         // ============================================
+        let currentEditWorkoutId = null;
+
+        function openEdit(id) {
+            currentEditWorkoutId = id;
+            const workout = workouts.find(w => w.id === id);
+            
+            document.getElementById('edit-date').value = workout.date;
+            document.getElementById('edit-title').value = workout.title;
+            document.getElementById('edit-duration').value = workout.duration;
+            document.getElementById('edit-desc').value = workout.desc || '';
+            document.getElementById('edit-nutrition').value = workout.nutrition || '';
+            document.getElementById('edit-coach-notes').value = workout.coach_notes || '';
+            
+            document.getElementById('modal-edit').classList.add('active');
+        }
+
+        function closeEdit() {
+            document.getElementById('modal-edit').classList.remove('active');
+            currentEditWorkoutId = null;
+        }
+
+        function saveEdit() {
+            if (!currentEditWorkoutId) return;
+            
+            const newDate = document.getElementById('edit-date').value;
+            const newTitle = document.getElementById('edit-title').value;
+            const newDuration = document.getElementById('edit-duration').value;
+            const newDesc = document.getElementById('edit-desc').value;
+            const newNutrition = document.getElementById('edit-nutrition').value;
+            const newCoachNotes = document.getElementById('edit-coach-notes').value;
+            
+            // Update workout
+            workouts = workouts.map(w => {
+                if (w.id === currentEditWorkoutId) {
+                    return {
+                        ...w,
+                        date: newDate,
+                        title: newTitle,
+                        duration: newDuration,
+                        desc: newDesc,
+                        nutrition: newNutrition,
+                        coach_notes: newCoachNotes
+                    };
+                }
+                return w;
+            });
+            
+            saveData();
+            closeEdit();
+            renderWeekTabs();
+            renderWorkouts();
+            updateWeekSummary();
+            updateFormCurve();
+        }
+
+        function deleteWorkoutFromEdit() {
+            if (currentEditWorkoutId) {
+                deleteWorkout(currentEditWorkoutId);
+                closeEdit();
+            }
+        }
+
         function toggleComplete(id) {
             completed[id] = !completed[id];
             saveData();
@@ -2011,15 +2117,6 @@
                 updateWeekSummary();
                 updateFormCurve();
             }
-        }
-
-        function toggleEdit(id) {
-            const card = document.querySelector(`[onclick="toggleComplete('${id}')"]`).closest('.workout-card');
-            const deleteBtn = card.querySelector('.btn-delete');
-            const editBtn = card.querySelector('.btn-edit');
-            
-            deleteBtn.classList.toggle('hidden');
-            editBtn.classList.toggle('active');
         }
 
         function toggleCompactMode() {
