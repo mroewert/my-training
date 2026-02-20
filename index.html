@@ -1327,6 +1327,110 @@
         .card-body-tabbed .info-box {
             margin-bottom: 0;
         }
+
+        /* ============================================
+           PLAN OVERVIEW
+        ============================================ */
+        .plan-week {
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .plan-week:last-child { border-bottom: none; }
+
+        .plan-week.current {
+            border-left: 3px solid var(--accent-primary);
+            padding-left: 12px;
+            margin-left: -4px;
+        }
+
+        .plan-week-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--text-secondary);
+        }
+
+        .plan-week-header .plan-week-progress {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-muted);
+        }
+
+        .plan-workout-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 6px 8px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.15s;
+            font-size: 13px;
+        }
+
+        .plan-workout-row:hover { background: var(--bg-elevated); }
+
+        .plan-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .plan-dot.recovery { background: var(--status-green); }
+        .plan-dot.endurance { background: var(--status-blue); }
+        .plan-dot.threshold { background: var(--status-red); }
+        .plan-dot.sweetspot { background: var(--accent-primary); }
+
+        .plan-workout-date {
+            color: var(--text-muted);
+            font-size: 12px;
+            min-width: 52px;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .plan-workout-title {
+            flex: 1;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .plan-workout-duration {
+            color: var(--text-muted);
+            font-size: 12px;
+            white-space: nowrap;
+        }
+
+        .plan-workout-status {
+            width: 20px;
+            text-align: center;
+            flex-shrink: 0;
+            font-size: 14px;
+        }
+
+        .plan-workout-row.completed {
+            opacity: 0.5;
+        }
+
+        .plan-workout-row.completed .plan-workout-title {
+            text-decoration: line-through;
+        }
+
+        .plan-workout-row.is-today {
+            background: rgba(232, 148, 76, 0.1);
+            border: 1px solid rgba(232, 148, 76, 0.3);
+        }
+
+        .plan-empty {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-muted);
+            font-size: 14px;
+        }
     </style>
 </head>
 <body>
@@ -1347,6 +1451,7 @@
                 <button class="btn-collapse" id="btn-collapse" onclick="toggleHeaderCollapse()" title="Header einklappen">
                     <span class="chevron">▲</span>
                 </button>
+                <button class="btn-icon btn-view" onclick="openPlanOverview()" title="Gesamtplan">📋</button>
                 <button class="btn-icon btn-view" onclick="toggleCompactMode()" id="btn-compact" title="Kompakt-Ansicht">☰</button>
                 <button class="btn-icon btn-import" onclick="openImport()" title="Import">＋</button>
             </div>
@@ -1574,6 +1679,17 @@
                 
                 <button class="btn-danger" onclick="deleteWorkoutFromEdit()">🗑 Workout löschen</button>
             </div>
+        </div>
+    </div>
+
+    <!-- Plan Overview Modal -->
+    <div class="modal-overlay" id="modal-plan">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Gesamtplan</h2>
+                <button class="modal-close" onclick="closePlanOverview()">✕</button>
+            </div>
+            <div class="modal-body" id="plan-body"></div>
         </div>
     </div>
 
@@ -2412,6 +2528,84 @@
                 deleteWorkout(currentEditWorkoutId);
                 closeEdit();
             }
+        }
+
+        // ============================================
+        // PLAN OVERVIEW
+        // ============================================
+        function openPlanOverview() {
+            const weeks = getWeeks();
+            const body = document.getElementById('plan-body');
+
+            if (weeks.length === 0) {
+                body.innerHTML = '<div class="plan-empty">Kein Trainingsplan geladen.<br>Importiere einen Plan über den ＋ Button.</div>';
+                document.getElementById('modal-plan').classList.add('active');
+                return;
+            }
+
+            const today = new Date();
+            const todayStr = today.toISOString().split('T')[0];
+            const currentWeekNum = getWeekNumber(today);
+            const currentYear = today.getFullYear();
+
+            let html = '';
+            weeks.forEach((week, idx) => {
+                const weekDate = new Date(week[0].date);
+                const weekNum = getWeekNumber(weekDate);
+                const weekYear = weekDate.getFullYear();
+                const isCurrent = weekNum === currentWeekNum && weekYear === currentYear;
+                const completedCount = week.filter(w => completed[w.id]).length;
+
+                let targetMin = 0;
+                week.forEach(w => {
+                    const d = w.duration || '';
+                    const hMatch = d.match(/(\d+)\s*h/);
+                    const mMatch = d.match(/(\d+)\s*m/);
+                    targetMin += (hMatch ? parseInt(hMatch[1]) * 60 : 0) + (mMatch ? parseInt(mMatch[1]) : 0);
+                });
+                const targetH = Math.round(targetMin / 60 * 10) / 10;
+
+                html += `<div class="plan-week${isCurrent ? ' current' : ''}">`;
+                html += `<div class="plan-week-header">`;
+                html += `<span>KW ${weekNum} · ${targetH}h</span>`;
+                html += `<span class="plan-week-progress">${completedCount}/${week.length} erledigt</span>`;
+                html += `</div>`;
+
+                week.forEach(w => {
+                    const isDone = completed[w.id];
+                    const isTodayWorkout = w.date === todayStr;
+                    const intensity = getIntensityClass(w.title);
+                    const rowClasses = ['plan-workout-row'];
+                    if (isDone) rowClasses.push('completed');
+                    if (isTodayWorkout) rowClasses.push('is-today');
+
+                    html += `<div class="${rowClasses.join(' ')}" onclick="navigateToWeek(${idx})">`;
+                    html += `<span class="plan-dot ${intensity}"></span>`;
+                    html += `<span class="plan-workout-date">${formatDate(w.date)}</span>`;
+                    html += `<span class="plan-workout-title">${w.title}</span>`;
+                    html += `<span class="plan-workout-duration">${w.duration || ''}</span>`;
+                    html += `<span class="plan-workout-status">${isDone ? '✓' : ''}</span>`;
+                    html += `</div>`;
+                });
+
+                html += `</div>`;
+            });
+
+            body.innerHTML = html;
+            document.getElementById('modal-plan').classList.add('active');
+        }
+
+        function closePlanOverview() {
+            document.getElementById('modal-plan').classList.remove('active');
+        }
+
+        function navigateToWeek(idx) {
+            closePlanOverview();
+            selectedWeek = idx;
+            renderWeekTabs();
+            renderWorkouts();
+            updateWeekSummary();
+            updateFormCurve();
         }
 
         function toggleComplete(id) {
