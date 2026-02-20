@@ -18,6 +18,10 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
+    <!-- QR & Compression -->
+    <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/lz-string@1.5.0/libs/lz-string.min.js"></script>
+
     <style>
         :root {
             --bg-deep: #0A0E17;
@@ -1431,6 +1435,64 @@
             color: var(--text-muted);
             font-size: 14px;
         }
+
+        /* ============================================
+           QR SHARE
+        ============================================ */
+        .qr-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 16px;
+            padding: 8px 0;
+        }
+
+        .qr-container canvas {
+            border-radius: var(--radius-sm);
+            max-width: 100%;
+        }
+
+        .qr-hint {
+            font-size: 13px;
+            color: var(--text-muted);
+            text-align: center;
+            line-height: 1.5;
+        }
+
+        .qr-error {
+            font-size: 13px;
+            color: var(--status-red);
+            text-align: center;
+            line-height: 1.5;
+        }
+
+        .btn-share {
+            width: 100%;
+            padding: 14px;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border);
+            background: var(--bg-elevated);
+            color: var(--text-primary);
+            font-size: 15px;
+            font-weight: 600;
+            font-family: inherit;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-share:hover { background: var(--bg-card-light); }
+
+        /* ============================================
+           RESPONSIVE HEADER
+        ============================================ */
+        @media (max-width: 420px) {
+            .header-actions { gap: 4px; }
+            .btn-icon { width: 34px; height: 34px; font-size: 16px; }
+            .btn-collapse { width: 34px; height: 34px; font-size: 14px; }
+            .btn-ftp { padding: 4px 8px; }
+            .btn-ftp .value { font-size: 12px; }
+            .btn-ftp .label { font-size: 8px; }
+        }
     </style>
 </head>
 <body>
@@ -1539,9 +1601,24 @@
                 <div class="strava-status" id="strava-status" style="display: none;"></div>
                 
                 <div class="divider"></div>
-                
+
+                <button class="btn-share" onclick="sharePlanQR()">📤 Plan per QR-Code teilen</button>
+
+                <div class="divider"></div>
+
                 <button class="btn-danger" onclick="resetData()">Alle Daten zurücksetzen</button>
             </div>
+        </div>
+    </div>
+
+    <!-- QR Share Modal -->
+    <div class="modal-overlay" id="modal-share">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Plan teilen</h2>
+                <button class="modal-close" onclick="closeShare()">✕</button>
+            </div>
+            <div class="modal-body" id="share-body"></div>
         </div>
     </div>
 
@@ -2608,6 +2685,128 @@
             updateFormCurve();
         }
 
+        // ============================================
+        // QR SHARE
+        // ============================================
+        function sharePlanQR() {
+            const body = document.getElementById('share-body');
+
+            if (workouts.length === 0) {
+                body.innerHTML = '<div class="plan-empty">Kein Trainingsplan zum Teilen vorhanden.</div>';
+                document.getElementById('modal-share').classList.add('active');
+                return;
+            }
+
+            const planData = {
+                workouts: workouts,
+                ftp: ftp,
+                completed: completed
+            };
+
+            const json = JSON.stringify(planData);
+            const compressed = LZString.compressToEncodedURIComponent(json);
+            const baseUrl = window.location.origin + window.location.pathname;
+            const shareUrl = baseUrl + '#import=' + compressed;
+
+            // QR code max binary capacity ~2953 bytes, but URL-encoded data is alphanumeric
+            // qrcode-generator handles sizing automatically up to version 40
+            try {
+                const qr = qrcode(0, 'L');
+                qr.addData(shareUrl);
+                qr.make();
+
+                const moduleCount = qr.getModuleCount();
+                const cellSize = Math.max(3, Math.floor(280 / moduleCount));
+
+                body.innerHTML = `
+                    <div class="qr-container">
+                        ${qr.createSvgTag(cellSize, 0)}
+                        <div class="qr-hint">
+                            QR-Code mit dem Smartphone scannen.<br>
+                            Der Plan wird automatisch importiert.
+                        </div>
+                    </div>
+                `;
+
+                document.getElementById('modal-share').classList.add('active');
+            } catch (e) {
+                // Data too large for QR code — offer clipboard fallback
+                body.innerHTML = `
+                    <div class="qr-container">
+                        <div class="qr-error">
+                            Plan ist zu groß für einen QR-Code (${json.length} Zeichen).<br>
+                            Nutze stattdessen die Zwischenablage:
+                        </div>
+                        <button class="btn-share" onclick="copyPlanToClipboard()">📋 Plan in Zwischenablage kopieren</button>
+                        <div class="qr-hint">
+                            Auf dem anderen Gerät über ＋ → Einfügen importieren.
+                        </div>
+                    </div>
+                `;
+                document.getElementById('modal-share').classList.add('active');
+            }
+        }
+
+        function copyPlanToClipboard() {
+            const planData = { workouts, ftp, completed };
+            navigator.clipboard.writeText(JSON.stringify(planData)).then(() => {
+                alert('Plan in die Zwischenablage kopiert!');
+            }).catch(() => {
+                // Fallback: select textarea
+                const ta = document.createElement('textarea');
+                ta.value = JSON.stringify(planData);
+                document.body.appendChild(ta);
+                ta.select();
+                document.execCommand('copy');
+                document.body.removeChild(ta);
+                alert('Plan in die Zwischenablage kopiert!');
+            });
+        }
+
+        function closeShare() {
+            document.getElementById('modal-share').classList.remove('active');
+        }
+
+        function checkUrlImport() {
+            const hash = window.location.hash;
+            if (!hash.startsWith('#import=')) return;
+
+            try {
+                const compressed = hash.substring('#import='.length);
+                const json = LZString.decompressFromEncodedURIComponent(compressed);
+                if (!json) throw new Error('Dekomprimierung fehlgeschlagen');
+
+                const data = JSON.parse(json);
+                const imported = data.workouts || data;
+
+                if (!Array.isArray(imported) || imported.length === 0) {
+                    throw new Error('Keine Workouts gefunden');
+                }
+
+                if (data.ftp) ftp = data.ftp;
+                workouts = imported;
+                if (data.completed) completed = { ...completed, ...data.completed };
+
+                saveData();
+                document.getElementById('ftp-display').textContent = ftp + 'W';
+                document.getElementById('settings-ftp').value = ftp;
+
+                selectedWeek = findTodayWeek();
+                renderWeekTabs();
+                renderWorkouts();
+                updateWeekSummary();
+                updateFormCurve();
+
+                // Clean URL
+                window.history.replaceState({}, document.title, window.location.pathname);
+                alert(`${imported.length} Workouts per QR-Code importiert!`);
+            } catch (e) {
+                console.error('QR Import error:', e);
+                alert('QR-Import fehlgeschlagen: ' + e.message);
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }
+        }
+
         function toggleComplete(id) {
             completed[id] = !completed[id];
             saveData();
@@ -3016,6 +3215,7 @@
             loadData();
             loadStravaTokens();
             handleStravaCallback();
+            checkUrlImport();
             loadHeaderCollapseState();
             
             selectedWeek = findTodayWeek();
