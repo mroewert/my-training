@@ -1113,6 +1113,220 @@
            UTILITY
         ============================================ */
         .hidden { display: none !important; }
+
+        /* ============================================
+           COLLAPSIBLE HEADER
+        ============================================ */
+        .header-collapsible {
+            max-height: 500px;
+            overflow: hidden;
+            transition: max-height 0.4s ease, opacity 0.3s ease;
+            opacity: 1;
+        }
+
+        .header-collapsible.collapsed {
+            max-height: 0;
+            opacity: 0;
+        }
+
+        .btn-collapse {
+            width: 40px;
+            height: 40px;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border);
+            background: var(--bg-card);
+            color: var(--text-secondary);
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn-collapse:hover { background: var(--bg-card-light); }
+
+        .btn-collapse .chevron {
+            display: inline-block;
+            transition: transform 0.3s ease;
+        }
+
+        .btn-collapse.collapsed .chevron {
+            transform: rotate(180deg);
+        }
+
+        /* ============================================
+           HERO WORKOUT
+        ============================================ */
+        .hero-workout {
+            background: linear-gradient(135deg, var(--bg-card) 0%, rgba(232, 148, 76, 0.12) 100%);
+            border: 1px solid var(--accent-primary);
+            border-radius: var(--radius);
+            margin-bottom: 24px;
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 0 40px var(--accent-glow), inset 0 0 40px rgba(232, 148, 76, 0.05);
+            animation: heroGlow 3s ease-in-out infinite;
+        }
+
+        .hero-workout.completed {
+            opacity: 0.6;
+            filter: grayscale(0.3);
+            animation: none;
+            box-shadow: 0 0 20px rgba(34, 197, 94, 0.2);
+            border-color: var(--status-green);
+        }
+
+        @keyframes heroGlow {
+            0%, 100% { box-shadow: 0 0 30px var(--accent-glow), inset 0 0 30px rgba(232, 148, 76, 0.05); }
+            50% { box-shadow: 0 0 50px var(--accent-glow), inset 0 0 50px rgba(232, 148, 76, 0.08); }
+        }
+
+        .hero-label {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: var(--accent-primary);
+            color: var(--bg-deep);
+            font-size: 11px;
+            font-weight: 700;
+            padding: 6px 14px;
+            border-radius: 0 0 var(--radius-sm) 0;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .hero-body {
+            padding: 20px;
+        }
+
+        .hero-title {
+            font-size: 22px;
+            font-weight: 800;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+
+        .hero-meta {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .hero-duration {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--accent-primary);
+        }
+
+        .hero-intensity {
+            font-size: 11px;
+            font-weight: 700;
+            padding: 3px 10px;
+            border-radius: 12px;
+            text-transform: uppercase;
+        }
+
+        .hero-intensity.recovery { background: rgba(34, 197, 94, 0.2); color: var(--status-green); }
+        .hero-intensity.endurance { background: rgba(59, 130, 246, 0.2); color: var(--status-blue); }
+        .hero-intensity.threshold { background: rgba(239, 68, 68, 0.2); color: var(--status-red); }
+        .hero-intensity.sweetspot { background: rgba(232, 148, 76, 0.2); color: var(--accent-primary); }
+
+        .hero-desc {
+            font-size: 14px;
+            color: var(--text-secondary);
+            line-height: 1.6;
+            margin-bottom: 16px;
+        }
+
+        .hero-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid var(--border);
+        }
+
+        .hero-actions .btn-action {
+            padding: 12px 20px;
+            font-size: 13px;
+        }
+
+        /* ============================================
+           CARD TABS
+        ============================================ */
+        .card-tabs {
+            display: flex;
+            gap: 4px;
+            padding: 0 14px;
+            margin-bottom: 0;
+            border-bottom: 1px solid var(--border);
+            background: var(--bg-card);
+        }
+
+        .card-tab {
+            padding: 10px 14px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            cursor: pointer;
+            border: none;
+            background: none;
+            color: var(--text-muted);
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .card-tab:hover {
+            color: var(--text-secondary);
+        }
+
+        .card-tab.active {
+            border-bottom-color: currentColor;
+        }
+
+        .card-tab.tab-intervals.active { color: var(--status-green); }
+        .card-tab.tab-nutrition.active { color: var(--status-red); }
+        .card-tab.tab-technique.active { color: var(--status-blue); }
+        .card-tab.tab-coach.active { color: var(--status-purple); }
+
+        .card-tab-content {
+            display: none;
+            padding: 14px;
+        }
+
+        .card-tab-content.active {
+            display: block;
+        }
+
+        .card-body-always {
+            padding: 14px;
+        }
+
+        .card-body-always .card-desc {
+            margin-bottom: 0;
+        }
+
+        .card-body-always .weather-alert {
+            margin-top: 12px;
+            margin-bottom: 0;
+        }
+
+        .card-body-always .comparison-box {
+            margin-top: 12px;
+            margin-bottom: 0;
+        }
+
+        .card-body-tabbed .intervals-box {
+            margin-bottom: 0;
+        }
+
+        .card-body-tabbed .info-box {
+            margin-bottom: 0;
+        }
     </style>
 </head>
 <body>
@@ -1130,40 +1344,46 @@
                     <span class="label">FTP</span>
                     <span class="value" id="ftp-display">185W</span>
                 </button>
+                <button class="btn-collapse" id="btn-collapse" onclick="toggleHeaderCollapse()" title="Header einklappen">
+                    <span class="chevron">▲</span>
+                </button>
                 <button class="btn-icon btn-view" onclick="toggleCompactMode()" id="btn-compact" title="Kompakt-Ansicht">☰</button>
                 <button class="btn-icon btn-import" onclick="openImport()" title="Import">＋</button>
             </div>
         </div>
 
-        <!-- Week Summary -->
-        <div class="week-summary" id="week-summary">
-            <div class="summary-item">
-                <div class="label">Soll</div>
-                <div class="value" id="summary-target">0h</div>
+        <!-- Collapsible: Summary + Form Curve -->
+        <div class="header-collapsible" id="header-collapsible">
+            <!-- Week Summary -->
+            <div class="week-summary" id="week-summary">
+                <div class="summary-item">
+                    <div class="label">Soll</div>
+                    <div class="value" id="summary-target">0h</div>
+                </div>
+                <div class="summary-item">
+                    <div class="label">Ist</div>
+                    <div class="value" id="summary-actual">0h</div>
+                    <div class="sub" id="summary-percent">0%</div>
+                </div>
+                <div class="summary-item">
+                    <div class="label">Erledigt</div>
+                    <div class="value" id="summary-completed">0/0</div>
+                </div>
+                <div class="summary-item">
+                    <div class="label">Trend</div>
+                    <div class="value" id="summary-trend">→</div>
+                    <div class="sub" id="summary-trend-text">Stabil</div>
+                </div>
             </div>
-            <div class="summary-item">
-                <div class="label">Ist</div>
-                <div class="value" id="summary-actual">0h</div>
-                <div class="sub" id="summary-percent">0%</div>
-            </div>
-            <div class="summary-item">
-                <div class="label">Erledigt</div>
-                <div class="value" id="summary-completed">0/0</div>
-            </div>
-            <div class="summary-item">
-                <div class="label">Trend</div>
-                <div class="value" id="summary-trend">→</div>
-                <div class="sub" id="summary-trend-text">Stabil</div>
-            </div>
-        </div>
 
-        <!-- Form Curve -->
-        <div class="form-curve" id="form-curve">
-            <div class="form-curve-header">
-                <span class="form-curve-title">Formkurve (4 Wochen)</span>
-                <span class="form-status" id="form-status">Aufbau</span>
+            <!-- Form Curve -->
+            <div class="form-curve" id="form-curve">
+                <div class="form-curve-header">
+                    <span class="form-curve-title">Formkurve (4 Wochen)</span>
+                    <span class="form-status" id="form-status">Aufbau</span>
+                </div>
+                <div class="form-bars" id="form-bars"></div>
             </div>
-            <div class="form-bars" id="form-bars"></div>
         </div>
 
         <!-- Week Tabs -->
@@ -1371,6 +1591,7 @@
         let currentLogWorkoutId = null;
         let selectedFeeling = 5;
         let weatherCache = {};
+        let headerCollapsed = false;
 
         // ============================================
         // STRAVA CONFIGURATION
@@ -1808,6 +2029,37 @@
         }
 
         // ============================================
+        // HEADER COLLAPSE
+        // ============================================
+        function toggleHeaderCollapse() {
+            headerCollapsed = !headerCollapsed;
+            const el = document.getElementById('header-collapsible');
+            const btn = document.getElementById('btn-collapse');
+            el.classList.toggle('collapsed', headerCollapsed);
+            btn.classList.toggle('collapsed', headerCollapsed);
+            localStorage.setItem('gravel-header-collapsed', headerCollapsed ? '1' : '0');
+        }
+
+        function loadHeaderCollapseState() {
+            const saved = localStorage.getItem('gravel-header-collapsed');
+            headerCollapsed = saved === '1';
+            if (headerCollapsed) {
+                document.getElementById('header-collapsible').classList.add('collapsed');
+                document.getElementById('btn-collapse').classList.add('collapsed');
+            }
+        }
+
+        // ============================================
+        // CARD TABS
+        // ============================================
+        function switchCardTab(workoutId, tabId) {
+            const card = document.querySelector(`[data-workout-id="${workoutId}"]`);
+            if (!card) return;
+            card.querySelectorAll('.card-tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tabId));
+            card.querySelectorAll('.card-tab-content').forEach(c => c.classList.toggle('active', c.dataset.tab === tabId));
+        }
+
+        // ============================================
         // RENDER
         // ============================================
         function renderWeekTabs() {
@@ -1837,6 +2089,232 @@
             });
         }
 
+        function buildComparisonHtml(workout, log) {
+            if (!log) return '';
+            const sollDuration = parseDuration(workout.duration);
+            const istDuration = log.duration || sollDuration;
+            const percent = Math.round((istDuration / sollDuration) * 100);
+            const percentClass = percent >= 90 ? 'good' : 'warn';
+
+            return `
+                <div class="comparison-box">
+                    <div class="comparison-title">
+                        Soll-Ist Vergleich
+                        ${log.stravaActivity ? '<span class="strava-badge">STRAVA</span>' : ''}
+                    </div>
+                    <div class="comparison-grid">
+                        <div class="comparison-item">
+                            <div class="label">Dauer</div>
+                            <div class="value">${istDuration}m / ${sollDuration}m</div>
+                            <div class="diff ${percentClass}">${percent}%</div>
+                        </div>
+                        ${log.avgPower ? `
+                        <div class="comparison-item">
+                            <div class="label">Ø Leistung</div>
+                            <div class="value">${log.avgPower}W</div>
+                            <div class="diff">${Math.round((log.avgPower / ftp) * 100)}% FTP</div>
+                        </div>
+                        ` : ''}
+                        ${log.normalizedPower ? `
+                        <div class="comparison-item">
+                            <div class="label">NP</div>
+                            <div class="value">${log.normalizedPower}W</div>
+                            <div class="diff">${Math.round((log.normalizedPower / ftp) * 100)}% FTP</div>
+                        </div>
+                        ` : ''}
+                    </div>
+                    ${(log.distance || log.avgHr || log.calories) ? `
+                    <div class="comparison-grid" style="margin-top: 10px;">
+                        ${log.distance ? `
+                        <div class="comparison-item">
+                            <div class="label">Distanz</div>
+                            <div class="value">${log.distance} km</div>
+                        </div>
+                        ` : ''}
+                        ${log.avgHr ? `
+                        <div class="comparison-item">
+                            <div class="label">Ø HR</div>
+                            <div class="value">${log.avgHr} bpm</div>
+                            ${log.maxHr ? `<div class="diff">Max: ${log.maxHr}</div>` : ''}
+                        </div>
+                        ` : ''}
+                        ${log.calories ? `
+                        <div class="comparison-item">
+                            <div class="label">Kalorien</div>
+                            <div class="value">${log.calories} kcal</div>
+                            ${log.tss ? `<div class="diff">TSS: ${log.tss}</div>` : ''}
+                        </div>
+                        ` : ''}
+                    </div>
+                    ` : ''}
+                    <div class="comparison-feeling">
+                        <span class="label">Gefühl:</span> ${'⭐'.repeat(log.feeling || 3)}
+                    </div>
+                    ${log.notes ? `<div class="comparison-notes">${log.notes}</div>` : ''}
+                </div>
+            `;
+        }
+
+        function buildWeatherHtml(weather, weatherWarning, isCompleted) {
+            if (!weather || isCompleted) return '';
+            const warning = weatherWarning;
+            return `
+                <div class="weather-alert ${warning ? 'has-warning' : 'good'}">
+                    <span class="weather-icon">${getWeatherIcon(weather.code)}</span>
+                    <div class="weather-info">
+                        <div class="weather-temp">${weather.temp}°C | ${weather.rainProb}% Regen</div>
+                        ${warning ? `<div class="weather-desc">${warning.text}</div>` : '<div class="weather-desc weather-good">Gute Bedingungen</div>'}
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderHeroWorkout(workout, container) {
+            const isComp = completed[workout.id];
+            const log = activityLogs[workout.id];
+            const intensityClass = getIntensityClass(workout.title);
+            const comparisonHtml = buildComparisonHtml(workout, log);
+
+            const hero = document.createElement('div');
+            hero.className = 'hero-workout' + (isComp ? ' completed' : '');
+
+            hero.innerHTML = `
+                <div class="hero-label">Heute dran</div>
+                <div class="hero-body">
+                    <div class="hero-title">${workout.title}</div>
+                    <div class="hero-meta">
+                        <span class="hero-duration">${workout.duration}</span>
+                        <span class="hero-intensity ${intensityClass}">${intensityClass}</span>
+                    </div>
+                    <p class="hero-desc">${workout.desc}</p>
+                    ${workout.intervals ? `
+                    <div class="intervals-box">
+                        <pre class="intervals-text">${workout.intervals}</pre>
+                    </div>
+                    ` : ''}
+                    ${comparisonHtml}
+                    <div class="hero-actions">
+                        <button class="btn-edit" onclick="openEdit('${workout.id}')" style="width:auto;height:auto;padding:10px 16px;border-radius:24px;font-size:12px;">✎ Bearbeiten</button>
+                        ${!isComp ? `<button class="btn-action btn-log" onclick="openLog('${workout.id}')">Training loggen</button>` : ''}
+                        <button class="btn-action btn-complete ${isComp ? 'active' : ''}" onclick="toggleComplete('${workout.id}')" style="margin-left:auto;">
+                            ${isComp ? '✓ Erledigt' : 'Erledigt'}
+                        </button>
+                    </div>
+                </div>
+            `;
+            container.appendChild(hero);
+        }
+
+        async function renderWorkoutCard(workout, allWorkouts, container, index) {
+            const isCompleted = completed[workout.id];
+            const isTodayWorkout = isToday(workout.date);
+            const log = activityLogs[workout.id];
+            const intensityClass = getIntensityClass(workout.title);
+            const weather = await fetchWeather(workout.date);
+            const weatherWarning = getWeatherWarning(weather);
+
+            const comparisonHtml = buildComparisonHtml(workout, log);
+            const weatherHtml = buildWeatherHtml(weather, weatherWarning, isCompleted);
+
+            // Build tabs for sections that have content
+            const tabs = [];
+            if (workout.intervals) tabs.push({ id: 'intervals', label: 'Intervalle', cls: 'tab-intervals' });
+            if (workout.nutrition) tabs.push({ id: 'nutrition', label: 'Nutrition', cls: 'tab-nutrition' });
+            if (workout.technique) tabs.push({ id: 'technique', label: 'Technik', cls: 'tab-technique' });
+            if (workout.coach_notes) tabs.push({ id: 'coach', label: 'Coach', cls: 'tab-coach' });
+
+            const hasTabs = tabs.length > 0;
+            const firstTabId = hasTabs ? tabs[0].id : '';
+
+            // Tab bar HTML
+            let tabBarHtml = '';
+            if (hasTabs) {
+                tabBarHtml = `<div class="card-tabs">${tabs.map(t =>
+                    `<button class="card-tab ${t.cls}${t.id === firstTabId ? ' active' : ''}" data-tab="${t.id}" onclick="switchCardTab('${workout.id}','${t.id}')">${t.label}</button>`
+                ).join('')}</div>`;
+            }
+
+            // Tab content HTML
+            let tabContentHtml = '';
+            if (workout.intervals) {
+                tabContentHtml += `<div class="card-tab-content card-body-tabbed${firstTabId === 'intervals' ? ' active' : ''}" data-tab="intervals">
+                    <div class="intervals-box"><pre class="intervals-text">${workout.intervals}</pre></div>
+                </div>`;
+            }
+            if (workout.nutrition) {
+                tabContentHtml += `<div class="card-tab-content card-body-tabbed${firstTabId === 'nutrition' ? ' active' : ''}" data-tab="nutrition">
+                    <div class="info-box nutrition"><div class="info-label">Nutrition</div><div class="info-text">${workout.nutrition}</div></div>
+                </div>`;
+            }
+            if (workout.technique) {
+                tabContentHtml += `<div class="card-tab-content card-body-tabbed${firstTabId === 'technique' ? ' active' : ''}" data-tab="technique">
+                    <div class="info-box technique"><div class="info-label">Technik</div><div class="info-text">${workout.technique}</div>${workout.video_url ? `<a href="${workout.video_url}" target="_blank" class="btn-video">▶ Video</a>` : ''}</div>
+                </div>`;
+            }
+            if (workout.coach_notes) {
+                tabContentHtml += `<div class="card-tab-content card-body-tabbed${firstTabId === 'coach' ? ' active' : ''}" data-tab="coach">
+                    <div class="info-box coach-notes"><div class="info-label">Coach Notiz</div><div class="info-text">${workout.coach_notes}</div></div>
+                </div>`;
+            }
+
+            const card = document.createElement('div');
+            card.className = 'workout-card' +
+                (isCompleted ? ' completed' : '') +
+                (isTodayWorkout ? ' is-today' : '') +
+                (compactMode ? ' compact-view' : '');
+            card.style.animationDelay = `${index * 0.05}s`;
+            card.dataset.workoutId = workout.id;
+
+            card.innerHTML = `
+                <div class="card-header">
+                    <div class="intensity-bar ${intensityClass}"></div>
+                    <div class="card-header-content">
+                        <div class="card-header-left">
+                            <div class="card-date-row">
+                                <span class="card-date">${formatDate(workout.date)}</span>
+                                ${isTodayWorkout ? '<span class="today-badge">Heute</span>' : ''}
+                            </div>
+                            <div class="card-title">${workout.title}</div>
+                        </div>
+                        <div class="card-header-right">
+                            <span class="card-duration">${workout.duration}</span>
+                            <button class="btn-edit" onclick="openEdit('${workout.id}')">✎</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-body full">
+                    <div class="card-body-always">
+                        <p class="card-desc">${workout.desc}</p>
+                        ${weatherHtml}
+                        ${comparisonHtml}
+                    </div>
+                    ${tabBarHtml}
+                    ${tabContentHtml}
+                    <div class="card-actions" style="margin: 0 14px; padding: 14px 0;">
+                        <div class="card-actions-right" style="margin-left: auto;">
+                            ${!isCompleted ? `<button class="btn-action btn-log" onclick="openLog('${workout.id}')">Training loggen</button>` : ''}
+                            <button class="btn-action btn-complete ${isCompleted ? 'active' : ''}" onclick="toggleComplete('${workout.id}')">
+                                ${isCompleted ? '✓ Erledigt' : 'Erledigt'}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-body compact">
+                    <span class="compact-status">${isCompleted ? '✓ Erledigt' : ''}</span>
+                    <div class="compact-actions">
+                        ${!isCompleted ? `<button class="btn-action btn-log" onclick="openLog('${workout.id}')">Loggen</button>` : ''}
+                        <button class="btn-action btn-complete ${isCompleted ? 'active' : ''}" onclick="toggleComplete('${workout.id}')">
+                            ${isCompleted ? '✓' : '○'}
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            container.appendChild(card);
+        }
+
         async function renderWorkouts() {
             const weeks = getWeeks();
             const currentWeekWorkouts = weeks[selectedWeek] || [];
@@ -1855,180 +2333,19 @@
 
             container.innerHTML = '';
 
+            // Find today's workout for hero rendering
+            const todayWorkout = !compactMode ? currentWeekWorkouts.find(w => isToday(w.date)) : null;
+
+            // Render hero if there's a today workout
+            if (todayWorkout) {
+                renderHeroWorkout(todayWorkout, container);
+            }
+
+            // Render remaining cards (skip today's workout if hero was rendered)
+            let cardIndex = 0;
             for (const workout of currentWeekWorkouts) {
-                const isCompleted = completed[workout.id];
-                const isTodayWorkout = isToday(workout.date);
-                const log = activityLogs[workout.id];
-                const intensityClass = getIntensityClass(workout.title);
-                const weather = await fetchWeather(workout.date);
-                const weatherWarning = getWeatherWarning(weather);
-
-                // Soll-Ist Vergleich
-                let comparisonHtml = '';
-                if (log) {
-                    const sollDuration = parseDuration(workout.duration);
-                    const istDuration = log.duration || sollDuration;
-                    const percent = Math.round((istDuration / sollDuration) * 100);
-                    const percentClass = percent >= 90 ? 'good' : 'warn';
-
-                    comparisonHtml = `
-                        <div class="comparison-box">
-                            <div class="comparison-title">
-                                Soll-Ist Vergleich
-                                ${log.stravaActivity ? '<span class="strava-badge">STRAVA</span>' : ''}
-                            </div>
-                            <div class="comparison-grid">
-                                <div class="comparison-item">
-                                    <div class="label">Dauer</div>
-                                    <div class="value">${istDuration}m / ${sollDuration}m</div>
-                                    <div class="diff ${percentClass}">${percent}%</div>
-                                </div>
-                                ${log.avgPower ? `
-                                <div class="comparison-item">
-                                    <div class="label">Ø Leistung</div>
-                                    <div class="value">${log.avgPower}W</div>
-                                    <div class="diff">${Math.round((log.avgPower / ftp) * 100)}% FTP</div>
-                                </div>
-                                ` : ''}
-                                ${log.normalizedPower ? `
-                                <div class="comparison-item">
-                                    <div class="label">NP</div>
-                                    <div class="value">${log.normalizedPower}W</div>
-                                    <div class="diff">${Math.round((log.normalizedPower / ftp) * 100)}% FTP</div>
-                                </div>
-                                ` : ''}
-                            </div>
-                            ${(log.distance || log.avgHr || log.calories) ? `
-                            <div class="comparison-grid" style="margin-top: 10px;">
-                                ${log.distance ? `
-                                <div class="comparison-item">
-                                    <div class="label">Distanz</div>
-                                    <div class="value">${log.distance} km</div>
-                                </div>
-                                ` : ''}
-                                ${log.avgHr ? `
-                                <div class="comparison-item">
-                                    <div class="label">Ø HR</div>
-                                    <div class="value">${log.avgHr} bpm</div>
-                                    ${log.maxHr ? `<div class="diff">Max: ${log.maxHr}</div>` : ''}
-                                </div>
-                                ` : ''}
-                                ${log.calories ? `
-                                <div class="comparison-item">
-                                    <div class="label">Kalorien</div>
-                                    <div class="value">${log.calories} kcal</div>
-                                    ${log.tss ? `<div class="diff">TSS: ${log.tss}</div>` : ''}
-                                </div>
-                                ` : ''}
-                            </div>
-                            ` : ''}
-                            <div class="comparison-feeling">
-                                <span class="label">Gefühl:</span> ${'⭐'.repeat(log.feeling || 3)}
-                            </div>
-                            ${log.notes ? `<div class="comparison-notes">${log.notes}</div>` : ''}
-                        </div>
-                    `;
-                }
-
-                // Weather HTML - always show for future workouts
-                let weatherHtml = '';
-                if (weather && !isCompleted) {
-                    const warning = weatherWarning;
-                    weatherHtml = `
-                        <div class="weather-alert ${warning ? 'has-warning' : 'good'}">
-                            <span class="weather-icon">${getWeatherIcon(weather.code)}</span>
-                            <div class="weather-info">
-                                <div class="weather-temp">${weather.temp}°C | ${weather.rainProb}% Regen</div>
-                                ${warning ? `<div class="weather-desc">${warning.text}</div>` : '<div class="weather-desc weather-good">Gute Bedingungen</div>'}
-                            </div>
-                        </div>
-                    `;
-                }
-
-                // Coach Notes HTML
-                let coachNotesHtml = '';
-                if (workout.coach_notes) {
-                    coachNotesHtml = `
-                        <div class="info-box coach-notes">
-                            <div class="info-label">Coach Notiz</div>
-                            <div class="info-text">${workout.coach_notes}</div>
-                        </div>
-                    `;
-                }
-
-                const card = document.createElement('div');
-                card.className = 'workout-card' + 
-                    (isCompleted ? ' completed' : '') + 
-                    (isTodayWorkout ? ' is-today' : '') +
-                    (compactMode ? ' compact-view' : '');
-                card.style.animationDelay = `${currentWeekWorkouts.indexOf(workout) * 0.05}s`;
-
-                card.innerHTML = `
-                    <div class="card-header">
-                        <div class="intensity-bar ${intensityClass}"></div>
-                        <div class="card-header-content">
-                            <div class="card-header-left">
-                                <div class="card-date-row">
-                                    <span class="card-date">${formatDate(workout.date)}</span>
-                                    ${isTodayWorkout ? '<span class="today-badge">Heute</span>' : ''}
-                                </div>
-                                <div class="card-title">${workout.title}</div>
-                            </div>
-                            <div class="card-header-right">
-                                <span class="card-duration">${workout.duration}</span>
-                                <button class="btn-edit" onclick="openEdit('${workout.id}')">✎</button>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="card-body full">
-                        <p class="card-desc">${workout.desc}</p>
-                        
-                        ${weatherHtml}
-                        
-                        <div class="intervals-box">
-                            <pre class="intervals-text">${workout.intervals}</pre>
-                        </div>
-                        
-                        ${comparisonHtml}
-                        
-                        <div class="info-box nutrition">
-                            <div class="info-label">Nutrition</div>
-                            <div class="info-text">${workout.nutrition}</div>
-                        </div>
-                        
-                        ${workout.technique ? `
-                        <div class="info-box technique">
-                            <div class="info-label">Technik</div>
-                            <div class="info-text">${workout.technique}</div>
-                            ${workout.video_url ? `<a href="${workout.video_url}" target="_blank" class="btn-video">▶ Video</a>` : ''}
-                        </div>
-                        ` : ''}
-                        
-                        ${coachNotesHtml}
-                        
-                        <div class="card-actions">
-                            <div class="card-actions-right" style="margin-left: auto;">
-                                ${!isCompleted ? `<button class="btn-action btn-log" onclick="openLog('${workout.id}')">Training loggen</button>` : ''}
-                                <button class="btn-action btn-complete ${isCompleted ? 'active' : ''}" onclick="toggleComplete('${workout.id}')">
-                                    ${isCompleted ? '✓ Erledigt' : 'Erledigt'}
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="card-body compact">
-                        <span class="compact-status">${isCompleted ? '✓ Erledigt' : ''}</span>
-                        <div class="compact-actions">
-                            ${!isCompleted ? `<button class="btn-action btn-log" onclick="openLog('${workout.id}')">Loggen</button>` : ''}
-                            <button class="btn-action btn-complete ${isCompleted ? 'active' : ''}" onclick="toggleComplete('${workout.id}')">
-                                ${isCompleted ? '✓' : '○'}
-                            </button>
-                        </div>
-                    </div>
-                `;
-
-                container.appendChild(card);
+                if (todayWorkout && workout.id === todayWorkout.id) continue;
+                await renderWorkoutCard(workout, currentWeekWorkouts, container, cardIndex++);
             }
         }
 
@@ -2505,6 +2822,7 @@
             loadData();
             loadStravaTokens();
             handleStravaCallback();
+            loadHeaderCollapseState();
             
             selectedWeek = findTodayWeek();
             renderWeekTabs();
