@@ -1333,59 +1333,337 @@
         /* ============================================
            PLAN OVERVIEW
         ============================================ */
-        .plan-week {
-            padding: 12px 0;
-            border-bottom: 1px solid var(--border);
+        /* ---- Plan Countdown ---- */
+        .plan-countdown {
+            background: linear-gradient(135deg, var(--bg-card) 0%, rgba(232, 148, 76, 0.15) 100%);
+            border: 1px solid var(--accent-primary);
+            border-radius: var(--radius);
+            padding: 20px;
+            margin-bottom: 20px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .plan-countdown::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(232, 148, 76, 0.08) 0%, transparent 70%);
+            animation: countdownPulse 4s ease-in-out infinite;
+        }
+        @keyframes countdownPulse {
+            0%, 100% { transform: scale(1); opacity: 0.5; }
+            50% { transform: scale(1.1); opacity: 1; }
+        }
+        .plan-countdown-days {
+            font-size: 48px;
+            font-weight: 800;
+            color: var(--accent-primary);
+            line-height: 1;
+            position: relative;
+        }
+        .plan-countdown-label {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-top: 4px;
+            position: relative;
+        }
+        .plan-countdown-event {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 8px;
+            position: relative;
         }
 
-        .plan-week:last-child { border-bottom: none; }
+        /* ---- Plan Gesamtfortschritt ---- */
+        .plan-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        .plan-stat-box {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 14px 10px;
+            text-align: center;
+        }
+        .plan-stat-value {
+            font-size: 22px;
+            font-weight: 800;
+            color: var(--text-primary);
+            line-height: 1.2;
+        }
+        .plan-stat-label {
+            font-size: 11px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-top: 4px;
+        }
+        .plan-stat-sub {
+            font-size: 11px;
+            color: var(--text-secondary);
+            margin-top: 2px;
+        }
+        .plan-progress-bar {
+            width: 100%;
+            height: 8px;
+            background: var(--bg-elevated);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 6px;
+        }
+        .plan-progress-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.6s ease;
+            background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+        }
+        .plan-progress-text {
+            font-size: 11px;
+            color: var(--text-muted);
+            text-align: right;
+            margin-bottom: 16px;
+        }
 
+        /* ---- Volumen-Chart ---- */
+        .plan-volume-chart {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 16px;
+            margin-bottom: 20px;
+        }
+        .plan-volume-title {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 12px;
+        }
+        .plan-volume-bars {
+            display: flex;
+            align-items: flex-end;
+            gap: 4px;
+            height: 80px;
+        }
+        .plan-volume-bar-wrap {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            height: 100%;
+            justify-content: flex-end;
+        }
+        .plan-volume-bar {
+            width: 100%;
+            border-radius: 3px 3px 0 0;
+            min-height: 2px;
+            transition: height 0.4s ease;
+        }
+        .plan-volume-bar.past { background: var(--accent-secondary); opacity: 0.7; }
+        .plan-volume-bar.current { background: var(--accent-primary); box-shadow: 0 0 8px var(--accent-glow); }
+        .plan-volume-bar.future { background: var(--bg-elevated); border: 1px solid var(--border); border-bottom: none; }
+        .plan-volume-bar-label {
+            font-size: 9px;
+            color: var(--text-muted);
+            margin-top: 4px;
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .plan-volume-bar-hours {
+            font-size: 8px;
+            color: var(--text-muted);
+            margin-bottom: 2px;
+        }
+
+        /* ---- Phasen-Header ---- */
+        .plan-phase {
+            margin-bottom: 20px;
+        }
+        .plan-phase-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 14px;
+            border-radius: var(--radius-sm);
+            margin-bottom: 8px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .plan-phase-header:hover { filter: brightness(1.1); }
+        .plan-phase-header.phase-base { background: rgba(59, 130, 246, 0.15); border-left: 3px solid var(--status-blue); }
+        .plan-phase-header.phase-build { background: rgba(232, 148, 76, 0.15); border-left: 3px solid var(--accent-primary); }
+        .plan-phase-header.phase-peak { background: rgba(239, 68, 68, 0.15); border-left: 3px solid var(--status-red); }
+        .plan-phase-header.phase-recovery { background: rgba(34, 197, 94, 0.15); border-left: 3px solid var(--status-green); }
+        .plan-phase-header.phase-event { background: rgba(168, 85, 247, 0.15); border-left: 3px solid var(--status-purple); }
+        .plan-phase-header.phase-test { background: rgba(234, 179, 8, 0.15); border-left: 3px solid var(--status-yellow); }
+        .plan-phase-icon {
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+        .plan-phase-info {
+            flex: 1;
+            min-width: 0;
+        }
+        .plan-phase-name {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+        .plan-phase-detail {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+        .plan-phase-progress {
+            width: 60px;
+            flex-shrink: 0;
+        }
+        .plan-phase-progress-bar {
+            width: 100%;
+            height: 6px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        .plan-phase-progress-fill {
+            height: 100%;
+            border-radius: 3px;
+        }
+        .plan-phase-progress-fill.phase-base { background: var(--status-blue); }
+        .plan-phase-progress-fill.phase-build { background: var(--accent-primary); }
+        .plan-phase-progress-fill.phase-peak { background: var(--status-red); }
+        .plan-phase-progress-fill.phase-recovery { background: var(--status-green); }
+        .plan-phase-progress-fill.phase-event { background: var(--status-purple); }
+        .plan-phase-progress-fill.phase-test { background: var(--status-yellow); }
+        .plan-phase-pct {
+            font-size: 10px;
+            color: var(--text-muted);
+            text-align: right;
+            margin-top: 2px;
+        }
+        .plan-phase-chevron {
+            font-size: 12px;
+            color: var(--text-muted);
+            transition: transform 0.3s;
+            flex-shrink: 0;
+        }
+        .plan-phase-chevron.collapsed { transform: rotate(-90deg); }
+
+        .plan-phase-body {
+            overflow: hidden;
+            transition: max-height 0.4s ease;
+        }
+        .plan-phase-body.collapsed {
+            max-height: 0 !important;
+        }
+
+        /* ---- Plan Wochen (verbessert) ---- */
+        .plan-week {
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border);
+        }
+        .plan-week:last-child { border-bottom: none; }
         .plan-week.current {
             border-left: 3px solid var(--accent-primary);
             padding-left: 12px;
             margin-left: -4px;
         }
-
         .plan-week-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
             font-size: 13px;
             font-weight: 700;
             color: var(--text-secondary);
+            cursor: pointer;
         }
-
-        .plan-week-header .plan-week-progress {
+        .plan-week-header:hover { color: var(--text-primary); }
+        .plan-week-right {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .plan-week-progress {
             font-size: 12px;
             font-weight: 600;
             color: var(--text-muted);
+        }
+        .plan-week-load {
+            font-size: 10px;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 10px;
+            text-transform: uppercase;
+        }
+        .plan-week-load.light { background: rgba(34, 197, 94, 0.2); color: var(--status-green); }
+        .plan-week-load.medium { background: rgba(234, 179, 8, 0.2); color: var(--status-yellow); }
+        .plan-week-load.hard { background: rgba(239, 68, 68, 0.2); color: var(--status-red); }
+        .plan-week-trend {
+            font-size: 12px;
+            flex-shrink: 0;
+        }
+        .plan-week-types {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 6px;
+            flex-wrap: wrap;
+        }
+        .plan-week-type-badge {
+            font-size: 10px;
+            font-weight: 600;
+            padding: 2px 8px;
+            border-radius: 10px;
+        }
+        .plan-week-chevron {
+            font-size: 11px;
+            color: var(--text-muted);
+            transition: transform 0.3s;
+        }
+        .plan-week-chevron.collapsed { transform: rotate(-90deg); }
+        .plan-week-body {
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+        .plan-week-body.collapsed {
+            max-height: 0 !important;
         }
 
         .plan-workout-row {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
             padding: 6px 8px;
             border-radius: 6px;
             cursor: pointer;
             transition: background 0.15s;
             font-size: 13px;
         }
-
         .plan-workout-row:hover { background: var(--bg-elevated); }
 
-        .plan-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
+        .plan-intensity-badge {
+            font-size: 9px;
+            font-weight: 700;
+            padding: 2px 7px;
+            border-radius: 8px;
+            text-transform: uppercase;
+            white-space: nowrap;
             flex-shrink: 0;
         }
-
-        .plan-dot.recovery { background: var(--status-green); }
-        .plan-dot.endurance { background: var(--status-blue); }
-        .plan-dot.threshold { background: var(--status-red); }
-        .plan-dot.sweetspot { background: var(--accent-primary); }
+        .plan-intensity-badge.recovery { background: rgba(34, 197, 94, 0.2); color: var(--status-green); }
+        .plan-intensity-badge.endurance { background: rgba(59, 130, 246, 0.2); color: var(--status-blue); }
+        .plan-intensity-badge.threshold { background: rgba(239, 68, 68, 0.2); color: var(--status-red); }
+        .plan-intensity-badge.sweetspot { background: rgba(232, 148, 76, 0.2); color: var(--accent-primary); }
+        .plan-intensity-badge.vo2max { background: rgba(168, 85, 247, 0.2); color: var(--status-purple); }
+        .plan-intensity-badge.test { background: rgba(234, 179, 8, 0.2); color: var(--status-yellow); }
+        .plan-intensity-badge.event { background: rgba(168, 85, 247, 0.3); color: var(--status-purple); }
 
         .plan-workout-date {
             color: var(--text-muted);
@@ -1393,35 +1671,41 @@
             min-width: 52px;
             font-family: 'JetBrains Mono', monospace;
         }
-
         .plan-workout-title {
             flex: 1;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
         }
-
+        .plan-workout-interval-summary {
+            font-size: 10px;
+            color: var(--text-muted);
+            white-space: nowrap;
+            max-width: 80px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
         .plan-workout-duration {
             color: var(--text-muted);
             font-size: 12px;
             white-space: nowrap;
         }
-
+        .plan-workout-tss {
+            font-size: 10px;
+            font-weight: 600;
+            color: var(--text-muted);
+            font-family: 'JetBrains Mono', monospace;
+            min-width: 28px;
+            text-align: right;
+        }
         .plan-workout-status {
             width: 20px;
             text-align: center;
             flex-shrink: 0;
             font-size: 14px;
         }
-
-        .plan-workout-row.completed {
-            opacity: 0.5;
-        }
-
-        .plan-workout-row.completed .plan-workout-title {
-            text-decoration: line-through;
-        }
-
+        .plan-workout-row.completed { opacity: 0.5; }
+        .plan-workout-row.completed .plan-workout-title { text-decoration: line-through; }
         .plan-workout-row.is-today {
             background: rgba(232, 148, 76, 0.1);
             border: 1px solid rgba(232, 148, 76, 0.3);
@@ -1700,7 +1984,7 @@
     <div class="modal-overlay" id="modal-plan">
         <div class="modal-content">
             <div class="modal-header">
-                <h2 class="modal-title">Gesamtplan</h2>
+                <h2 class="modal-title">Trainingsplan Harzquerfahrt</h2>
                 <button class="modal-close" onclick="closePlanOverview()">✕</button>
             </div>
             <div class="modal-body" id="plan-body"></div>
@@ -2547,6 +2831,83 @@
         // ============================================
         // PLAN OVERVIEW
         // ============================================
+        // ============================================
+        // PLAN OVERVIEW – Phasen-Definitionen
+        // ============================================
+        function getPlanPhases() {
+            return [
+                { id: 'test1', name: 'FTP-Test', icon: '⚡', css: 'phase-test', kwRange: 'KW 9', focus: 'Baseline ermitteln' },
+                { id: 'base', name: 'Base Rebuild', icon: '🏗️', css: 'phase-base', kwRange: 'KW 10–13', focus: 'Aerobe Basis, Sweet Spot' },
+                { id: 'build', name: 'Build + Climbing', icon: '⛰️', css: 'phase-build', kwRange: 'KW 14–17', focus: 'Threshold, Climbing-Kraft' },
+                { id: 'peak', name: 'Peak', icon: '🔥', css: 'phase-peak', kwRange: 'KW 18–21', focus: 'Event-spezifisch, lange Ausfahrten' },
+                { id: 'recovery', name: 'Recovery + Taper', icon: '🧘', css: 'phase-recovery', kwRange: 'KW 22–25', focus: 'Regeneration, Formerhalt' },
+                { id: 'event', name: 'Harzquerfahrt', icon: '🏁', css: 'phase-event', kwRange: 'KW 26', focus: '155 km / 1.700 hm' },
+            ];
+        }
+
+        function getPhaseForWeekNum(kw) {
+            if (kw <= 9) return 'test1';
+            if (kw <= 13) return 'base';
+            if (kw <= 17) return 'build';
+            if (kw <= 21) return 'peak';
+            if (kw <= 25) return 'recovery';
+            return 'event';
+        }
+
+        function getIntensityBadge(title) {
+            const t = title.toLowerCase();
+            if (t.includes('ftp test')) return { label: 'Test', css: 'test' };
+            if (t.includes('race') || t.includes('harzquerfahrt') || t.includes('155km')) return { label: 'Event', css: 'event' };
+            if (t.includes('recovery') || t.includes('ausrollen')) return { label: 'Recovery', css: 'recovery' };
+            if (t.includes('vo2')) return { label: 'VO2max', css: 'vo2max' };
+            if (t.includes('threshold')) return { label: 'Threshold', css: 'threshold' };
+            if (t.includes('taper')) return { label: 'Taper', css: 'recovery' };
+            if (t.includes('endurance') || t.includes('gravel')) return { label: 'Endurance', css: 'endurance' };
+            if (t.includes('sweetspot') || t.includes('sweet spot') || t.includes('climbing')) return { label: 'Sweetspot', css: 'sweetspot' };
+            return { label: 'Training', css: 'sweetspot' };
+        }
+
+        function estimateTSS(durationMin, title) {
+            const t = title.toLowerCase();
+            let intensityFactor = 0.65;
+            if (t.includes('recovery') || t.includes('ausrollen') || t.includes('taper')) intensityFactor = 0.50;
+            else if (t.includes('endurance')) intensityFactor = 0.65;
+            else if (t.includes('sweetspot') || t.includes('climbing')) intensityFactor = 0.82;
+            else if (t.includes('threshold')) intensityFactor = 0.92;
+            else if (t.includes('vo2')) intensityFactor = 1.05;
+            else if (t.includes('ftp test')) intensityFactor = 0.95;
+            else if (t.includes('harzquerfahrt') || t.includes('155km')) intensityFactor = 0.72;
+            return Math.round(durationMin * intensityFactor * intensityFactor * 100 / 60);
+        }
+
+        function getIntervalSummary(intervals) {
+            if (!intervals) return '';
+            const lines = intervals.split('\n').filter(l => l.trim().startsWith('-'));
+            for (const line of lines) {
+                const m = line.match(/(\d+)x\s*(\d+)m?\s+([\d.]+(?:-[\d.]+)?%)/i);
+                if (m) return `${m[1]}x${m[2]}m ${m[3]}`;
+                if (/zone\s*[12]/i.test(line)) return 'Zone 2';
+                if (/all.out/i.test(line)) return '20m All-Out';
+                if (/steady/i.test(line)) return 'Steady State';
+            }
+            return '';
+        }
+
+        function getWeekLoad(totalMinutes) {
+            if (totalMinutes <= 120) return { label: 'Leicht', css: 'light' };
+            if (totalMinutes <= 210) return { label: 'Mittel', css: 'medium' };
+            return { label: 'Hart', css: 'hard' };
+        }
+
+        function getWeekTypeCounts(weekWorkouts) {
+            const counts = {};
+            weekWorkouts.forEach(w => {
+                const badge = getIntensityBadge(w.title);
+                counts[badge.label] = (counts[badge.label] || 0) + 1;
+            });
+            return counts;
+        }
+
         function openPlanOverview() {
             const weeks = getWeeks();
             const body = document.getElementById('plan-body');
@@ -2562,51 +2923,236 @@
             const currentWeekNum = getWeekNumber(today);
             const currentYear = today.getFullYear();
 
+            const allWorkouts = weeks.flat();
+            const totalWorkouts = allWorkouts.length;
+            const completedWorkouts = allWorkouts.filter(w => completed[w.id]).length;
+            const pctDone = totalWorkouts > 0 ? Math.round(completedWorkouts / totalWorkouts * 100) : 0;
+
+            let totalPlannedMin = 0;
+            let completedMin = 0;
+            allWorkouts.forEach(w => {
+                const dur = parseDuration(w.duration || '0m');
+                totalPlannedMin += dur;
+                if (completed[w.id]) completedMin += dur;
+            });
+
+            // Event-Datum finden
+            const eventWorkout = allWorkouts.find(w => w.title && (w.title.toLowerCase().includes('harzquerfahrt') || w.title.toLowerCase().includes('155km')));
+            const eventDate = eventWorkout ? new Date(eventWorkout.date) : null;
+            const daysToEvent = eventDate ? Math.ceil((eventDate - today) / 86400000) : null;
+
+            // Aktuelle Phase
+            const currentPhaseId = getPhaseForWeekNum(currentWeekNum);
+            const phases = getPlanPhases();
+
             let html = '';
+
+            // ---- 1. Countdown ----
+            if (daysToEvent !== null && daysToEvent >= 0) {
+                html += `<div class="plan-countdown">`;
+                html += `<div class="plan-countdown-days">${daysToEvent}</div>`;
+                html += `<div class="plan-countdown-label">Tage bis zur Harzquerfahrt</div>`;
+                html += `<div class="plan-countdown-event">27. Juni 2026 · 155 km · 1.700 hm · Halberstadt</div>`;
+                html += `</div>`;
+            } else if (daysToEvent !== null && daysToEvent < 0) {
+                html += `<div class="plan-countdown">`;
+                html += `<div class="plan-countdown-days" style="color: var(--status-green);">✓</div>`;
+                html += `<div class="plan-countdown-label">Harzquerfahrt absolviert!</div>`;
+                html += `</div>`;
+            }
+
+            // ---- 2. Gesamtfortschritt ----
+            html += `<div class="plan-progress-bar"><div class="plan-progress-fill" style="width: ${pctDone}%"></div></div>`;
+            html += `<div class="plan-progress-text">${completedWorkouts} von ${totalWorkouts} Workouts (${pctDone}%)</div>`;
+
+            html += `<div class="plan-stats">`;
+            html += `<div class="plan-stat-box"><div class="plan-stat-value">${completedWorkouts}/${totalWorkouts}</div><div class="plan-stat-label">Workouts</div></div>`;
+            const plannedH = Math.round(totalPlannedMin / 60 * 10) / 10;
+            const doneH = Math.round(completedMin / 60 * 10) / 10;
+            html += `<div class="plan-stat-box"><div class="plan-stat-value">${doneH}h</div><div class="plan-stat-label">Trainiert</div><div class="plan-stat-sub">von ${plannedH}h</div></div>`;
+            const currentPhaseDef = phases.find(p => p.id === currentPhaseId);
+            html += `<div class="plan-stat-box"><div class="plan-stat-value" style="font-size:16px">${currentPhaseDef ? currentPhaseDef.icon : ''}</div><div class="plan-stat-label">Phase</div><div class="plan-stat-sub">${currentPhaseDef ? currentPhaseDef.name : '-'}</div></div>`;
+            html += `</div>`;
+
+            // ---- 3. Volumen-Chart ----
+            const weekData = weeks.map((week, idx) => {
+                const weekDate = new Date(week[0].date);
+                const weekNum = getWeekNumber(weekDate);
+                let mins = 0;
+                week.forEach(w => { mins += parseDuration(w.duration || '0m'); });
+                const weekYear = weekDate.getFullYear();
+                const isCurrent = weekNum === currentWeekNum && weekYear === currentYear;
+                const isPast = weekDate < today && !isCurrent;
+                return { weekNum, mins, isCurrent, isPast };
+            });
+            const maxMins = Math.max(...weekData.map(w => w.mins), 1);
+
+            html += `<div class="plan-volume-chart">`;
+            html += `<div class="plan-volume-title">Wochenvolumen (Stunden)</div>`;
+            html += `<div class="plan-volume-bars">`;
+            weekData.forEach(wd => {
+                const pct = Math.round(wd.mins / maxMins * 100);
+                const barClass = wd.isCurrent ? 'current' : (wd.isPast ? 'past' : 'future');
+                const h = Math.round(wd.mins / 60 * 10) / 10;
+                html += `<div class="plan-volume-bar-wrap">`;
+                html += `<div class="plan-volume-bar-hours">${h}h</div>`;
+                html += `<div class="plan-volume-bar ${barClass}" style="height: ${Math.max(pct, 3)}%"></div>`;
+                html += `<div class="plan-volume-bar-label">${wd.weekNum}</div>`;
+                html += `</div>`;
+            });
+            html += `</div></div>`;
+
+            // ---- 4. Phasen mit Wochen ----
+            // Wochen den Phasen zuordnen
+            const phaseWeeks = {};
+            phases.forEach(p => { phaseWeeks[p.id] = []; });
             weeks.forEach((week, idx) => {
                 const weekDate = new Date(week[0].date);
                 const weekNum = getWeekNumber(weekDate);
-                const weekYear = weekDate.getFullYear();
-                const isCurrent = weekNum === currentWeekNum && weekYear === currentYear;
-                const completedCount = week.filter(w => completed[w.id]).length;
+                const phaseId = getPhaseForWeekNum(weekNum);
+                if (phaseWeeks[phaseId]) {
+                    phaseWeeks[phaseId].push({ week, idx, weekNum, weekDate });
+                }
+            });
 
-                let targetMin = 0;
-                week.forEach(w => {
-                    const d = w.duration || '';
-                    const hMatch = d.match(/(\d+)\s*h/);
-                    const mMatch = d.match(/(\d+)\s*m/);
-                    targetMin += (hMatch ? parseInt(hMatch[1]) * 60 : 0) + (mMatch ? parseInt(mMatch[1]) : 0);
-                });
-                const targetH = Math.round(targetMin / 60 * 10) / 10;
+            let prevWeekMin = null;
+            phases.forEach(phase => {
+                const pw = phaseWeeks[phase.id];
+                if (pw.length === 0) return;
 
-                html += `<div class="plan-week${isCurrent ? ' current' : ''}">`;
-                html += `<div class="plan-week-header">`;
-                html += `<span>KW ${weekNum} · ${targetH}h</span>`;
-                html += `<span class="plan-week-progress">${completedCount}/${week.length} erledigt</span>`;
+                const phaseWorkouts = pw.flatMap(w => w.week);
+                const phaseDone = phaseWorkouts.filter(w => completed[w.id]).length;
+                const phaseTotal = phaseWorkouts.length;
+                const phasePct = phaseTotal > 0 ? Math.round(phaseDone / phaseTotal * 100) : 0;
+                const isCurrentPhase = phase.id === currentPhaseId;
+                const isPastPhase = phases.indexOf(phase) < phases.findIndex(p => p.id === currentPhaseId);
+
+                html += `<div class="plan-phase">`;
+                html += `<div class="plan-phase-header ${phase.css}" onclick="togglePlanPhase('${phase.id}')">`;
+                html += `<span class="plan-phase-icon">${phase.icon}</span>`;
+                html += `<div class="plan-phase-info">`;
+                html += `<div class="plan-phase-name">${phase.name}</div>`;
+                html += `<div class="plan-phase-detail">${phase.kwRange} · ${phase.focus}</div>`;
+                html += `</div>`;
+                html += `<div class="plan-phase-progress">`;
+                html += `<div class="plan-phase-progress-bar"><div class="plan-phase-progress-fill ${phase.css}" style="width:${phasePct}%"></div></div>`;
+                html += `<div class="plan-phase-pct">${phaseDone}/${phaseTotal}</div>`;
+                html += `</div>`;
+                const defaultCollapsed = isPastPhase && !isCurrentPhase;
+                html += `<span class="plan-phase-chevron${defaultCollapsed ? ' collapsed' : ''}" id="phase-chevron-${phase.id}">▼</span>`;
                 html += `</div>`;
 
-                week.forEach(w => {
-                    const isDone = completed[w.id];
-                    const isTodayWorkout = w.date === todayStr;
-                    const intensity = getIntensityClass(w.title);
-                    const rowClasses = ['plan-workout-row'];
-                    if (isDone) rowClasses.push('completed');
-                    if (isTodayWorkout) rowClasses.push('is-today');
+                html += `<div class="plan-phase-body${defaultCollapsed ? ' collapsed' : ''}" id="phase-body-${phase.id}">`;
 
-                    html += `<div class="${rowClasses.join(' ')}" onclick="navigateToWeek(${idx})">`;
-                    html += `<span class="plan-dot ${intensity}"></span>`;
-                    html += `<span class="plan-workout-date">${formatDate(w.date)}</span>`;
-                    html += `<span class="plan-workout-title">${w.title}</span>`;
-                    html += `<span class="plan-workout-duration">${w.duration || ''}</span>`;
-                    html += `<span class="plan-workout-status">${isDone ? '✓' : ''}</span>`;
+                pw.forEach(({ week, idx, weekNum, weekDate }) => {
+                    const weekYear = weekDate.getFullYear();
+                    const isCurrent = weekNum === currentWeekNum && weekYear === currentYear;
+                    const isPast = weekDate < today && !isCurrent;
+                    const completedCount = week.filter(w => completed[w.id]).length;
+
+                    let weekMin = 0;
+                    week.forEach(w => { weekMin += parseDuration(w.duration || '0m'); });
+                    const targetH = Math.round(weekMin / 60 * 10) / 10;
+                    const load = getWeekLoad(weekMin);
+                    const typeCounts = getWeekTypeCounts(week);
+
+                    // Trend vs. Vorwoche
+                    let trendIcon = '';
+                    if (prevWeekMin !== null) {
+                        const diff = weekMin - prevWeekMin;
+                        if (diff > 30) trendIcon = '↑';
+                        else if (diff < -30) trendIcon = '↓';
+                        else trendIcon = '→';
+                    }
+                    prevWeekMin = weekMin;
+
+                    const weekDefaultCollapsed = isPast && !isCurrent;
+                    const weekId = `week-${idx}`;
+
+                    html += `<div class="plan-week${isCurrent ? ' current' : ''}">`;
+                    html += `<div class="plan-week-header" onclick="togglePlanWeek('${weekId}')">`;
+                    html += `<span>KW ${weekNum} · ${targetH}h ${trendIcon}</span>`;
+                    html += `<div class="plan-week-right">`;
+                    html += `<span class="plan-week-load ${load.css}">${load.label}</span>`;
+                    html += `<span class="plan-week-progress">${completedCount}/${week.length}</span>`;
+                    html += `<span class="plan-week-chevron${weekDefaultCollapsed ? ' collapsed' : ''}" id="chevron-${weekId}">▼</span>`;
                     html += `</div>`;
+                    html += `</div>`;
+
+                    // Typ-Badges
+                    html += `<div class="plan-week-types">`;
+                    Object.entries(typeCounts).forEach(([label, count]) => {
+                        const badge = getIntensityBadge(label.toLowerCase().includes('endurance') ? 'endurance' : label);
+                        // Map label to badge CSS
+                        let badgeCss = 'sweetspot';
+                        if (label === 'Endurance') badgeCss = 'endurance';
+                        else if (label === 'Recovery' || label === 'Taper') badgeCss = 'recovery';
+                        else if (label === 'Threshold') badgeCss = 'threshold';
+                        else if (label === 'VO2max') badgeCss = 'vo2max';
+                        else if (label === 'Test') badgeCss = 'test';
+                        else if (label === 'Event') badgeCss = 'event';
+                        html += `<span class="plan-week-type-badge plan-intensity-badge ${badgeCss}">${count}x ${label}</span>`;
+                    });
+                    html += `</div>`;
+
+                    html += `<div class="plan-week-body${weekDefaultCollapsed ? ' collapsed' : ''}" id="body-${weekId}">`;
+
+                    week.forEach(w => {
+                        const isDone = completed[w.id];
+                        const isTodayWorkout = w.date === todayStr;
+                        const badge = getIntensityBadge(w.title);
+                        const durMin = parseDuration(w.duration || '0m');
+                        const tss = estimateTSS(durMin, w.title);
+                        const intervalSum = getIntervalSummary(w.intervals);
+                        const rowClasses = ['plan-workout-row'];
+                        if (isDone) rowClasses.push('completed');
+                        if (isTodayWorkout) rowClasses.push('is-today');
+
+                        html += `<div class="${rowClasses.join(' ')}" onclick="navigateToWeek(${idx})">`;
+                        html += `<span class="plan-intensity-badge ${badge.css}">${badge.label}</span>`;
+                        html += `<span class="plan-workout-date">${formatDate(w.date)}</span>`;
+                        html += `<span class="plan-workout-title">${w.title}</span>`;
+                        if (intervalSum) html += `<span class="plan-workout-interval-summary">${intervalSum}</span>`;
+                        html += `<span class="plan-workout-duration">${w.duration || ''}</span>`;
+                        html += `<span class="plan-workout-tss">${tss}</span>`;
+                        html += `<span class="plan-workout-status">${isDone ? '✓' : ''}</span>`;
+                        html += `</div>`;
+                    });
+
+                    html += `</div>`; // week-body
+                    html += `</div>`; // plan-week
                 });
 
-                html += `</div>`;
+                html += `</div>`; // phase-body
+                html += `</div>`; // plan-phase
             });
 
             body.innerHTML = html;
             document.getElementById('modal-plan').classList.add('active');
+
+            // Auto-scroll zur aktuellen Woche
+            setTimeout(() => {
+                const currentEl = body.querySelector('.plan-week.current');
+                if (currentEl) currentEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }, 100);
+        }
+
+        function togglePlanPhase(phaseId) {
+            const body = document.getElementById('phase-body-' + phaseId);
+            const chevron = document.getElementById('phase-chevron-' + phaseId);
+            if (body && chevron) {
+                body.classList.toggle('collapsed');
+                chevron.classList.toggle('collapsed');
+            }
+        }
+
+        function togglePlanWeek(weekId) {
+            const body = document.getElementById('body-' + weekId);
+            const chevron = document.getElementById('chevron-' + weekId);
+            if (body && chevron) {
+                body.classList.toggle('collapsed');
+                chevron.classList.toggle('collapsed');
+            }
         }
 
         function closePlanOverview() {
