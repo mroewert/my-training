@@ -170,6 +170,8 @@ function switchTab(tabName) {
         renderCurrentTrainingView();
     } else if (tabName === 'analyse') {
         renderAnalyse();
+    } else if (tabName === 'ernaehrung') {
+        renderErnaehrung();
     }
 }
 
