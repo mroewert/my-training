@@ -219,12 +219,21 @@ function handleImport() {
 }
 
 // ---- Settings ----
-function openSettings() { openModal('modal-settings'); }
+function openSettings() {
+    document.getElementById('settings-ftp').value = ftp;
+    openModal('modal-settings');
+}
+
 function closeSettings() {
+    closeModal('modal-settings');
+}
+
+function saveFtp() {
     const newFtp = parseInt(document.getElementById('settings-ftp').value) || 185;
     ftp = newFtp;
     saveData();
-    closeModal('modal-settings');
+    renderCurrentTrainingView();
+    alert('FTP auf ' + ftp + 'W gespeichert');
 }
 
 function resetData() {
