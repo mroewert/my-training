@@ -1,0 +1,804 @@
+/* ============================================
+   TRAINING TAB – Sub-Navigation
+============================================ */
+.training-subnav {
+    display: flex;
+    gap: 4px;
+    padding: 12px 16px;
+    background: var(--bg-deep);
+    position: sticky;
+    top: 57px;
+    z-index: 50;
+}
+
+.training-subnav-btn {
+    flex: 1;
+    padding: 8px 12px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text-secondary);
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+}
+
+.training-subnav-btn.active {
+    background: var(--accent-primary);
+    color: var(--bg-deep);
+    border-color: var(--accent-primary);
+}
+
+.training-view {
+    display: none;
+}
+
+.training-view.active {
+    display: block;
+}
+
+/* ============================================
+   CALENDAR VIEW
+============================================ */
+.calendar-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+}
+
+.calendar-nav-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: 1px solid var(--border);
+    background: var(--bg-card);
+    color: var(--text-primary);
+    font-size: 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.calendar-nav-btn:hover { background: var(--bg-card-light); }
+
+.calendar-month-title {
+    font-size: 17px;
+    font-weight: 700;
+}
+
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 2px;
+    padding: 0 8px 16px;
+}
+
+.calendar-day-header {
+    text-align: center;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-muted);
+    padding: 8px 0;
+    text-transform: uppercase;
+}
+
+.calendar-day {
+    min-height: 72px;
+    border-radius: 8px;
+    padding: 4px;
+    position: relative;
+    cursor: default;
+    transition: background 0.15s;
+}
+
+.calendar-day.other-month {
+    opacity: 0.3;
+}
+
+.calendar-day.today {
+    background: rgba(232, 148, 76, 0.08);
+    outline: 2px solid var(--accent-primary);
+    outline-offset: -2px;
+}
+
+.calendar-day-num {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    padding: 2px 4px;
+}
+
+.calendar-day.today .calendar-day-num {
+    color: var(--accent-primary);
+    font-weight: 800;
+}
+
+.calendar-workout {
+    margin-top: 2px;
+    padding: 3px 5px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.1s, opacity 0.1s;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.3;
+}
+
+.calendar-workout:active { transform: scale(0.97); }
+
+.calendar-workout.completed {
+    opacity: 0.5;
+    text-decoration: line-through;
+}
+
+.calendar-workout.recovery { background: rgba(34, 197, 94, 0.15); color: var(--status-green); border-left: 3px solid var(--status-green); }
+.calendar-workout.endurance { background: rgba(59, 130, 246, 0.15); color: var(--status-blue); border-left: 3px solid var(--status-blue); }
+.calendar-workout.sweetspot { background: rgba(232, 148, 76, 0.15); color: var(--accent-primary); border-left: 3px solid var(--accent-primary); }
+.calendar-workout.threshold { background: rgba(239, 68, 68, 0.15); color: var(--status-red); border-left: 3px solid var(--status-red); }
+.calendar-workout.vo2max { background: rgba(168, 85, 247, 0.15); color: var(--status-purple); border-left: 3px solid var(--status-purple); }
+.calendar-workout.test { background: rgba(234, 179, 8, 0.15); color: var(--status-yellow); border-left: 3px solid var(--status-yellow); }
+.calendar-workout.event { background: rgba(78, 205, 196, 0.15); color: var(--accent-secondary); border-left: 3px solid var(--accent-secondary); }
+
+.calendar-workout .cal-duration {
+    font-size: 9px;
+    opacity: 0.8;
+}
+
+/* Month Summary below calendar */
+.calendar-month-summary {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    padding: 0 16px 16px;
+}
+
+.calendar-month-stat {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 12px;
+    text-align: center;
+}
+
+.calendar-month-stat .stat-value {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--accent-primary);
+}
+
+.calendar-month-stat .stat-label {
+    font-size: 10px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    margin-top: 2px;
+}
+
+/* ============================================
+   WEEK VIEW
+============================================ */
+.week-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+}
+
+.week-nav-title {
+    text-align: center;
+}
+
+.week-nav-title .week-label {
+    font-size: 17px;
+    font-weight: 700;
+}
+
+.week-nav-title .week-dates {
+    font-size: 12px;
+    color: var(--text-muted);
+}
+
+.week-summary-bar {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    padding: 0 16px 12px;
+}
+
+.week-stat {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 10px;
+    text-align: center;
+}
+
+.week-stat .stat-value {
+    font-size: 16px;
+    font-weight: 700;
+}
+
+.week-stat .stat-label {
+    font-size: 10px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    margin-top: 2px;
+}
+
+.week-stat .stat-sub {
+    font-size: 11px;
+    color: var(--text-muted);
+}
+
+.week-stat .trend-up { color: var(--status-green); }
+.week-stat .trend-down { color: var(--status-red); }
+.week-stat .trend-neutral { color: var(--text-muted); }
+
+/* Workout Cards */
+.workout-list {
+    padding: 0 12px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.workout-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    transition: all 0.2s;
+    animation: fadeInUp 0.3s ease both;
+}
+
+.workout-card.completed {
+    opacity: 0.6;
+}
+
+.workout-card.is-today {
+    border-color: var(--accent-primary);
+    box-shadow: 0 0 20px var(--accent-glow);
+}
+
+.workout-card-header {
+    display: flex;
+    align-items: center;
+    padding: 14px 16px;
+    gap: 12px;
+    cursor: pointer;
+}
+
+.workout-intensity-dot {
+    width: 4px;
+    height: 36px;
+    border-radius: 2px;
+    flex-shrink: 0;
+}
+
+.workout-intensity-dot.recovery { background: var(--status-green); }
+.workout-intensity-dot.endurance { background: var(--status-blue); }
+.workout-intensity-dot.sweetspot { background: var(--accent-primary); }
+.workout-intensity-dot.threshold { background: var(--status-red); }
+.workout-intensity-dot.vo2max { background: var(--status-purple); }
+
+.workout-card-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.workout-card-date {
+    font-size: 11px;
+    color: var(--text-muted);
+    font-weight: 600;
+}
+
+.workout-card-title {
+    font-size: 14px;
+    font-weight: 700;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.workout-card-right {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 4px;
+    flex-shrink: 0;
+}
+
+.workout-card-duration {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--accent-primary);
+    font-family: 'JetBrains Mono', monospace;
+}
+
+.workout-card-status {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--status-green);
+}
+
+.today-tag {
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--accent-primary);
+    background: rgba(232, 148, 76, 0.12);
+    padding: 1px 6px;
+    border-radius: 4px;
+}
+
+/* ============================================
+   WORKOUT DETAIL (Fullscreen)
+============================================ */
+.workout-detail {
+    padding: 20px 16px;
+}
+
+.workout-detail-hero {
+    margin-bottom: 20px;
+}
+
+.workout-detail-badge {
+    margin-bottom: 8px;
+}
+
+.workout-detail-title {
+    font-size: 22px;
+    font-weight: 800;
+    margin-bottom: 4px;
+}
+
+.workout-detail-meta {
+    display: flex;
+    gap: 16px;
+    color: var(--text-muted);
+    font-size: 13px;
+    margin-bottom: 12px;
+}
+
+.workout-detail-meta span {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.workout-detail-desc {
+    font-size: 14px;
+    color: var(--text-secondary);
+    line-height: 1.6;
+    margin-bottom: 20px;
+}
+
+/* Detail Sections */
+.detail-section {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    margin-bottom: 12px;
+    overflow: hidden;
+}
+
+.detail-section-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 16px;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.detail-section-header .section-icon {
+    font-size: 16px;
+}
+
+.detail-section-body {
+    padding: 0 16px 16px;
+}
+
+.intervals-text {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    line-height: 1.8;
+    color: var(--text-primary);
+    white-space: pre-wrap;
+}
+
+.info-text {
+    font-size: 14px;
+    color: var(--text-secondary);
+    line-height: 1.6;
+}
+
+.btn-video {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 10px;
+    padding: 8px 16px;
+    background: rgba(239, 68, 68, 0.1);
+    color: var(--status-red);
+    border-radius: var(--radius-sm);
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+/* Weather in Detail */
+.weather-info-box {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    background: var(--bg-card-light);
+    border-radius: var(--radius-sm);
+}
+
+.weather-info-box .weather-icon { font-size: 28px; }
+.weather-info-box .weather-temp { font-size: 15px; font-weight: 700; }
+.weather-info-box .weather-desc { font-size: 12px; color: var(--text-muted); }
+.weather-info-box.warning { border-left: 3px solid var(--status-yellow); }
+
+/* Comparison Box in Detail */
+.comparison-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+}
+
+.comparison-item {
+    text-align: center;
+    padding: 10px;
+    background: var(--bg-card-light);
+    border-radius: 8px;
+}
+
+.comparison-item .comp-label {
+    font-size: 10px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    margin-bottom: 4px;
+}
+
+.comparison-item .comp-value {
+    font-size: 16px;
+    font-weight: 700;
+    font-family: 'JetBrains Mono', monospace;
+}
+
+.comparison-item .comp-diff {
+    font-size: 11px;
+    margin-top: 2px;
+}
+
+.comparison-item .comp-diff.good { color: var(--status-green); }
+.comparison-item .comp-diff.warn { color: var(--status-yellow); }
+
+.comparison-feeling {
+    margin-top: 12px;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.comparison-notes {
+    margin-top: 8px;
+    font-size: 13px;
+    color: var(--text-secondary);
+    font-style: italic;
+}
+
+/* Detail Actions */
+.detail-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 20px;
+}
+
+.detail-actions .btn-action {
+    flex: 1;
+    padding: 12px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+    background: var(--bg-card);
+    color: var(--text-primary);
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.2s;
+}
+
+.detail-actions .btn-log {
+    background: var(--accent-primary);
+    color: var(--bg-deep);
+    border-color: var(--accent-primary);
+}
+
+.detail-actions .btn-complete.active {
+    background: rgba(34, 197, 94, 0.15);
+    border-color: var(--status-green);
+    color: var(--status-green);
+}
+
+/* ============================================
+   ROADMAP VIEW
+============================================ */
+.roadmap {
+    padding: 16px;
+}
+
+.roadmap-goal {
+    background: linear-gradient(135deg, rgba(78, 205, 196, 0.15), rgba(232, 148, 76, 0.1));
+    border: 1px solid var(--accent-secondary);
+    border-radius: var(--radius);
+    padding: 20px;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.roadmap-goal-title {
+    font-size: 20px;
+    font-weight: 800;
+    color: var(--accent-secondary);
+    margin-bottom: 4px;
+}
+
+.roadmap-goal-date {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-bottom: 12px;
+}
+
+.roadmap-goal-countdown {
+    font-size: 36px;
+    font-weight: 800;
+    color: var(--accent-primary);
+    font-family: 'JetBrains Mono', monospace;
+}
+
+.roadmap-goal-countdown-label {
+    font-size: 12px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.roadmap-progress {
+    margin-bottom: 20px;
+}
+
+.roadmap-progress-bar {
+    height: 8px;
+    background: var(--bg-elevated);
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 6px;
+}
+
+.roadmap-progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+    border-radius: 4px;
+    transition: width 0.5s ease;
+}
+
+.roadmap-progress-text {
+    font-size: 12px;
+    color: var(--text-muted);
+    text-align: center;
+}
+
+/* Timeline */
+.roadmap-timeline {
+    position: relative;
+    padding-left: 24px;
+}
+
+.roadmap-timeline::before {
+    content: '';
+    position: absolute;
+    left: 8px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: var(--border);
+}
+
+.roadmap-phase {
+    position: relative;
+    margin-bottom: 16px;
+}
+
+.roadmap-phase::before {
+    content: '';
+    position: absolute;
+    left: -20px;
+    top: 16px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--bg-elevated);
+    border: 2px solid var(--border);
+    z-index: 1;
+}
+
+.roadmap-phase.active::before {
+    background: var(--accent-primary);
+    border-color: var(--accent-primary);
+    box-shadow: 0 0 12px var(--accent-glow);
+}
+
+.roadmap-phase.completed::before {
+    background: var(--status-green);
+    border-color: var(--status-green);
+}
+
+.roadmap-phase-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.roadmap-phase.active .roadmap-phase-card {
+    border-color: var(--accent-primary);
+    box-shadow: 0 0 16px var(--accent-glow);
+}
+
+.roadmap-phase-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 8px;
+}
+
+.roadmap-phase-icon {
+    font-size: 20px;
+    margin-right: 8px;
+}
+
+.roadmap-phase-name {
+    font-size: 15px;
+    font-weight: 700;
+    flex: 1;
+}
+
+.roadmap-phase-kw {
+    font-size: 11px;
+    color: var(--text-muted);
+    font-weight: 600;
+}
+
+.roadmap-phase-focus {
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-bottom: 10px;
+}
+
+.roadmap-phase-stats {
+    display: flex;
+    gap: 12px;
+    font-size: 12px;
+    color: var(--text-muted);
+}
+
+.roadmap-phase-stats span {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.roadmap-phase-progress {
+    margin-top: 10px;
+    height: 4px;
+    background: var(--bg-elevated);
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.roadmap-phase-progress-fill {
+    height: 100%;
+    border-radius: 2px;
+    transition: width 0.4s ease;
+}
+
+.roadmap-phase.completed .roadmap-phase-progress-fill { background: var(--status-green); }
+.roadmap-phase.active .roadmap-phase-progress-fill { background: var(--accent-primary); }
+.roadmap-phase .roadmap-phase-progress-fill { background: var(--bg-elevated); }
+
+/* Phase Detail (expanded weeks) */
+.roadmap-phase-weeks {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+}
+
+.roadmap-phase-weeks.expanded {
+    max-height: 1000px;
+}
+
+.roadmap-week-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-top: 1px solid var(--border);
+    font-size: 13px;
+}
+
+.roadmap-week-row:first-child {
+    margin-top: 12px;
+}
+
+.roadmap-week-label {
+    font-weight: 600;
+}
+
+.roadmap-week-row.current .roadmap-week-label {
+    color: var(--accent-primary);
+}
+
+.roadmap-week-hours {
+    color: var(--text-muted);
+    font-family: 'JetBrains Mono', monospace;
+}
+
+.roadmap-week-done {
+    font-size: 12px;
+    color: var(--text-muted);
+}
+
+/* Strava Activity Items */
+.strava-activity-item {
+    padding: 10px 12px;
+    background: var(--bg-card-light);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    margin-bottom: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.strava-activity-item:hover { border-color: #FC4C02; }
+.strava-activity-item.selected { border-color: #FC4C02; background: rgba(252, 76, 2, 0.08); }
+
+.strava-activity-name {
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+.strava-activity-meta {
+    display: flex;
+    gap: 12px;
+    font-size: 11px;
+    color: var(--text-muted);
+}
+
+.strava-badge {
+    display: inline-block;
+    padding: 1px 6px;
+    background: rgba(252, 76, 2, 0.15);
+    color: #FC4C02;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 700;
+}

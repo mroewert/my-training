@@ -1,0 +1,68 @@
+/* ============================================
+   BOTTOM NAVIGATION
+============================================ */
+.bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: var(--nav-height);
+    background: var(--bg-card);
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    padding-bottom: var(--safe-bottom);
+    z-index: 100;
+    backdrop-filter: blur(20px);
+    background: rgba(19, 25, 39, 0.92);
+}
+
+.nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    padding: 8px 16px;
+    cursor: pointer;
+    border: none;
+    background: none;
+    color: var(--text-muted);
+    font-family: inherit;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+    transition: all 0.2s;
+    position: relative;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.nav-item .nav-icon {
+    font-size: 22px;
+    line-height: 1;
+    transition: transform 0.2s;
+}
+
+.nav-item.active {
+    color: var(--accent-primary);
+}
+
+.nav-item.active .nav-icon {
+    transform: scale(1.1);
+}
+
+.nav-item.active::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 24px;
+    height: 3px;
+    background: var(--accent-primary);
+    border-radius: 0 0 3px 3px;
+}
+
+.nav-item:active {
+    transform: scale(0.95);
+}
