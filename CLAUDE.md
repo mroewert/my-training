@@ -4,69 +4,124 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-**Röwert - Gravel Coach** is a Progressive Web App (PWA) for ultra-endurance gravel cycling training plan management with Strava integration. The UI is entirely in German. Mobile-first design optimized for Samsung S22.
+**Röwert - Gravel Coach** is a Progressive Web App (PWA) for ultra-endurance gravel cycling training plan management with Strava integration and AI-powered nutrition coaching. The UI is entirely in German. Mobile-first design optimized for Samsung S22.
+
+**Ziel:** Harzquerfahrt 27.06.2026 · 155 km · 1.700 hm
+
+**Hosted:** GitHub Pages → https://mroewert.github.io/my-training/
 
 ## Architecture
 
-**Multi-file vanilla JS PWA** — no build system, no npm, no frameworks. Pure HTML/CSS/JS for maximum portability.
+**Multi-file vanilla JS PWA** — no build system, no npm, no frameworks. Pure HTML/CSS/JS for maximum portability. Deployed via GitHub Pages, synced via Google Drive.
 
 ### File Structure
 
 ```
-index.html          – App shell: header, bottom-nav, modals
+index.html              – App shell: header, bottom-nav, modals
 css/
-  base.css          – CSS variables, reset, fonts, shared components
-  nav.css           – Bottom navigation styles
-  training.css      – Training tab styles (calendar, week, roadmap, detail)
+  base.css              – CSS variables, reset, fonts, shared components (modals, forms, badges)
+  nav.css               – Bottom navigation styles
+  training.css          – Training tab (calendar, week, roadmap, workout detail)
+  analyse.css           – Analyse tab (form curve, volume chart, stats, performance)
+  ernaehrung.css        – Ernährungs tab (day-type toggle, meal cards, shopping list)
+  mehr.css              – Mehr/Einstellungen tab (settings sections, profile, FTP)
 js/
-  app.js            – Router, global state, localStorage persistence, init
-  training.js       – Training views (calendar, week, roadmap)
-  strava.js         – Strava OAuth 2.0, activity fetching
-  weather.js        – Open-Meteo weather API
-manifest.json       – PWA manifest
-icon-*.png          – App icons
-training.json       – Example training plan for import
-index_old.html      – Backup of previous single-file version
+  app.js                – Router, global state, localStorage, init, modals, workout CRUD
+  training.js           – Training views: calendar, week view, roadmap
+  analyse.js            – Analyse: form curve, volume chart (soll/ist), stats, perf trends
+  ernaehrung.js         – Ernährung: static nutrition data from AI coach, day-type toggle
+  mehr.js               – Mehr: settings page, profile, data export
+  strava.js             – Strava OAuth 2.0, activity fetching
+  weather.js            – Open-Meteo weather API
+manifest.json           – PWA manifest
+icon-192.png, icon-512.png – App icons
+training.json           – Example training plan for import
+TRAINING_PLAN_SPEC.md   – Format guide for creating training plans
+index_old.html          – Backup of previous single-file version (v1)
 ```
 
-### App Structure
+### App Structure (4 Tabs + Bottom Nav)
 
-The app uses a **tab-based navigation** with bottom nav:
-- **Training** (3 sub-views: Kalender, Woche, Roadmap)
-- **Ernährung** (planned: displays MD content from AI nutrition coach)
-- **Analyse** (planned: form curve, volume charts, trends)
-- **Mehr** (planned: settings, FTP, Strava, import/export)
+| Tab | File | Sub-Views | Description |
+|-----|------|-----------|-------------|
+| **Training** | training.js | Kalender, Woche, Roadmap | Monatskalender (intervals.icu-Style), Wochenansicht mit Soll/Ist, Roadmap bis Harzquerfahrt |
+| **Ernährung** | ernaehrung.js | — | AI Coach Daten (Frühstück, Mittag, Snacks) mit Tagestyp-Toggle und Einkaufsliste |
+| **Analyse** | analyse.js | — | Formkurve, Wochenvolumen Soll/Ist, Statistiken, Leistungsdaten-Trends |
+| **Mehr** | mehr.js | — | Profil, FTP, Strava, Plan-Import, Daten-Export, Reset |
+
+**Navigation Flow:**
+- Bottom-Nav: 4 Tabs, onclick-Handler direkt im HTML + JS-Listener
+- Training Sub-Nav: 3 Buttons (Kalender/Woche/Roadmap) umschalten via `switchTrainingView()`
+- Workout Detail: Fullscreen-View (kein Modal), öffnet via `openWorkoutDetail(id)`
+- Modals: Import (`#modal-import`), Log (`#modal-log`), Edit (`#modal-edit`)
 
 ### State Management
 
 All state is global variables in `app.js`, synced to `localStorage`:
 
-- `workouts` → `localStorage['gravel-workouts']`
-- `ftp` → `localStorage['gravel-ftp']`
-- `completed` → `localStorage['gravel-completed']`
-- `activityLogs` → `localStorage['gravel-activities']`
-- Strava tokens → `localStorage['strava-tokens']`
+| Variable | localStorage Key | Content |
+|----------|-----------------|---------|
+| `workouts` | `gravel-workouts` | Array of workout objects |
+| `ftp` | `gravel-ftp` | Functional Threshold Power (Watt) |
+| `completed` | `gravel-completed` | Object: workoutId → boolean |
+| `activityLogs` | `gravel-activities` | Object: workoutId → log data |
+| `stravaTokens` | `strava-tokens` | Strava OAuth tokens + athlete info |
 
 ### Key Functions by File
 
-**app.js:** `loadData()`, `saveData()`, `switchTab()`, `openWorkoutDetail()`, `openLog()`, `saveLog()`, `openEdit()`, `saveEdit()`, `handleImport()`
+**app.js (Router & Core):**
+- `loadData()`, `saveData()` – localStorage persistence
+- `switchTab(tabName)` – router, triggers tab rendering
+- `openWorkoutDetail(id)`, `closeWorkoutDetail()` – fullscreen workout view
+- `openLog(id)`, `saveLog()` – workout logging modal
+- `openEdit(id)`, `saveEdit()`, `deleteWorkoutFromEdit()` – workout editing
+- `toggleComplete(id)` – mark workout done/undone
+- `handleImport()` – JSON plan import (replace/merge)
+- `saveFtp()` – save FTP value
+- `exportData()` – download all data as JSON (in mehr.js)
+- Helpers: `getWeekNumber()`, `formatDate()`, `parseDuration()`, `getIntensityClass()`, `getPlanPhases()`, `getPhaseForWeekNum()`, `estimateTSS()`
 
-**training.js:** `renderCalendar()`, `renderWeekView()`, `renderRoadmap()`, `switchTrainingView()`, `initTraining()`
+**training.js (3 Views):**
+- `initTraining()` – find current week, initial render
+- `switchTrainingView(view)` – toggle calendar/week/roadmap
+- `renderCalendar(container)` – month grid with workout blocks
+- `renderWeekView(container)` – week detail with cards
+- `renderRoadmap(container)` – timeline with phases and countdown
+- `goToWeek(idx)` – navigate from roadmap to week view
 
-**strava.js:** `connectStrava()`, `handleStravaCallback()`, `fetchStravaActivities()`, `loadStravaActivitiesForLog()`
+**analyse.js (4 Sections):**
+- `renderAnalyse()` – orchestrates all sections
+- `renderFormCurveSection()` – 8-week load bars with status
+- `renderVolumeChartSection()` – all weeks soll/ist overlay
+- `renderStatsSection()` – stats grid + intensity distribution
+- `renderPerformanceSection()` – power/HR trend charts
 
-**weather.js:** `fetchWeather()`, `getWeatherIcon()`, `getWeatherWarning()`
+**ernaehrung.js (Nutrition Display):**
+- `renderErnaehrung()` – orchestrates day-type toggle + meal cards
+- `switchDayType(type)` – toggle rest/milon/training
+- `renderMealCard(mealKey)` – expandable meal card with macros
+- `renderShoppingList()` – expandable shopping list with checkboxes
+- `nutritionData` – static object with all AI coach data
+- `shoppingData` – static array with all Edeka products
+
+**mehr.js (Settings):**
+- `renderMehr()` – settings page with profile, FTP, Strava, import, export
+- `exportData()` – download backup as JSON file
+
+**strava.js:** `connectStrava()`, `disconnectStrava()`, `handleStravaCallback()`, `refreshStravaToken()`, `fetchStravaActivities()`, `loadStravaActivitiesForLog()`, `selectStravaActivity()`
+
+**weather.js:** `fetchWeather(dateStr)`, `getWeatherIcon(code)`, `getWeatherWarning(weather)`
 
 ### Workout Data Model
 
 ```json
 {
-  "id": "string",
+  "id": "string (YYYY-MM-DD_type)",
   "date": "YYYY-MM-DD",
   "title": "string",
-  "duration": "1h / 90m",
+  "duration": "1h / 90m / 2.5h",
   "desc": "string",
-  "intervals": "multiline string",
+  "intervals": "multiline string (markdown-like)",
   "nutrition": "string",
   "technique": "string",
   "video_url": "YouTube URL",
@@ -75,27 +130,72 @@ All state is global variables in `app.js`, synced to `localStorage`:
 }
 ```
 
+### Nutrition Data Model (in ernaehrung.js)
+
+Nutrition data is **statically embedded** from AI coach MD files in `../ai-nutrition-coach/`. When new MD files are provided, the `nutritionData` and `shoppingData` objects in `ernaehrung.js` must be manually updated.
+
+Structure per meal:
+```javascript
+{
+  icon: '🥐',
+  title: 'Frühstück',
+  training: { subtitle, kcal, protein, carbs, fat, components[], tips[], drink },
+  rest:     { subtitle, kcal, protein, carbs, fat, components[], tips[], drink },
+  milon:    { ... } // or null (falls back to training)
+}
+```
+
+### Plan Phases (Harzquerfahrt)
+
+| Phase | KW | Focus |
+|-------|-----|-------|
+| FTP-Test | KW 9 | Baseline |
+| Base Rebuild | KW 10–13 | Aerobe Basis, Sweet Spot |
+| Build + Climbing | KW 14–17 | Threshold, Climbing-Kraft |
+| Peak | KW 18–21 | Event-spezifisch, lange Ausfahrten |
+| Recovery + Taper | KW 22–25 | Regeneration, Formerhalt |
+| Harzquerfahrt | KW 26 | 155 km / 1.700 hm |
+
 ## Development
 
 **No build/lint/test commands exist.** To develop:
 
-1. Serve via HTTP (e.g., `python -m http.server` or VS Code Live Server) — required because of multi-file JS imports
+1. Serve via HTTP (e.g., `python -m http.server` or VS Code Live Server) — required because of multi-file JS structure
 2. For Strava OAuth, the redirect URI must match the served URL
 3. Use browser DevTools for debugging — all state is inspectable in `localStorage`
+4. **Cache-Busting:** All CSS/JS includes in index.html use `?v=N` query params. Increment version after changes to force browser reload.
+
+### Deployment
+
+Push to `main` branch → GitHub Pages auto-deploys to https://mroewert.github.io/my-training/
+
+After pushing, users should hard-refresh (Ctrl+Shift+R) or wait for cache expiry.
 
 ## Conventions
 
-- **CSS:** Custom properties in `:root`, kebab-case class names, modals use `#modal-{name}` IDs
-- **JS:** camelCase functions and variables, each file has a clear responsibility
+- **Language:** German UI, German variable names for nutrition/domain concepts, English for technical code
+- **CSS:** Custom properties in `:root`, kebab-case class names, one CSS file per tab
+- **JS:** camelCase functions and variables, one JS file per tab, global functions (no modules)
+- **HTML:** Modals use `#modal-{name}` IDs, tab content uses `#tab-{name}` IDs, `onclick` handlers inline
 - **Dates:** ISO 8601 `YYYY-MM-DD` strings, displayed with `de-DE` locale
-- **Fonts:** Outfit (display, 400–800), JetBrains Mono (monospace for intervals)
-- **Colors:** Dark theme with orange primary (`#E8944C`) and teal secondary (`#4ECDC4`)
+- **Fonts:** Outfit (display, weights 400–800), JetBrains Mono (monospace for intervals/numbers)
+- **Colors:** Dark theme — orange primary (`#E8944C`), teal secondary (`#4ECDC4`), deep backgrounds (`#0A0E17` → `#232D42`)
+- **Intensity Colors:** Recovery=green, Endurance=blue, Sweetspot=orange, Threshold=red, VO2max=purple
 
 ## External APIs
 
 - **Strava API:** OAuth 2.0 flow, client credentials in `strava.js`. Endpoints: authorize, token exchange, athlete activities.
-- **Open-Meteo:** Free weather API, no key required (Bremen coordinates).
+- **Open-Meteo:** Free weather API, no key required. Coordinates: Bremen (53.0793, 8.8017). 7-day forecast with WMO weather codes.
 
 ## Security Note
 
 Strava client secret is exposed in client-side code (`strava.js`). This is a known trade-off of the no-backend architecture.
+
+## Nutrition Coach Integration
+
+AI nutrition coach MD files are stored in `../ai-nutrition-coach/` (outside this repo). Currently 3 files:
+- `ernaehrung-fruehstueck.md` – Frühstück (Carb Cycling, Vollkorn, Belag-Priorisierung)
+- `ernaehrung-mittagessen.md` – Mittagessen (Skyr-Base, Müsli-Vergleich, Beeren vs. Banane)
+- `ernaehrung-snacks-nachmittag.md` – Snacks (Ruhetag/Milon/Rad-Tag differenziert)
+
+When new MD files arrive, update `nutritionData` and `shoppingData` in `js/ernaehrung.js`.
