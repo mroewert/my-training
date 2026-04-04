@@ -19,10 +19,10 @@
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
     <!-- Styles -->
-    <link rel="stylesheet" href="css/base.css">
-    <link rel="stylesheet" href="css/nav.css">
-    <link rel="stylesheet" href="css/training.css">
-    <link rel="stylesheet" href="css/analyse.css">
+    <link rel="stylesheet" href="css/base.css?v=2">
+    <link rel="stylesheet" href="css/nav.css?v=2">
+    <link rel="stylesheet" href="css/training.css?v=2">
+    <link rel="stylesheet" href="css/analyse.css?v=2">
 </head>
 <body>
 
@@ -75,19 +75,19 @@
 
     <!-- Bottom Navigation -->
     <nav class="bottom-nav">
-        <button class="nav-item active" data-tab="training">
+        <button class="nav-item active" data-tab="training" onclick="switchTab('training')">
             <span class="nav-icon">🚴</span>
             <span>Training</span>
         </button>
-        <button class="nav-item" data-tab="ernaehrung">
+        <button class="nav-item" data-tab="ernaehrung" onclick="switchTab('ernaehrung')">
             <span class="nav-icon">🥗</span>
             <span>Ernährung</span>
         </button>
-        <button class="nav-item" data-tab="analyse">
+        <button class="nav-item" data-tab="analyse" onclick="switchTab('analyse')">
             <span class="nav-icon">📊</span>
             <span>Analyse</span>
         </button>
-        <button class="nav-item" data-tab="mehr">
+        <button class="nav-item" data-tab="mehr" onclick="switchTab('mehr')">
             <span class="nav-icon">⚙️</span>
             <span>Mehr</span>
         </button>
@@ -274,10 +274,10 @@
     </div>
 
     <!-- Scripts -->
-    <script src="js/weather.js"></script>
-    <script src="js/strava.js"></script>
-    <script src="js/training.js"></script>
-    <script src="js/analyse.js"></script>
-    <script src="js/app.js"></script>
+    <script src="js/weather.js?v=2"></script>
+    <script src="js/strava.js?v=2"></script>
+    <script src="js/training.js?v=2"></script>
+    <script src="js/analyse.js?v=2"></script>
+    <script src="js/app.js?v=2"></script>
 </body>
 </html>
