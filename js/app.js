@@ -172,6 +172,8 @@ function switchTab(tabName) {
         renderAnalyse();
     } else if (tabName === 'ernaehrung') {
         renderErnaehrung();
+    } else if (tabName === 'mehr') {
+        renderMehr();
     }
 }
 
@@ -221,21 +223,11 @@ function handleImport() {
 }
 
 // ---- Settings ----
-function openSettings() {
-    document.getElementById('settings-ftp').value = ftp;
-    openModal('modal-settings');
-}
-
-function closeSettings() {
-    closeModal('modal-settings');
-}
-
 function saveFtp() {
     const newFtp = parseInt(document.getElementById('settings-ftp').value) || 185;
     ftp = newFtp;
     saveData();
-    renderCurrentTrainingView();
-    alert('FTP auf ' + ftp + 'W gespeichert');
+    renderMehr();
 }
 
 function resetData() {

@@ -1,0 +1,185 @@
+/* ============================================
+   MEHR / EINSTELLUNGEN TAB
+============================================ */
+.mehr-container {
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.settings-section {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+}
+
+.settings-section-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 16px;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.settings-section-header .section-icon {
+    font-size: 20px;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg-elevated);
+    border-radius: 10px;
+}
+
+.settings-section-body {
+    padding: 0 16px 16px;
+}
+
+/* FTP Display */
+.ftp-display {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    background: var(--bg-card-light);
+    border-radius: var(--radius-sm);
+    margin-bottom: 12px;
+}
+
+.ftp-current {
+    font-size: 28px;
+    font-weight: 800;
+    color: var(--accent-primary);
+    font-family: 'JetBrains Mono', monospace;
+}
+
+.ftp-label {
+    font-size: 12px;
+    color: var(--text-muted);
+}
+
+.ftp-edit-row {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.ftp-edit-row .form-input {
+    width: 100px;
+    text-align: center;
+    font-size: 16px;
+    font-weight: 700;
+}
+
+.ftp-edit-row .btn-save {
+    padding: 12px 20px;
+    border-radius: var(--radius-sm);
+    border: none;
+    background: var(--accent-primary);
+    color: var(--bg-deep);
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    flex: 1;
+}
+
+/* Settings Row */
+.settings-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 0;
+    border-bottom: 1px solid rgba(45, 58, 82, 0.5);
+}
+
+.settings-row:last-child {
+    border-bottom: none;
+}
+
+.settings-row-info {
+    flex: 1;
+}
+
+.settings-row-title {
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.settings-row-sub {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-top: 2px;
+}
+
+.settings-row-action {
+    flex-shrink: 0;
+}
+
+.btn-settings {
+    padding: 8px 16px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+    background: var(--bg-elevated);
+    color: var(--text-primary);
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-settings:hover {
+    background: var(--bg-card-light);
+}
+
+.btn-settings.strava-connected {
+    border-color: #FC4C02;
+    color: #FC4C02;
+}
+
+/* Profile Info */
+.profile-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+}
+
+.profile-item {
+    background: var(--bg-card-light);
+    border-radius: var(--radius-sm);
+    padding: 12px;
+    text-align: center;
+}
+
+.profile-item .profile-value {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text-primary);
+    font-family: 'JetBrains Mono', monospace;
+}
+
+.profile-item .profile-label {
+    font-size: 10px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    margin-top: 2px;
+}
+
+/* App Info */
+.app-info {
+    text-align: center;
+    padding: 20px 16px;
+    color: var(--text-muted);
+    font-size: 12px;
+}
+
+.app-info .app-version {
+    font-size: 11px;
+    margin-top: 4px;
+    opacity: 0.6;
+}

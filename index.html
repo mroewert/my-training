@@ -24,6 +24,7 @@
     <link rel="stylesheet" href="css/training.css?v=3">
     <link rel="stylesheet" href="css/analyse.css?v=3">
     <link rel="stylesheet" href="css/ernaehrung.css?v=1">
+    <link rel="stylesheet" href="css/mehr.css?v=1">
 </head>
 <body>
 
@@ -36,9 +37,7 @@
                 <span>Gravel Coach</span>
             </div>
         </div>
-        <div class="app-header-actions">
-            <button class="btn-icon" onclick="openSettings()" title="Einstellungen">⚙️</button>
-        </div>
+        <div class="app-header-actions"></div>
     </div>
 
     <!-- Tab: Training -->
@@ -62,12 +61,9 @@
         <div id="analyse-content"></div>
     </div>
 
-    <!-- Tab: Mehr (Platzhalter) -->
+    <!-- Tab: Mehr / Einstellungen -->
     <div class="tab-content" id="tab-mehr">
-        <div class="empty-state" style="padding-top:80px;">
-            <div class="empty-icon">⚙️</div>
-            <div class="empty-text">Einstellungen kommt bald</div>
-        </div>
+        <div id="mehr-content"></div>
     </div>
 
     <!-- Bottom Navigation -->
@@ -114,40 +110,6 @@
         </div>
     </div>
 
-    <!-- Settings Modal -->
-    <div class="modal-overlay" id="modal-settings">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2 class="modal-title">Einstellungen</h2>
-                <button class="modal-close" onclick="closeSettings()">✕</button>
-            </div>
-            <div class="modal-body">
-                <div class="form-group">
-                    <label class="form-label">FTP (Watt)</label>
-                    <input type="number" class="form-input" id="settings-ftp" value="185">
-                </div>
-                <button class="btn-primary" onclick="saveFtp()">FTP speichern</button>
-
-                <div class="divider"></div>
-
-                <button class="btn-strava" id="strava-btn" onclick="connectStrava()">
-                    🔗 Mit Strava verbinden
-                </button>
-                <div class="strava-status" id="strava-status" style="display: none;"></div>
-
-                <div class="divider"></div>
-
-                <div class="form-group">
-                    <label class="form-label">Trainingsplan</label>
-                </div>
-                <button class="btn-primary" onclick="closeSettings(); openImport();" style="background:var(--bg-elevated);color:var(--text-primary);">Plan importieren</button>
-
-                <div class="divider"></div>
-
-                <button class="btn-danger" onclick="resetData()">Alle Daten zurücksetzen</button>
-            </div>
-        </div>
-    </div>
 
     <!-- Log Workout Modal -->
     <div class="modal-overlay" id="modal-log">
@@ -284,6 +246,7 @@
     <script src="js/training.js?v=3"></script>
     <script src="js/analyse.js?v=3"></script>
     <script src="js/ernaehrung.js?v=1"></script>
-    <script src="js/app.js?v=4"></script>
+    <script src="js/mehr.js?v=1"></script>
+    <script src="js/app.js?v=5"></script>
 </body>
 </html>
