@@ -165,9 +165,11 @@ function switchTab(tabName) {
         content.classList.toggle('active', content.id === `tab-${tabName}`);
     });
 
-    // Initialize tab content on first switch
+    // Initialize tab content on switch
     if (tabName === 'training') {
         renderCurrentTrainingView();
+    } else if (tabName === 'analyse') {
+        renderAnalyse();
     }
 }
 
