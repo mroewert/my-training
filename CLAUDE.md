@@ -21,17 +21,18 @@ index.html              – App shell: header, bottom-nav, modals
 css/
   base.css              – CSS variables, reset, fonts, shared components (modals, forms, badges)
   nav.css               – Bottom navigation styles
-  training.css          – Training tab (calendar, week, roadmap, workout detail)
+  training.css          – Training tab (calendar, week, roadmap, workout detail, intervals.icu styles)
   analyse.css           – Analyse tab (form curve, volume chart, stats, performance)
   ernaehrung.css        – Ernährungs tab (day-type toggle, meal cards, shopping list)
   mehr.css              – Mehr/Einstellungen tab (settings sections, profile, FTP)
 js/
   app.js                – Router, global state, localStorage, init, modals, workout CRUD
-  training.js           – Training views: calendar, week view, roadmap
+  training.js           – Training views: calendar (with intervals.icu sync), week view, roadmap
   analyse.js            – Analyse: form curve, volume chart (soll/ist), stats, perf trends
   ernaehrung.js         – Ernährung: static nutrition data from AI coach, day-type toggle
-  mehr.js               – Mehr: settings page, profile, data export
+  mehr.js               – Mehr: settings page, profile, data export, intervals.icu connection UI
   strava.js             – Strava OAuth 2.0, activity fetching
+  intervals.js          – intervals.icu API: event sync, Strava auto-log, plan upload
   weather.js            – Open-Meteo weather API
 manifest.json           – PWA manifest
 icon-192.png, icon-512.png – App icons
@@ -47,7 +48,7 @@ index_old.html          – Backup of previous single-file version (v1)
 | **Training** | training.js | Kalender, Woche, Roadmap | Monatskalender (intervals.icu-Style), Wochenansicht mit Soll/Ist, Roadmap bis Harzquerfahrt |
 | **Ernährung** | ernaehrung.js | — | AI Coach Daten (Frühstück, Mittag, Snacks) mit Tagestyp-Toggle und Einkaufsliste |
 | **Analyse** | analyse.js | — | Formkurve, Wochenvolumen Soll/Ist, Statistiken, Leistungsdaten-Trends |
-| **Mehr** | mehr.js | — | Profil, FTP, Strava, Plan-Import, Daten-Export, Reset |
+| **Mehr** | mehr.js | — | Profil, FTP, Strava, intervals.icu, Plan-Import, Daten-Export, Reset |
 
 **Navigation Flow:**
 - Bottom-Nav: 4 Tabs, onclick-Handler direkt im HTML + JS-Listener
@@ -66,6 +67,8 @@ All state is global variables in `app.js`, synced to `localStorage`:
 | `completed` | `gravel-completed` | Object: workoutId → boolean |
 | `activityLogs` | `gravel-activities` | Object: workoutId → log data |
 | `stravaTokens` | `strava-tokens` | Strava OAuth tokens + athlete info |
+| `intervalsConfig` | `intervals-config` | intervals.icu API-Key + Athlete-ID |
+| `intervalsEvents` | `intervals-events` | Cached events (planned workouts) from intervals.icu |
 
 ### Key Functions by File
 
@@ -105,8 +108,16 @@ All state is global variables in `app.js`, synced to `localStorage`:
 - `shoppingData` – static array with all Edeka products
 
 **mehr.js (Settings):**
-- `renderMehr()` – settings page with profile, FTP, Strava, import, export
+- `renderMehr()` – settings page with profile, FTP, Strava, intervals.icu, import, export
 - `exportData()` – download backup as JSON file
+
+**intervals.js (intervals.icu Integration):**
+- `loadIntervalsConfig()`, `saveIntervalsConfig()` – credentials persistence (auto-connects with defaults)
+- `isIntervalsConnected()`, `connectIntervals()`, `disconnectIntervals()` – connection management
+- `fetchIntervalsEvents(oldest, newest)` – fetch planned workouts from intervals.icu Events API
+- `syncIntervalsToCalendar()` – main sync: pull events, update workout dates, auto-log Strava activities
+- `uploadPlanToIntervals()` – push future workouts to intervals.icu calendar
+- `loadCachedIntervalsActivities()` – restore cached events from localStorage
 
 **strava.js:** `connectStrava()`, `disconnectStrava()`, `handleStravaCallback()`, `refreshStravaToken()`, `fetchStravaActivities()`, `loadStravaActivitiesForLog()`, `selectStravaActivity()`
 
@@ -126,7 +137,8 @@ All state is global variables in `app.js`, synced to `localStorage`:
   "technique": "string",
   "video_url": "YouTube URL",
   "coach_notes": "string",
-  "done": false
+  "done": false,
+  "intervalsEventId": "number (optional, set by intervals.icu sync)"
 }
 ```
 
@@ -185,11 +197,23 @@ After pushing, users should hard-refresh (Ctrl+Shift+R) or wait for cache expiry
 ## External APIs
 
 - **Strava API:** OAuth 2.0 flow, client credentials in `strava.js`. Endpoints: authorize, token exchange, athlete activities.
+- **intervals.icu API:** HTTP Basic Auth (`API_KEY:<key>`), credentials in `intervals.js`. Athlete-ID: `i408428`. Endpoints: events (planned workouts), events/bulk (upload), activities (limited for Strava-sourced).
 - **Open-Meteo:** Free weather API, no key required. Coordinates: Bremen (53.0793, 8.8017). 7-day forecast with WMO weather codes.
+
+### intervals.icu Sync Flow
+
+1. **Sync-Button** im Kalender-Header oder Mehr-Tab löst `syncIntervalsToCalendar()` aus
+2. **Events abrufen:** `GET /athlete/{id}/events?oldest=...&newest=...` – liefert geplante Workouts
+3. **Kalender aktualisieren:** Workouts per Name matchen, Datum + Dauer anpassen falls auf intervals.icu verschoben
+4. **Neue Workouts importieren:** Events ohne lokales Match werden als neue Workouts angelegt
+5. **Strava Auto-Log:** `fetchStravaActivities()` holt letzte 30 Aktivitäten, Rad-Aktivitäten werden tagesgenau ungloggten Workouts zugeordnet (bei mehreren: beste Dauer-Übereinstimmung)
+6. **Plan-Upload:** `uploadPlanToIntervals()` sendet zukünftige Workouts als Events via `POST /athlete/{id}/events/bulk`
+
+**Einschränkung:** Strava-gesourcte Aktivitäten liefern über die intervals.icu Activities API keine Details (`_note: "STRAVA activities are not available via the API"`). Deshalb werden Aktivitätsdaten direkt über die Strava API geholt.
 
 ## Security Note
 
-Strava client secret is exposed in client-side code (`strava.js`). This is a known trade-off of the no-backend architecture.
+Strava client secret and intervals.icu API key are exposed in client-side code (`strava.js`, `intervals.js`). This is a known trade-off of the no-backend architecture.
 
 ## Nutrition Coach Integration
 
