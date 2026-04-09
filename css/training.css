@@ -203,8 +203,7 @@
 }
 
 .calendar-workout.intervals-synced {
-    opacity: 0.85;
-    text-decoration: line-through;
+    /* nur Markierung via Badge, kein Durchstreichen */
 }
 
 .calendar-workout.intervals-unmatched {
