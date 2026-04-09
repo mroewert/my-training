@@ -80,11 +80,31 @@ function renderCalendar(container) {
         }
     });
 
+    // Build intervals.icu events lookup by date (planned workouts from intervals.icu not yet in local plan)
+    const intervalsByDate = {};
+    if (intervalsEvents && intervalsEvents.length > 0) {
+        intervalsEvents.forEach(e => {
+            const date = e.start_date_local ? e.start_date_local.split('T')[0] : null;
+            if (!date) return;
+            // Only show events that have no matching local workout
+            const hasLocal = workouts.some(w => w.intervalsEventId === e.id || w.title === e.name);
+            if (hasLocal) return;
+            if (!intervalsByDate[date]) intervalsByDate[date] = [];
+            intervalsByDate[date].push({
+                id: e.id,
+                name: e.name || 'Workout',
+                duration: e.moving_time ? Math.round(e.moving_time / 60) : 0,
+                date: date
+            });
+        });
+    }
+
     let html = `
         <div class="calendar-nav">
             <button class="calendar-nav-btn" onclick="calendarPrev()">\u25C0</button>
             <span class="calendar-month-title">${monthNames[month]} ${year}</span>
             <button class="calendar-nav-btn" onclick="calendarNext()">\u25B6</button>
+            ${isIntervalsConnected() ? '<button class="btn-intervals-sync" id="btn-intervals-sync" onclick="syncIntervalsToCalendar()" title="intervals.icu synchronisieren">Sync</button>' : ''}
         </div>
         <div class="calendar-grid">
             <div class="calendar-day-header">Mo</div>
@@ -100,13 +120,13 @@ function renderCalendar(container) {
     for (let i = startDay - 1; i >= 0; i--) {
         const day = prevMonth.getDate() - i;
         const dateStr = formatISODate(year, month - 1, day);
-        html += renderCalendarDay(day, dateStr, workoutsByDate, today, true);
+        html += renderCalendarDay(day, dateStr, workoutsByDate, intervalsByDate, today, true);
     }
 
     // Current month days
     for (let day = 1; day <= daysInMonth; day++) {
         const dateStr = formatISODate(year, month, day);
-        html += renderCalendarDay(day, dateStr, workoutsByDate, today, false);
+        html += renderCalendarDay(day, dateStr, workoutsByDate, intervalsByDate, today, false);
     }
 
     // Next month padding
@@ -114,7 +134,7 @@ function renderCalendar(container) {
     const remaining = (7 - (totalCells % 7)) % 7;
     for (let day = 1; day <= remaining; day++) {
         const dateStr = formatISODate(year, month + 1, day);
-        html += renderCalendarDay(day, dateStr, workoutsByDate, today, true);
+        html += renderCalendarDay(day, dateStr, workoutsByDate, intervalsByDate, today, true);
     }
 
     html += `</div>`;
@@ -139,9 +159,10 @@ function renderCalendar(container) {
     container.innerHTML = html;
 }
 
-function renderCalendarDay(day, dateStr, workoutsByDate, today, otherMonth) {
+function renderCalendarDay(day, dateStr, workoutsByDate, intervalsByDate, today, otherMonth) {
     const isToday = dateStr === today.toISOString().split('T')[0];
     const dayWorkouts = workoutsByDate[dateStr] || [];
+    const dayIntervals = intervalsByDate[dateStr] || [];
 
     let cls = 'calendar-day';
     if (otherMonth) cls += ' other-month';
@@ -150,13 +171,25 @@ function renderCalendarDay(day, dateStr, workoutsByDate, today, otherMonth) {
     let html = `<div class="${cls}">
         <div class="calendar-day-num">${day}</div>`;
 
+    // Planned workouts
     dayWorkouts.forEach(w => {
         const intensity = getIntensityClass(w.title);
         const isComp = completed[w.id];
+        const isIntervalsSynced = w.intervalsEventId;
         const shortTitle = w.title.length > 12 ? w.title.substring(0, 11) + '\u2026' : w.title;
-        html += `<div class="calendar-workout ${intensity}${isComp ? ' completed' : ''}" onclick="openWorkoutDetail('${w.id}')">
-            ${shortTitle}
+        html += `<div class="calendar-workout ${intensity}${isComp ? ' completed' : ''}${isIntervalsSynced ? ' intervals-synced' : ''}" onclick="openWorkoutDetail('${w.id}')">
+            ${isIntervalsSynced ? '<span class="intervals-badge">i</span>' : ''}${shortTitle}
             <div class="cal-duration">${w.duration}</div>
+        </div>`;
+    });
+
+    // Unmatched intervals.icu events (planned on intervals.icu but not yet in local plan)
+    dayIntervals.forEach(a => {
+        const shortName = a.name.length > 12 ? a.name.substring(0, 11) + '\u2026' : a.name;
+        const durStr = a.duration >= 60 ? Math.round(a.duration / 60 * 10) / 10 + 'h' : a.duration + 'm';
+        html += `<div class="calendar-workout intervals-unmatched" title="${a.name} - ${durStr}">
+            <span class="intervals-badge">i</span>${shortName}
+            <div class="cal-duration">${durStr}</div>
         </div>`;
     });
 

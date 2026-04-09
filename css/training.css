@@ -153,6 +153,71 @@
     opacity: 0.8;
 }
 
+/* intervals.icu Sync Button */
+.btn-intervals-sync {
+    padding: 6px 14px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--accent-secondary);
+    background: transparent;
+    color: var(--accent-secondary);
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+}
+
+.btn-intervals-sync:hover {
+    background: rgba(78, 205, 196, 0.15);
+}
+
+.btn-intervals-sync.syncing {
+    opacity: 0.6;
+    cursor: wait;
+}
+
+/* intervals.icu badge on calendar workouts */
+.intervals-badge {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    line-height: 12px;
+    text-align: center;
+    border-radius: 3px;
+    background: var(--accent-secondary);
+    color: var(--bg-deep);
+    font-size: 8px;
+    font-weight: 800;
+    margin-right: 3px;
+    vertical-align: middle;
+    font-style: italic;
+}
+
+.calendar-workout.intervals-synced {
+    opacity: 0.85;
+    text-decoration: line-through;
+}
+
+.calendar-workout.intervals-unmatched {
+    background: rgba(78, 205, 196, 0.12);
+    color: var(--accent-secondary);
+    border-left: 3px solid var(--accent-secondary);
+    font-style: italic;
+}
+
+/* intervals.icu badge in workout detail */
+.intervals-icu-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 4px;
+    background: rgba(78, 205, 196, 0.2);
+    color: var(--accent-secondary);
+    font-size: 11px;
+    font-weight: 700;
+    margin-left: 8px;
+}
+
 /* Month Summary below calendar */
 .calendar-month-summary {
     display: grid;

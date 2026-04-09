@@ -94,6 +94,62 @@ function renderMehr() {
             </div>
         </div>`;
 
+    // ---- intervals.icu ----
+    const intervalsConnected = isIntervalsConnected();
+    html += `
+        <div class="settings-section">
+            <div class="settings-section-header">
+                <span class="section-icon">📈</span> intervals.icu
+            </div>
+            <div class="settings-section-body">
+                ${intervalsConnected ? `
+                <div class="settings-row">
+                    <div class="settings-row-info">
+                        <div class="settings-row-title">Verbunden</div>
+                        <div class="settings-row-sub">Athlete-ID: ${intervalsConfig.athleteId}</div>
+                    </div>
+                    <div class="settings-row-action">
+                        <button class="btn-settings strava-connected" onclick="disconnectIntervals()">Trennen</button>
+                    </div>
+                </div>
+                <div class="settings-row">
+                    <div class="settings-row-info">
+                        <div class="settings-row-title">Aktivit\u00E4ten synchronisieren</div>
+                        <div class="settings-row-sub">Aktivit\u00E4ten abrufen und mit Trainingsplan abgleichen</div>
+                    </div>
+                    <div class="settings-row-action">
+                        <button class="btn-settings" id="btn-intervals-sync-mehr" onclick="syncIntervalsToCalendar()">Sync</button>
+                    </div>
+                </div>
+                <div class="settings-row">
+                    <div class="settings-row-info">
+                        <div class="settings-row-title">Plan hochladen</div>
+                        <div class="settings-row-sub">Zuk\u00FCnftige Workouts auf intervals.icu Kalender schieben</div>
+                    </div>
+                    <div class="settings-row-action">
+                        <button class="btn-settings" id="btn-intervals-upload" onclick="uploadPlanToIntervals()">Upload</button>
+                    </div>
+                </div>
+                ` : `
+                <div class="settings-row" style="flex-direction:column;gap:12px;">
+                    <div class="settings-row-info">
+                        <div class="settings-row-title">Nicht verbunden</div>
+                        <div class="settings-row-sub">API-Key findest du unter intervals.icu → Settings → Developer Settings</div>
+                    </div>
+                    <div class="form-group" style="width:100%;">
+                        <label class="form-label">Athlete-ID</label>
+                        <input type="text" class="form-input" id="intervals-athlete-id" placeholder="z.B. i12345">
+                    </div>
+                    <div class="form-group" style="width:100%;">
+                        <label class="form-label">API-Key</label>
+                        <input type="password" class="form-input" id="intervals-apikey" placeholder="Dein API-Key">
+                    </div>
+                    <button class="btn-settings" onclick="connectIntervals()" style="align-self:flex-end;">Verbinden</button>
+                </div>
+                `}
+            </div>
+        </div>`;
+
     // ---- Trainingsplan ----
     html += `
         <div class="settings-section">

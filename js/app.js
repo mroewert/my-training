@@ -396,6 +396,7 @@ function openWorkoutDetail(workoutId) {
                     <span>\uD83D\uDCC5 ${formatDate(workout.date)}</span>
                     <span>\u23F1 ${workout.duration}</span>
                     ${isComp ? '<span style="color:var(--status-green)">\u2713 Erledigt</span>' : ''}
+                    ${workout.intervalsEventId ? '<span class="intervals-icu-badge">intervals.icu</span>' : ''}
                 </div>
                 <div class="workout-detail-desc">${workout.desc || ''}</div>
             </div>`;
@@ -523,6 +524,8 @@ document.addEventListener('DOMContentLoaded', () => {
     loadStravaTokens();
     handleStravaCallback();
     updateStravaUI();
+    loadIntervalsConfig();
+    loadCachedIntervalsActivities();
 
     // Init training view
     initTraining();
