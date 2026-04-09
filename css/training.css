@@ -74,9 +74,11 @@
 
 .calendar-grid {
     display: grid;
-    grid-template-columns: repeat(7, 1fr);
+    grid-template-columns: repeat(7, minmax(52px, 1fr));
     gap: 2px;
     padding: 0 8px 16px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
 }
 
 .calendar-day-header {
