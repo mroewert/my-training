@@ -216,6 +216,53 @@ async function syncIntervalsToCalendar() {
             }
         });
 
+        // Auto-log Strava activities to matching workouts by date
+        let autoLogged = 0;
+        if (isStravaConnected()) {
+            const stravaActivities = await fetchStravaActivities();
+            const cycling = stravaActivities.filter(a =>
+                a.type === 'Ride' || a.type === 'VirtualRide' || a.type === 'GravelRide' || a.type === 'MountainBikeRide'
+            );
+
+            cycling.forEach(activity => {
+                // Find unlogged workouts on the same day
+                const dayWorkouts = workouts.filter(w =>
+                    w.date === activity.date && !activityLogs[w.id]
+                );
+                if (dayWorkouts.length === 0) return;
+
+                // Pick best match: closest duration
+                let bestMatch = dayWorkouts[0];
+                if (dayWorkouts.length > 1) {
+                    let bestDiff = Infinity;
+                    dayWorkouts.forEach(w => {
+                        const diff = Math.abs(parseDuration(w.duration) - activity.duration);
+                        if (diff < bestDiff) { bestDiff = diff; bestMatch = w; }
+                    });
+                }
+
+                // Don't overwrite existing logs
+                if (activityLogs[bestMatch.id]) return;
+
+                activityLogs[bestMatch.id] = {
+                    duration: activity.duration,
+                    avgPower: activity.avgPower,
+                    normalizedPower: activity.normalizedPower,
+                    distance: parseFloat(activity.distance) || 0,
+                    avgHr: activity.avgHr,
+                    maxHr: activity.maxHr,
+                    calories: activity.calories,
+                    tss: activity.tss,
+                    feeling: 0,
+                    notes: '',
+                    stravaActivity: { id: activity.id, name: activity.name },
+                    loggedAt: new Date().toISOString()
+                };
+                completed[bestMatch.id] = true;
+                autoLogged++;
+            });
+        }
+
         saveData();
         renderCurrentTrainingView();
         updateSyncButton('done');
@@ -223,7 +270,8 @@ async function syncIntervalsToCalendar() {
         let msg = 'Sync abgeschlossen!';
         if (updated > 0) msg += ` ${updated} Workouts aktualisiert.`;
         if (added > 0) msg += ` ${added} neue Workouts importiert.`;
-        if (updated === 0 && added === 0) msg += ' Kalender ist bereits aktuell.';
+        if (autoLogged > 0) msg += ` ${autoLogged} Strava-Aktivitaet${autoLogged !== 1 ? 'en' : ''} automatisch geloggt.`;
+        if (updated === 0 && added === 0 && autoLogged === 0) msg += ' Kalender ist bereits aktuell.';
         alert(msg);
 
     } catch (e) {
