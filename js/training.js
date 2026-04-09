@@ -104,8 +104,8 @@ function renderCalendar(container) {
             <button class="calendar-nav-btn" onclick="calendarPrev()">\u25C0</button>
             <span class="calendar-month-title">${monthNames[month]} ${year}</span>
             <button class="calendar-nav-btn" onclick="calendarNext()">\u25B6</button>
-            ${isIntervalsConnected() ? '<button class="btn-intervals-sync" id="btn-intervals-sync" onclick="syncIntervalsToCalendar()" title="intervals.icu synchronisieren">Sync</button>' : ''}
         </div>
+        ${isIntervalsConnected() ? '<div class="calendar-sync-row"><button class="btn-intervals-sync" id="btn-intervals-sync" onclick="syncIntervalsToCalendar()" title="intervals.icu synchronisieren">Sync intervals.icu</button></div>' : ''}
         <div class="calendar-grid">
             <div class="calendar-day-header">Mo</div>
             <div class="calendar-day-header">Di</div>

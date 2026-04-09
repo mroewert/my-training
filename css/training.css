@@ -153,15 +153,21 @@
     opacity: 0.8;
 }
 
-/* intervals.icu Sync Button */
+/* intervals.icu Sync Row + Button */
+.calendar-sync-row {
+    display: flex;
+    justify-content: flex-end;
+    padding: 0 16px 8px;
+}
+
 .btn-intervals-sync {
-    padding: 6px 14px;
+    padding: 5px 12px;
     border-radius: var(--radius-sm);
     border: 1px solid var(--accent-secondary);
     background: transparent;
     color: var(--accent-secondary);
     font-family: inherit;
-    font-size: 12px;
+    font-size: 11px;
     font-weight: 700;
     cursor: pointer;
     transition: all 0.2s;
