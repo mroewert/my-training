@@ -44,7 +44,7 @@ TRAINING_PLAN_SPEC.md   – Format guide for creating training plans
 index_old.html          – Backup of previous single-file version (v1)
 ```
 
-### App Structure (4 Tabs + Bottom Nav)
+### App Structure (5 Tabs + Bottom Nav)
 
 | Tab | File | Sub-Views | Description |
 |-----|------|-----------|-------------|
@@ -55,9 +55,10 @@ index_old.html          – Backup of previous single-file version (v1)
 | **Mehr** | mehr.js | — | Profil, FTP, Strava, intervals.icu, Komoot, Plan-Import, Daten-Export, Reset |
 
 **Navigation Flow:**
-- Bottom-Nav: 4 Tabs, onclick-Handler direkt im HTML + JS-Listener
+- Bottom-Nav: 5 Tabs, onclick-Handler direkt im HTML + JS-Listener
 - Training Sub-Nav: 3 Buttons (Kalender/Woche/Roadmap) umschalten via `switchTrainingView()`
-- Workout Detail: Fullscreen-View (kein Modal), öffnet via `openWorkoutDetail(id)`
+- Workout Detail: Fullscreen-View (`#workout-detail-view`), öffnet via `openWorkoutDetail(id)`
+- Route Detail: Fullscreen-View (`#route-detail-view`), öffnet via `openRouteDetail(id)`
 - Modals: Import (`#modal-import`), Log (`#modal-log`), Edit (`#modal-edit`)
 
 ### State Management
@@ -73,6 +74,8 @@ All state is global variables in `app.js`, synced to `localStorage`:
 | `stravaTokens` | `strava-tokens` | Strava OAuth tokens + athlete info |
 | `intervalsConfig` | `intervals-config` | intervals.icu API-Key + Athlete-ID |
 | `intervalsEvents` | `intervals-events` | Cached events (planned workouts) from intervals.icu |
+| (komoot.js) | `komoot-config` | Komoot credentials: email, password, userId, displayName |
+| (komoot.js) | `komoot-routes` | Array of route objects with ratings, notes, ride log |
 
 ### Key Functions by File
 
@@ -111,8 +114,33 @@ All state is global variables in `app.js`, synced to `localStorage`:
 - `nutritionData` – static object with all AI coach data
 - `shoppingData` – static array with all Edeka products
 
+**komoot.js (Komoot API & Data):**
+- `loadKomootConfig()`, `saveKomootConfig()` – credentials persistence in localStorage
+- `isKomootConnected()`, `connectKomoot(email, password)`, `disconnectKomoot()` – connection management
+- `fetchKomootTours()` – fetch all tours (paginated, 100 per page), returns planned + recorded
+- `fetchKomootTourDetail(tourId)` – fetch single tour with surfaces, way types, difficulty
+- `syncKomootRoutes(progressCallback)` – main sync: fetch planned tours, load details, merge with existing user data (ratings, notes, ride log), apply Excel import data for new routes, count recorded rides
+- `guessRegion(route)` – auto-assign region based on GPS coordinates (Bremen, Harz, Fehmarn, Müritz, Nordsee)
+- `loadRoutes()`, `saveRoutes()`, `updateRoute()` – route data CRUD in localStorage
+- `addRideLogEntry()`, `deleteRideLogEntry()` – ride log management
+- Surface/way type helpers: `getSurfaceLabel()`, `getSurfaceClass()`, `getSurfaceColor()`, `getWayTypeLabel()`, `getSportLabel()`, `getDifficultyLabel()`, `formatDurationRoute()`
+- `EXCEL_IMPORT_DATA` – pre-existing ratings from Fahrradrouten.xlsx (10 routes), applied on first sync
+
+**routen.js (Routen Tab UI):**
+- `renderRouten()` – main render: header, search, filter chips, sort selector, route card list
+- `renderRouteCard(route, rideCount)` – card with name, sport badge, stats, surface bar, tags, stars
+- `openRouteDetail(routeId)` – fullscreen view with stats grid, surface detail, way types, rating section (star input, toggles), notes textarea, ride log with add/delete
+- `closeRouteDetail()` – close and re-render list
+- `setRouteRating(routeId, field, value)` – set/toggle star rating (rating or difficultyRating)
+- `toggleRouteFlag(routeId, field, value)` – toggle wetSuitable/pendelTauglich
+- `saveRouteNotes(routeId, notes)` – save notes on blur
+- `showAddRideForm()`, `saveRideLogEntry()`, `deleteRide()` – ride log UI actions
+- `handleKomootSync()` – sync button handler with progress display
+- Filter state: `routenSearchQuery`, `routenSportFilter`, `routenRegionFilter`, `routenSortBy`, `routenSortDir`, `routenSpecialFilter`
+
 **mehr.js (Settings):**
-- `renderMehr()` – settings page with profile, FTP, Strava, intervals.icu, import, export
+- `renderMehr()` – settings page with profile, FTP, Strava, intervals.icu, Komoot, import, export
+- `handleKomootConnect()` – Komoot login from Mehr tab (email + password form)
 - `exportData()` – download backup as JSON file
 
 **intervals.js (intervals.icu Integration):**
@@ -145,6 +173,89 @@ All state is global variables in `app.js`, synced to `localStorage`:
   "intervalsEventId": "number (optional, set by intervals.icu sync)"
 }
 ```
+
+### Route Data Model (in komoot.js → localStorage `komoot-routes`)
+
+```json
+{
+  "id": "string (Komoot tour ID)",
+  "name": "string",
+  "sport": "racebike | touringbicycle | mtb_easy | mtb",
+  "distance": 65.2,
+  "elevationUp": 1300,
+  "elevationDown": 1280,
+  "duration": 15638,
+  "startPoint": { "lat": 53.07, "lng": 8.80, "alt": 5.0 },
+  "date": "ISO 8601 string",
+  "link": "https://www.komoot.com/de-de/tour/{id}",
+  "surfaces": [
+    { "type": "sb#asphalt", "amount": 0.25 },
+    { "type": "sb#compacted", "amount": 0.42 },
+    { "type": "sb#unpaved", "amount": 0.19 }
+  ],
+  "wayTypes": [
+    { "type": "wt#way", "amount": 0.56 },
+    { "type": "wt#trail", "amount": 0.14 },
+    { "type": "wt#street", "amount": 0.13 }
+  ],
+  "difficulty": { "grade": "moderate", "explanation_technical": "db#t1", "explanation_fitness": "d#c2" },
+  "constitution": 3,
+  "recordedCount": 5,
+  "lastRidden": "ISO 8601 string or null",
+  "rating": 0,
+  "difficultyRating": 0,
+  "wetSuitable": false,
+  "pendelTauglich": false,
+  "notes": "string",
+  "region": "Umgebung | Harz | Fehmarn | Müritz | Nordsee | Sonstige",
+  "rideLog": [
+    {
+      "id": "timestamp string",
+      "date": "YYYY-MM-DD",
+      "feeling": 3,
+      "weather": "sonnig | bewölkt | regen | wind | kalt",
+      "duration": 120,
+      "notes": "string"
+    }
+  ]
+}
+```
+
+**Felder automatisch von Komoot:** id, name, sport, distance, elevationUp/Down, duration, startPoint, date, link, surfaces, wayTypes, difficulty, constitution, recordedCount, lastRidden
+
+**Felder manuell vom Benutzer:** rating (1-5 Sterne Spass), difficultyRating (1-5 Sterne), wetSuitable, pendelTauglich, notes, region (initial automatisch geraten), rideLog
+
+### Ride Log Entry
+
+Jede Route kann beliebig viele Fahrten-Log-Einträge haben. Pro Fahrt:
+- **Datum** – Wann gefahren
+- **Gefühl** (1-5) – 😫 😕 😐 🙂 💪
+- **Wetter** – sonnig/bewölkt/regen/wind/kalt
+- **Dauer** (Minuten) – optional
+- **Notizen** – Freitext
+
+### Surface Types (Komoot API)
+
+| API-Code | Label | Farbe | Beschreibung |
+|----------|-------|-------|-------------|
+| `sb#asphalt` | Asphalt | Blau (#3B82F6) | Asphaltierte Strassen |
+| `sb#compacted` | Verdichtet | Gelb (#EAB308) | Verdichtete Erde/Kies |
+| `sb#unpaved` | Unbefestigt | Orange (#F97316) | Unbefestigte Wege |
+| `sb#cobbles` | Kopfstein | Rot (#EF4444) | Kopfsteinpflaster |
+| `sb#paved` | Befestigt | Grün (#22C55E) | Sonstige befestigte Oberfläche |
+| `sf#unknown` | Unbekannt | Grau (#64748B) | Keine Daten |
+
+### Way Types (Komoot API)
+
+| API-Code | Label |
+|----------|-------|
+| `wt#cycleway` | Radweg |
+| `wt#street` | Strasse |
+| `wt#minor_road` | Nebenstrasse |
+| `wt#trail` | Trail |
+| `wt#way` | Weg |
+| `wt#path` | Pfad |
+| `wt#state_road` | Landstrasse |
 
 ### Nutrition Data Model (in ernaehrung.js)
 
@@ -202,6 +313,7 @@ After pushing, users should hard-refresh (Ctrl+Shift+R) or wait for cache expiry
 
 - **Strava API:** OAuth 2.0 flow, client credentials in `strava.js`. Endpoints: authorize, token exchange, athlete activities.
 - **intervals.icu API:** HTTP Basic Auth (`API_KEY:<key>`), credentials in `intervals.js`. Athlete-ID: `i408428`. Endpoints: events (planned workouts), events/bulk (upload), activities (limited for Strava-sourced).
+- **Komoot API:** Inoffizielle API, HTTP Basic Auth (E-Mail + Passwort), credentials in localStorage (`komoot-config`). User-ID: `1130745446386`. Details siehe Komoot Sync Flow unten.
 - **Open-Meteo:** Free weather API, no key required. Coordinates: Bremen (53.0793, 8.8017). 7-day forecast with WMO weather codes.
 
 ### intervals.icu Sync Flow
@@ -215,9 +327,29 @@ After pushing, users should hard-refresh (Ctrl+Shift+R) or wait for cache expiry
 
 **Einschränkung:** Strava-gesourcte Aktivitäten liefern über die intervals.icu Activities API keine Details (`_note: "STRAVA activities are not available via the API"`). Deshalb werden Aktivitätsdaten direkt über die Strava API geholt.
 
+### Komoot Sync Flow
+
+1. **Login:** `GET https://api.komoot.de/v006/account/email/{email}/` mit Basic Auth → liefert `username` (User-ID) und `displayname`
+2. **Touren laden:** `GET https://api.komoot.de/v007/users/{userId}/tours/?page=N&limit=100` – paginiert, liefert alle Touren (geplant + aufgezeichnet)
+3. **Geplante Touren filtern:** Nur `type === 'tour_planned'` werden als Routen importiert (das sind die gespeicherten/geplanten Routen)
+4. **Tour-Details laden:** `GET https://api.komoot.de/v007/tours/{tourId}` – für jede geplante Tour einzeln (liefert Oberflächen, Wegtypen, Schwierigkeit). 150ms Delay zwischen Requests (Rate Limiting)
+5. **Aufgezeichnete Fahrten zählen:** Recorded tours werden per Name-Match oder Distanz-Match (±3 km + gleicher Sport) den geplanten Routen zugeordnet → `recordedCount` und `lastRidden`
+6. **Benutzer-Daten mergen:** Bestehende Bewertungen, Notizen, Fahrten-Log aus localStorage werden beibehalten. Neue Routen erhalten ggf. Daten aus `EXCEL_IMPORT_DATA` (einmalige Migration aus Fahrradrouten.xlsx)
+7. **Region automatisch erraten:** GPS-Koordinaten des Startpunkts werden Regionen zugeordnet (Bremen/Umgebung, Harz, Fehmarn, Müritz, Nordsee)
+
+**Hinweis:** Die Komoot API ist **inoffiziell** und nicht öffentlich dokumentiert. Sie kann jederzeit von Komoot geändert werden. Endpunkte wurden über Reverse-Engineering (Python-Library `komPYoot`) ermittelt.
+
+**Statistiken (Stand April 2026):** 318 Touren gesamt – 83 geplant, 235 aufgezeichnet. Sportarten: Rennrad (214), Trekking (50), Gravel/MTB (49), MTB (5).
+
+### Excel Import (Einmalige Migration)
+
+Die Datei `../komoot-routen/Fahrradrouten.xlsx` enthielt 12 bereits dokumentierte Routen mit Bewertungen. Diese wurden als `EXCEL_IMPORT_DATA` in `komoot.js` eingebettet und werden beim ersten Sync automatisch auf die passenden Komoot-Touren angewendet.
+
+**Bewertungs-Konvertierung:** Excel nutzte Schulnoten (1=beste, 6=schlechteste). Konvertiert zu 5-Sterne-System: `Sterne = 6 - Schulnote` (1→5, 2→4, 3→3, 4→2, 5→1).
+
 ## Security Note
 
-Strava client secret and intervals.icu API key are exposed in client-side code (`strava.js`, `intervals.js`). This is a known trade-off of the no-backend architecture.
+Strava client secret, intervals.icu API key, and Komoot credentials are exposed in client-side code / localStorage. This is a known trade-off of the no-backend architecture. Komoot credentials (`komoot-config` in localStorage) include the plain-text password, required for Basic Auth API calls.
 
 ## Nutrition Coach Integration
 
