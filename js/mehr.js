@@ -150,6 +150,46 @@ function renderMehr() {
             </div>
         </div>`;
 
+    // ---- Komoot ----
+    const komootConnected = isKomootConnected();
+    const komootConfig = loadKomootConfig();
+    const komootRoutes = loadRoutes();
+    html += `
+        <div class="settings-section">
+            <div class="settings-section-header">
+                <span class="section-icon">🗺️</span> Komoot
+            </div>
+            <div class="settings-section-body">
+                ${komootConnected ? `
+                <div class="settings-row">
+                    <div class="settings-row-info">
+                        <div class="settings-row-title">Verbunden</div>
+                        <div class="settings-row-sub">${komootConfig.displayName} · ${komootRoutes.length} Routen</div>
+                    </div>
+                    <div class="settings-row-action">
+                        <button class="btn-settings strava-connected" onclick="disconnectKomoot(); renderMehr();">Trennen</button>
+                    </div>
+                </div>
+                ` : `
+                <div class="settings-row" style="flex-direction:column;gap:12px;">
+                    <div class="settings-row-info">
+                        <div class="settings-row-title">Nicht verbunden</div>
+                        <div class="settings-row-sub">Komoot-Login für automatischen Routen-Import</div>
+                    </div>
+                    <div class="form-group" style="width:100%;">
+                        <label class="form-label">E-Mail</label>
+                        <input type="email" class="form-input" id="komoot-email" placeholder="deine@email.de">
+                    </div>
+                    <div class="form-group" style="width:100%;">
+                        <label class="form-label">Passwort</label>
+                        <input type="password" class="form-input" id="komoot-password" placeholder="Komoot Passwort">
+                    </div>
+                    <button class="btn-settings" onclick="handleKomootConnect()" style="align-self:flex-end;">Verbinden</button>
+                </div>
+                `}
+            </div>
+        </div>`;
+
     // ---- Trainingsplan ----
     html += `
         <div class="settings-section">
@@ -207,6 +247,19 @@ function renderMehr() {
 
     html += '</div>';
     container.innerHTML = html;
+}
+
+async function handleKomootConnect() {
+    const email = document.getElementById('komoot-email').value;
+    const password = document.getElementById('komoot-password').value;
+    if (!email || !password) { alert('Bitte E-Mail und Passwort eingeben'); return; }
+    try {
+        await connectKomoot(email, password);
+        renderMehr();
+        alert('Komoot verbunden! Gehe zum Tab "Routen" und starte den Sync.');
+    } catch (e) {
+        alert(e.message);
+    }
 }
 
 function exportData() {

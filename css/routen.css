@@ -1,0 +1,732 @@
+/* ============================================
+   ROUTEN TAB – Komoot Routen-Verwaltung
+============================================ */
+
+/* Header with sync button */
+.routen-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px;
+    gap: 12px;
+}
+
+.routen-header h2 {
+    font-size: 20px;
+    font-weight: 700;
+}
+
+.routen-header .route-count {
+    font-size: 13px;
+    color: var(--text-muted);
+    font-weight: 500;
+}
+
+.btn-sync-komoot {
+    padding: 8px 14px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--accent-secondary);
+    background: rgba(78, 205, 196, 0.1);
+    color: var(--accent-secondary);
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.2s;
+}
+
+.btn-sync-komoot:hover {
+    background: rgba(78, 205, 196, 0.2);
+}
+
+.btn-sync-komoot.syncing {
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+/* Filter Bar */
+.routen-filters {
+    padding: 0 16px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.routen-search {
+    width: 100%;
+    padding: 10px 14px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+    background: var(--bg-card);
+    color: var(--text-primary);
+    font-family: inherit;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.routen-search:focus {
+    border-color: var(--accent-primary);
+}
+
+.routen-filter-row {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    padding-bottom: 4px;
+    -webkit-overflow-scrolling: touch;
+}
+
+.routen-filter-row::-webkit-scrollbar { display: none; }
+
+.filter-chip {
+    padding: 6px 12px;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text-secondary);
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.2s;
+}
+
+.filter-chip.active {
+    background: var(--accent-primary);
+    color: var(--bg-deep);
+    border-color: var(--accent-primary);
+}
+
+.filter-chip:hover:not(.active) {
+    border-color: var(--text-muted);
+}
+
+/* Sort Bar */
+.routen-sort {
+    padding: 0 16px 12px;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.routen-sort label {
+    font-size: 12px;
+    color: var(--text-muted);
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.sort-select {
+    padding: 6px 10px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+    background: var(--bg-card);
+    color: var(--text-primary);
+    font-family: inherit;
+    font-size: 12px;
+    outline: none;
+    cursor: pointer;
+}
+
+/* Route List */
+.routen-list {
+    padding: 0 16px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+/* Route Card */
+.route-card {
+    background: var(--bg-card);
+    border-radius: var(--radius);
+    padding: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: 1px solid transparent;
+}
+
+.route-card:hover {
+    border-color: var(--border);
+    background: var(--bg-card-light);
+}
+
+.route-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 8px;
+}
+
+.route-card-name {
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 1.3;
+    flex: 1;
+}
+
+.route-card-sport {
+    padding: 2px 8px;
+    border-radius: 6px;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+}
+
+.sport-racebike { background: rgba(59, 130, 246, 0.15); color: var(--status-blue); }
+.sport-touringbicycle { background: rgba(34, 197, 94, 0.15); color: var(--status-green); }
+.sport-mtb_easy, .sport-mtb { background: rgba(168, 85, 247, 0.15); color: var(--status-purple); }
+
+.route-card-stats {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 8px;
+    font-size: 13px;
+    color: var(--text-secondary);
+}
+
+.route-card-stats span {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.route-card-stats .stat-icon {
+    font-size: 12px;
+}
+
+/* Surface Bar */
+.surface-bar {
+    display: flex;
+    height: 4px;
+    border-radius: 2px;
+    overflow: hidden;
+    margin-bottom: 8px;
+}
+
+.surface-bar-segment {
+    height: 100%;
+    transition: width 0.3s;
+}
+
+.surface-asphalt { background: #3B82F6; }
+.surface-compacted { background: #EAB308; }
+.surface-unpaved { background: #F97316; }
+.surface-cobbles { background: #EF4444; }
+.surface-paved { background: #22C55E; }
+.surface-unknown { background: var(--bg-elevated); }
+
+/* Tags Row */
+.route-card-tags {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-bottom: 8px;
+}
+
+.route-tag {
+    padding: 2px 8px;
+    border-radius: 6px;
+    font-size: 10px;
+    font-weight: 600;
+    background: var(--bg-elevated);
+    color: var(--text-secondary);
+}
+
+.route-tag.tag-wet-yes { background: rgba(34, 197, 94, 0.15); color: var(--status-green); }
+.route-tag.tag-wet-no { background: rgba(239, 68, 68, 0.1); color: var(--status-red); }
+.route-tag.tag-pendel { background: rgba(78, 205, 196, 0.15); color: var(--accent-secondary); }
+
+/* Rating Stars */
+.route-card-rating {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.stars {
+    display: flex;
+    gap: 2px;
+}
+
+.star {
+    color: var(--bg-elevated);
+    font-size: 14px;
+}
+
+.star.filled {
+    color: var(--accent-primary);
+}
+
+.rating-label {
+    font-size: 11px;
+    color: var(--text-muted);
+}
+
+.ride-count {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-left: auto;
+}
+
+/* ============================================
+   ROUTE DETAIL – Fullscreen View
+============================================ */
+
+.route-detail {
+    padding: 16px;
+}
+
+.route-detail-hero {
+    margin-bottom: 20px;
+}
+
+.route-detail-name {
+    font-size: 20px;
+    font-weight: 800;
+    margin-bottom: 8px;
+}
+
+.route-detail-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin-bottom: 12px;
+}
+
+.route-detail-meta span {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+/* Stats Grid */
+.route-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.route-stat-card {
+    background: var(--bg-card);
+    border-radius: var(--radius-sm);
+    padding: 12px;
+    text-align: center;
+}
+
+.route-stat-value {
+    font-size: 20px;
+    font-weight: 700;
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--text-primary);
+}
+
+.route-stat-label {
+    font-size: 10px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-top: 2px;
+}
+
+/* Surface Detail */
+.surface-detail {
+    background: var(--bg-card);
+    border-radius: var(--radius);
+    padding: 14px;
+    margin-bottom: 16px;
+}
+
+.surface-detail h3 {
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 10px;
+}
+
+.surface-detail-bar {
+    height: 8px;
+    border-radius: 4px;
+    overflow: hidden;
+    display: flex;
+    margin-bottom: 10px;
+}
+
+.surface-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.surface-legend-item {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+
+.surface-legend-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+}
+
+/* Way Types */
+.way-types-detail {
+    background: var(--bg-card);
+    border-radius: var(--radius);
+    padding: 14px;
+    margin-bottom: 16px;
+}
+
+.way-types-detail h3 {
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 10px;
+}
+
+.way-type-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 6px;
+}
+
+.way-type-label {
+    font-size: 12px;
+    color: var(--text-secondary);
+    width: 100px;
+    flex-shrink: 0;
+}
+
+.way-type-bar-bg {
+    flex: 1;
+    height: 6px;
+    background: var(--bg-elevated);
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.way-type-bar-fill {
+    height: 100%;
+    background: var(--accent-secondary);
+    border-radius: 3px;
+    transition: width 0.3s;
+}
+
+.way-type-pct {
+    font-size: 11px;
+    color: var(--text-muted);
+    font-family: 'JetBrains Mono', monospace;
+    width: 35px;
+    text-align: right;
+}
+
+/* Bewertung Section */
+.route-rating-section {
+    background: var(--bg-card);
+    border-radius: var(--radius);
+    padding: 14px;
+    margin-bottom: 16px;
+}
+
+.route-rating-section h3 {
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 12px;
+}
+
+.rating-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.rating-row label {
+    font-size: 13px;
+    color: var(--text-secondary);
+    width: 100px;
+    flex-shrink: 0;
+}
+
+.star-input {
+    display: flex;
+    gap: 4px;
+}
+
+.star-input .star-btn {
+    background: none;
+    border: none;
+    font-size: 22px;
+    cursor: pointer;
+    color: var(--bg-elevated);
+    transition: color 0.15s;
+    padding: 2px;
+}
+
+.star-input .star-btn.filled {
+    color: var(--accent-primary);
+}
+
+.star-input .star-btn:hover {
+    color: var(--accent-primary);
+}
+
+/* Toggle Switches */
+.toggle-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+}
+
+.toggle-row label {
+    font-size: 13px;
+    color: var(--text-secondary);
+}
+
+.toggle-switch {
+    position: relative;
+    width: 44px;
+    height: 24px;
+}
+
+.toggle-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.toggle-slider {
+    position: absolute;
+    inset: 0;
+    background: var(--bg-elevated);
+    border-radius: 12px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.toggle-slider::before {
+    content: '';
+    position: absolute;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: var(--text-secondary);
+    top: 3px;
+    left: 3px;
+    transition: all 0.2s;
+}
+
+.toggle-switch input:checked + .toggle-slider {
+    background: var(--accent-primary);
+}
+
+.toggle-switch input:checked + .toggle-slider::before {
+    transform: translateX(20px);
+    background: var(--bg-deep);
+}
+
+/* Notizen */
+.route-notes {
+    background: var(--bg-card);
+    border-radius: var(--radius);
+    padding: 14px;
+    margin-bottom: 16px;
+}
+
+.route-notes h3 {
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 8px;
+}
+
+.route-notes textarea {
+    width: 100%;
+    min-height: 60px;
+    background: var(--bg-deep);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 10px;
+    color: var(--text-primary);
+    font-family: inherit;
+    font-size: 13px;
+    outline: none;
+    resize: vertical;
+}
+
+.route-notes textarea:focus {
+    border-color: var(--accent-primary);
+}
+
+/* Fahrten Log */
+.ride-log-section {
+    background: var(--bg-card);
+    border-radius: var(--radius);
+    padding: 14px;
+    margin-bottom: 16px;
+}
+
+.ride-log-section h3 {
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.btn-add-ride {
+    padding: 6px 12px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--accent-primary);
+    background: transparent;
+    color: var(--accent-primary);
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.ride-log-entry {
+    background: var(--bg-deep);
+    border-radius: var(--radius-sm);
+    padding: 12px;
+    margin-bottom: 8px;
+}
+
+.ride-log-entry:last-child {
+    margin-bottom: 0;
+}
+
+.ride-log-date {
+    font-size: 13px;
+    font-weight: 700;
+    margin-bottom: 4px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.ride-log-date .ride-feeling {
+    font-size: 12px;
+}
+
+.ride-log-info {
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-bottom: 4px;
+}
+
+.ride-log-notes {
+    font-size: 12px;
+    color: var(--text-muted);
+    font-style: italic;
+}
+
+.btn-delete-ride {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    font-size: 14px;
+    padding: 2px 4px;
+}
+
+.btn-delete-ride:hover {
+    color: var(--status-red);
+}
+
+/* Actions */
+.route-detail-actions {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.route-detail-actions .btn-primary {
+    flex: 1;
+}
+
+.btn-komoot-link {
+    padding: 14px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text-secondary);
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    text-align: center;
+    text-decoration: none;
+    display: block;
+}
+
+.btn-komoot-link:hover {
+    border-color: var(--accent-secondary);
+    color: var(--accent-secondary);
+}
+
+/* Add Ride Modal */
+.add-ride-form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+/* Komoot Login Section (Mehr Tab) */
+.komoot-section {
+    margin-top: 16px;
+}
+
+.komoot-status {
+    font-size: 12px;
+    color: var(--text-muted);
+    text-align: center;
+    margin-top: 8px;
+}
+
+.btn-komoot {
+    width: 100%;
+    padding: 12px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--accent-secondary);
+    background: transparent;
+    color: var(--accent-secondary);
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.btn-komoot.connected {
+    background: rgba(78, 205, 196, 0.1);
+}
+
+/* Empty State */
+.routen-empty {
+    text-align: center;
+    padding: 60px 20px;
+}
+
+.routen-empty .empty-icon {
+    font-size: 48px;
+    margin-bottom: 16px;
+}
+
+.routen-empty .empty-text {
+    color: var(--text-muted);
+    font-size: 15px;
+    margin-bottom: 12px;
+}

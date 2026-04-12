@@ -172,6 +172,8 @@ function switchTab(tabName) {
         renderAnalyse();
     } else if (tabName === 'ernaehrung') {
         renderErnaehrung();
+    } else if (tabName === 'routen') {
+        renderRouten();
     } else if (tabName === 'mehr') {
         renderMehr();
     }

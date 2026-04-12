@@ -25,6 +25,7 @@
     <link rel="stylesheet" href="css/analyse.css?v=3">
     <link rel="stylesheet" href="css/ernaehrung.css?v=1">
     <link rel="stylesheet" href="css/mehr.css?v=1">
+    <link rel="stylesheet" href="css/routen.css?v=1">
 </head>
 <body>
 
@@ -61,6 +62,11 @@
         <div id="analyse-content"></div>
     </div>
 
+    <!-- Tab: Routen -->
+    <div class="tab-content" id="tab-routen">
+        <div id="routen-content"></div>
+    </div>
+
     <!-- Tab: Mehr / Einstellungen -->
     <div class="tab-content" id="tab-mehr">
         <div id="mehr-content"></div>
@@ -80,6 +86,10 @@
             <span class="nav-icon">📊</span>
             <span>Analyse</span>
         </button>
+        <button class="nav-item" data-tab="routen" onclick="switchTab('routen')">
+            <span class="nav-icon">🗺️</span>
+            <span>Routen</span>
+        </button>
         <button class="nav-item" data-tab="mehr" onclick="switchTab('mehr')">
             <span class="nav-icon">⚙️</span>
             <span>Mehr</span>
@@ -88,6 +98,9 @@
 
     <!-- Workout Detail Fullscreen View -->
     <div class="fullscreen-view" id="workout-detail-view"></div>
+
+    <!-- Route Detail Fullscreen View -->
+    <div class="fullscreen-view" id="route-detail-view"></div>
 
     <!-- Import Modal -->
     <div class="modal-overlay" id="modal-import">
@@ -244,6 +257,8 @@
     <script src="js/weather.js?v=3"></script>
     <script src="js/strava.js?v=3"></script>
     <script src="js/intervals.js?v=2"></script>
+    <script src="js/komoot.js?v=1"></script>
+    <script src="js/routen.js?v=1"></script>
     <script src="js/training.js?v=5"></script>
     <script src="js/analyse.js?v=3"></script>
     <script src="js/ernaehrung.js?v=1"></script>
