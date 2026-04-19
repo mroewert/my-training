@@ -160,7 +160,7 @@ function renderCalendar(container) {
 }
 
 function renderCalendarDay(day, dateStr, workoutsByDate, intervalsByDate, today, otherMonth) {
-    const isToday = dateStr === today.toISOString().split('T')[0];
+    const isToday = dateStr === localDateStr(today);
     const dayWorkouts = workoutsByDate[dateStr] || [];
     const dayIntervals = intervalsByDate[dateStr] || [];
 
@@ -199,7 +199,17 @@ function renderCalendarDay(day, dateStr, workoutsByDate, intervalsByDate, today,
 
 function formatISODate(year, month, day) {
     const d = new Date(year, month, day);
-    return d.toISOString().split('T')[0];
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const dd = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${dd}`;
+}
+
+function localDateStr(date) {
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, '0');
+    const d = String(date.getDate()).padStart(2, '0');
+    return `${y}-${m}-${d}`;
 }
 
 function calendarPrev() {
@@ -321,7 +331,7 @@ function weekNext() {
 function renderRoadmap(container) {
     const weeks = getWeeks();
     const today = new Date();
-    const todayStr = today.toISOString().split('T')[0];
+    const todayStr = localDateStr(today);
     const currentWeekNum = getWeekNumber(today);
     const currentYear = today.getFullYear();
     const phases = getPlanPhases();

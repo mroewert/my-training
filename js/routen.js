@@ -60,6 +60,13 @@ function renderRouten() {
         return routenSortDir === 'desc' ? -cmp : cmp;
     });
 
+    // Pin routes ridden today at the top (most recent first), regardless of active sort
+    const todayRoutes = filtered.filter(isRiddenToday).sort((a, b) => getLastRiddenTime(b) - getLastRiddenTime(a));
+    if (todayRoutes.length > 0) {
+        const todaySet = new Set(todayRoutes.map(r => r.id));
+        filtered = [...todayRoutes, ...filtered.filter(r => !todaySet.has(r.id))];
+    }
+
     let html = `
         <div class="routen-header">
             <div>
@@ -132,6 +139,31 @@ function renderRouten() {
     container.innerHTML = html;
 }
 
+// ---- "Heute gefahren" helpers ----
+function isRiddenToday(route) {
+    const todayStr = new Date().toDateString();
+    if (route.lastRidden && new Date(route.lastRidden).toDateString() === todayStr) return true;
+    if (route.rideLog?.length) {
+        const localToday = (() => {
+            const d = new Date();
+            return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+        })();
+        if (route.rideLog.some(e => e.date === localToday)) return true;
+    }
+    return false;
+}
+
+function getLastRiddenTime(route) {
+    let t = route.lastRidden ? new Date(route.lastRidden).getTime() : 0;
+    if (route.rideLog?.length) {
+        for (const e of route.rideLog) {
+            const et = e.date ? new Date(e.date).getTime() : 0;
+            if (et > t) t = et;
+        }
+    }
+    return t;
+}
+
 // ---- Route Card ----
 function renderRouteCard(route, rideCount) {
     const surfaceBar = route.surfaces.length > 0
@@ -141,6 +173,7 @@ function renderRouteCard(route, rideCount) {
         : '';
 
     const tags = [];
+    if (isRiddenToday(route)) tags.push('<span class="route-tag tag-today">Heute gefahren</span>');
     if (route.pendelTauglich) tags.push('<span class="route-tag tag-pendel">Pendel</span>');
     if (route.wetSuitable) tags.push('<span class="route-tag tag-wet-yes">Bei Nässe OK</span>');
     if (route.region) tags.push(`<span class="route-tag">${route.region}</span>`);
