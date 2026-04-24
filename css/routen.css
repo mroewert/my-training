@@ -765,6 +765,15 @@
     gap: 10px;
 }
 
+.recent-rides-more-toggle { margin-top: 4px; }
+
+.recent-rides-more {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 10px;
+}
+
 .recent-ride-card {
     background: var(--bg-card);
     border-radius: var(--radius);

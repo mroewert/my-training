@@ -11,6 +11,7 @@ let routenSpecialFilter = 'all'; // all, rated, unrated, pendel, wet
 let routenAllRoutesCollapsed = true;
 let recentRidesCache = null; // populated async on first render
 let recentRidesLoading = false;
+let recentRidesMoreCollapsed = true; // show only first 3, rest collapsible
 let pendingPickerActivityId = null; // for manual route picker
 
 // ---- Main Render ----
@@ -646,8 +647,21 @@ function renderRecentRidesSection(routes, isLoading) {
     } else if (rides.length === 0) {
         body = `<div class="recent-rides-hint">Keine Fahrten gefunden.</div>`;
     } else {
-        const limited = rides.slice(0, 12);
-        body = limited.map(ride => renderRecentRideCard(ride, routes, assignments[String(ride.id)])).join('');
+        const top = rides.slice(0, 3);
+        const more = rides.slice(3, 15);
+        body = top.map(ride => renderRecentRideCard(ride, routes, assignments[String(ride.id)])).join('');
+        if (more.length > 0) {
+            body += `
+                <div class="recent-rides-more-toggle">
+                    <button class="all-routes-toggle-btn" onclick="toggleRecentRidesMore()">
+                        <span>${recentRidesMoreCollapsed ? '▶' : '▼'}</span>
+                        Weitere Fahrten (${more.length})
+                    </button>
+                </div>
+                <div class="recent-rides-more" style="${recentRidesMoreCollapsed ? 'display:none;' : ''}">
+                    ${more.map(ride => renderRecentRideCard(ride, routes, assignments[String(ride.id)])).join('')}
+                </div>`;
+        }
     }
 
     return `
@@ -660,6 +674,12 @@ function renderRecentRidesSection(routes, isLoading) {
             </div>
             <div class="recent-rides-list">${body}</div>
         </div>`;
+}
+
+function toggleRecentRidesMore() {
+    recentRidesMoreCollapsed = !recentRidesMoreCollapsed;
+    const section = document.getElementById('recent-rides-section');
+    if (section) section.innerHTML = renderRecentRidesSection(loadRoutes());
 }
 
 function renderRecentRideCard(ride, routes, assignment) {
