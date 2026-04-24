@@ -111,7 +111,7 @@ async function fetchIntervalsEvents(oldest, newest) {
 
 // ---- Sync Logic: Pull events from intervals.icu and update app calendar ----
 
-async function syncIntervalsToCalendar() {
+async function syncIntervalsToCalendar(silent = false) {
     if (!isIntervalsConnected() || intervalsSyncing) return;
 
     intervalsSyncing = true;
@@ -127,7 +127,7 @@ async function syncIntervalsToCalendar() {
 
         if (events.length === 0) {
             updateSyncButton('done');
-            alert('Keine Workout-Events auf intervals.icu gefunden.');
+            if (!silent) alert('Keine Workout-Events auf intervals.icu gefunden.');
             intervalsSyncing = false;
             return;
         }
@@ -267,17 +267,23 @@ async function syncIntervalsToCalendar() {
         renderCurrentTrainingView();
         updateSyncButton('done');
 
-        let msg = 'Sync abgeschlossen!';
-        if (updated > 0) msg += ` ${updated} Workouts aktualisiert.`;
-        if (added > 0) msg += ` ${added} neue Workouts importiert.`;
-        if (autoLogged > 0) msg += ` ${autoLogged} Strava-Aktivitaet${autoLogged !== 1 ? 'en' : ''} automatisch geloggt.`;
-        if (updated === 0 && added === 0 && autoLogged === 0) msg += ' Kalender ist bereits aktuell.';
-        alert(msg);
+        if (typeof saveSyncTimestamp === 'function') saveSyncTimestamp('intervals');
+
+        if (!silent) {
+            let msg = 'Sync abgeschlossen!';
+            if (updated > 0) msg += ` ${updated} Workouts aktualisiert.`;
+            if (added > 0) msg += ` ${added} neue Workouts importiert.`;
+            if (autoLogged > 0) msg += ` ${autoLogged} Strava-Aktivitaet${autoLogged !== 1 ? 'en' : ''} automatisch geloggt.`;
+            if (updated === 0 && added === 0 && autoLogged === 0) msg += ' Kalender ist bereits aktuell.';
+            alert(msg);
+        }
 
     } catch (e) {
         console.error('Sync error:', e);
         updateSyncButton('error');
-        alert('Sync fehlgeschlagen: ' + e.message);
+        if (!silent) alert('Sync fehlgeschlagen: ' + e.message);
+        intervalsSyncing = false;
+        throw e;
     }
 
     intervalsSyncing = false;

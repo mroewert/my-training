@@ -170,6 +170,64 @@
     margin-top: 2px;
 }
 
+/* Sync All Section */
+.sync-all-section {
+    border-color: var(--accent-secondary);
+}
+
+.sync-status-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 14px;
+}
+
+.sync-status-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 12px;
+    background: var(--bg-deep);
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+}
+
+.sync-status-row .sync-source {
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.sync-status-row .sync-time {
+    font-size: 12px;
+    color: var(--text-muted);
+    font-family: 'JetBrains Mono', monospace;
+}
+
+.btn-sync-all {
+    width: 100%;
+    padding: 12px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--accent-secondary);
+    background: rgba(78, 205, 196, 0.12);
+    color: var(--accent-secondary);
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.15s;
+}
+
+.btn-sync-all:hover { background: rgba(78, 205, 196, 0.2); }
+.btn-sync-all:disabled,
+.btn-sync-all.syncing { opacity: 0.7; cursor: default; }
+
+.sync-hint {
+    margin-top: 10px;
+    font-size: 11px;
+    color: var(--text-muted);
+    line-height: 1.5;
+}
+
 /* App Info */
 .app-info {
     text-align: center;

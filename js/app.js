@@ -551,4 +551,9 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('.nav-item').forEach(item => {
         item.onclick = () => switchTab(item.dataset.tab);
     });
+
+    // Auto-Sync im Hintergrund (Strava + intervals.icu immer, Komoot nur wenn >24h)
+    if (typeof autoSyncOnStart === 'function') {
+        setTimeout(() => { autoSyncOnStart(); }, 500);
+    }
 });

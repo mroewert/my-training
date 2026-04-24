@@ -23,6 +23,36 @@ function renderMehr() {
 
     let html = '<div class="mehr-container">';
 
+    // ---- Sync All ----
+    const ts = typeof loadSyncTimestamps === 'function' ? loadSyncTimestamps() : {};
+    const fmt = typeof formatRelativeTime === 'function' ? formatRelativeTime : () => '–';
+    html += `
+        <div class="settings-section sync-all-section">
+            <div class="settings-section-header">
+                <span class="section-icon">🔄</span> Synchronisation
+            </div>
+            <div class="settings-section-body">
+                <div class="sync-status-grid">
+                    <div class="sync-status-row">
+                        <span class="sync-source">Strava</span>
+                        <span class="sync-time">${fmt(ts.strava)}</span>
+                    </div>
+                    <div class="sync-status-row">
+                        <span class="sync-source">intervals.icu</span>
+                        <span class="sync-time">${fmt(ts.intervals)}</span>
+                    </div>
+                    <div class="sync-status-row">
+                        <span class="sync-source">Komoot</span>
+                        <span class="sync-time">${fmt(ts.komoot)}</span>
+                    </div>
+                </div>
+                <button class="btn-sync-all" id="btn-sync-all" onclick="handleSyncAll()">
+                    Alles synchronisieren
+                </button>
+                <div class="sync-hint">Strava und intervals.icu werden bei jedem App-Start automatisch synchronisiert. Komoot 1× pro Tag.</div>
+            </div>
+        </div>`;
+
     // ---- Profil ----
     html += `
         <div class="settings-section">
@@ -247,6 +277,28 @@ function renderMehr() {
 
     html += '</div>';
     container.innerHTML = html;
+}
+
+async function handleSyncAll() {
+    const btn = document.getElementById('btn-sync-all');
+    if (!btn) return;
+    btn.disabled = true;
+    btn.classList.add('syncing');
+    const original = btn.textContent;
+    try {
+        await syncAll({
+            includeKomoot: true,
+            silent: false,
+            progressCallback: (step, info) => {
+                if (info) btn.textContent = info;
+            }
+        });
+    } finally {
+        btn.disabled = false;
+        btn.classList.remove('syncing');
+        btn.textContent = original.trim();
+        if (typeof renderMehr === 'function') renderMehr();
+    }
 }
 
 async function handleKomootConnect() {

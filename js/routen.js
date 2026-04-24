@@ -78,7 +78,7 @@ function renderRouten() {
                 <h2>Routen</h2>
                 <span class="route-count">${filtered.length} von ${routes.length} Routen</span>
             </div>
-            ${connected ? `<button class="btn-sync-komoot" onclick="handleKomootSync()">Komoot Sync</button>` : ''}
+            <button class="btn-sync-komoot" onclick="handleSyncAllFromRouten()">Sync All</button>
         </div>
 
         <div id="recent-rides-section">${renderRecentRidesSection(routes)}</div>
@@ -863,6 +863,24 @@ function closeRidePicker() {
     document.getElementById('route-detail-view').classList.remove('active');
     pendingPickerActivityId = null;
     renderRouten();
+}
+
+// ---- Sync All from Routen Tab ----
+async function handleSyncAllFromRouten() {
+    const btn = document.querySelector('.btn-sync-komoot');
+    if (btn) { btn.classList.add('syncing'); btn.textContent = 'Sync...'; }
+    try {
+        await syncAll({
+            includeKomoot: true,
+            silent: false,
+            progressCallback: (step, info) => {
+                if (btn && info) btn.textContent = info;
+            }
+        });
+    } finally {
+        if (btn) { btn.classList.remove('syncing'); btn.textContent = 'Sync All'; }
+        renderRouten();
+    }
 }
 
 // ---- Komoot Sync Handler ----
