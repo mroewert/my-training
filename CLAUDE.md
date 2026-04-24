@@ -27,15 +27,16 @@ css/
   mehr.css              – Mehr/Einstellungen tab (settings sections, profile, FTP)
   routen.css            – Routen tab (route cards, filters, detail view, ratings, ride log)
 js/
-  app.js                – Router, global state, localStorage, init, modals, workout CRUD
+  app.js                – Router, global state, localStorage, init, modals, workout CRUD, autoSyncOnStart hook
   komoot.js             – Komoot API: login, tour fetching, route data management, surface helpers
-  routen.js             – Routen tab UI: route list, filters, detail view, ratings, ride log
+  routen.js             – Routen tab UI: Letzte Fahrten (Strava→Komoot match), route list, filters, detail view, ratings, ride log
   training.js           – Training views: calendar (with intervals.icu sync), week view, roadmap
   analyse.js            – Analyse: form curve, volume chart (soll/ist), stats, perf trends
   ernaehrung.js         – Ernährung: static nutrition data from AI coach, day-type toggle
-  mehr.js               – Mehr: settings page, profile, data export, intervals.icu connection UI
-  strava.js             – Strava OAuth 2.0, activity fetching
-  intervals.js          – intervals.icu API: event sync, Strava auto-log, plan upload
+  mehr.js               – Mehr: settings page, Sync-All section, profile, data export, intervals.icu/Komoot/Strava connection UI
+  strava.js             – Strava OAuth 2.0, activity fetching, recent rides cache
+  intervals.js          – intervals.icu API: event sync (silent mode), Strava auto-log, plan upload
+  sync.js               – Sync-Orchestrator: Strava + intervals.icu + Komoot in einem Flow, Timestamps, autoSyncOnStart
   weather.js            – Open-Meteo weather API
 manifest.json           – PWA manifest
 icon-192.png, icon-512.png – App icons
@@ -51,8 +52,8 @@ index_old.html          – Backup of previous single-file version (v1)
 | **Training** | training.js | Kalender, Woche, Roadmap | Monatskalender (intervals.icu-Style), Wochenansicht mit Soll/Ist, Roadmap bis Harzquerfahrt |
 | **Ernährung** | ernaehrung.js | — | AI Coach Daten (Frühstück, Mittag, Snacks) mit Tagestyp-Toggle und Einkaufsliste |
 | **Analyse** | analyse.js | — | Formkurve, Wochenvolumen Soll/Ist, Statistiken, Leistungsdaten-Trends |
-| **Routen** | routen.js + komoot.js | — | Komoot-Routen mit Bewertungen, Filter, Fahrten-Log, Oberflächen-Analyse |
-| **Mehr** | mehr.js | — | Profil, FTP, Strava, intervals.icu, Komoot, Plan-Import, Daten-Export, Reset |
+| **Routen** | routen.js + komoot.js + sync.js | — | **Letzte Fahrten** (Strava-Aktivitäten mit Auto-Match zu Komoot-Routen), klappbare Komoot-Routenliste mit Bewertungen, Filter, Fahrten-Log, Oberflächen-Analyse |
+| **Mehr** | mehr.js | — | **Sync-Sektion** (Alles synchronisieren), Profil, FTP, Strava, intervals.icu, Komoot, Plan-Import, Daten-Export, Reset |
 
 **Navigation Flow:**
 - Bottom-Nav: 5 Tabs, onclick-Handler direkt im HTML + JS-Listener
@@ -76,6 +77,9 @@ All state is global variables in `app.js`, synced to `localStorage`:
 | `intervalsEvents` | `intervals-events` | Cached events (planned workouts) from intervals.icu |
 | (komoot.js) | `komoot-config` | Komoot credentials: email, password, userId, displayName |
 | (komoot.js) | `komoot-routes` | Array of route objects with ratings, notes, ride log |
+| (strava.js) | `strava-recent-rides` | Gecachte letzte Strava-Fahrten (1h TTL): `{ timestamp, rides[] }` |
+| (routen.js) | `gravel-ride-assignments` | Map: Strava-Activity-ID → `{ status: 'assigned'\|'skipped', routeId?, rideLogEntryId? }` |
+| (sync.js) | `sync-timestamps` | Map: `{ strava: ms, intervals: ms, komoot: ms }` für relative Sync-Anzeige und 24h-Threshold |
 
 ### Key Functions by File
 
@@ -90,6 +94,7 @@ All state is global variables in `app.js`, synced to `localStorage`:
 - `saveFtp()` – save FTP value
 - `exportData()` – download all data as JSON (in mehr.js)
 - Helpers: `getWeekNumber()`, `formatDate()`, `parseDuration()`, `getIntensityClass()`, `getPlanPhases()`, `getPhaseForWeekNum()`, `estimateTSS()`
+- **DOMContentLoaded Init:** lädt Daten/Tokens/Configs, rendert initiale Training-View, hängt Event-Listener an, und ruft `setTimeout(autoSyncOnStart, 500)` für nicht-blockierenden Background-Sync
 
 **training.js (3 Views):**
 - `initTraining()` – find current week, initial render
@@ -127,7 +132,7 @@ All state is global variables in `app.js`, synced to `localStorage`:
 - `EXCEL_IMPORT_DATA` – pre-existing ratings from Fahrradrouten.xlsx (10 routes), applied on first sync
 
 **routen.js (Routen Tab UI):**
-- `renderRouten()` – main render: header, search, filter chips, sort selector, route card list
+- `renderRouten()` – main render: header (mit Sync-All-Button), Letzte-Fahrten-Sektion, klappbarer „Alle Komoot-Routen" Block mit search/filters/sort/list
 - `renderRouteCard(route, rideCount)` – card with name, sport badge, stats, surface bar, tags, stars
 - `openRouteDetail(routeId)` – fullscreen view with stats grid, surface detail, way types, rating section (star input, toggles), notes textarea, ride log with add/delete
 - `closeRouteDetail()` – close and re-render list
@@ -135,11 +140,28 @@ All state is global variables in `app.js`, synced to `localStorage`:
 - `toggleRouteFlag(routeId, field, value)` – toggle wetSuitable/pendelTauglich
 - `saveRouteNotes(routeId, notes)` – save notes on blur
 - `showAddRideForm()`, `saveRideLogEntry()`, `deleteRide()` – ride log UI actions
-- `handleKomootSync()` – sync button handler with progress display
-- Filter state: `routenSearchQuery`, `routenSportFilter`, `routenRegionFilter`, `routenSortBy`, `routenSortDir`, `routenSpecialFilter`
+- `handleKomootSync()` – legacy nur-Komoot-Sync-Handler (intern noch verfügbar)
+- `handleSyncAllFromRouten()` – Header-Button „Sync All", ruft `syncAll()` mit Fortschrittsanzeige
+- `toggleAllRoutes()`, `toggleRecentRidesMore()` – Klapp-Logik für „Alle Komoot-Routen" und „Weitere Fahrten"
+- Filter state: `routenSearchQuery`, `routenSportFilter`, `routenRegionFilter`, `routenSortBy`, `routenSortDir`, `routenSpecialFilter`, `routenAllRoutesCollapsed`, `recentRidesMoreCollapsed`
+
+**routen.js – Letzte Fahrten / Strava→Komoot Match:**
+- `renderRecentRidesSection(routes, isLoading)` – top-of-tab Sektion: zeigt 3 Karten + klappbarer Block für 12 weitere
+- `renderRecentRideCard(ride, routes, assignment)` – Karte mit Auto-Match-Badge (✅ assigned / 🔍 suggest / 🚴 Spontanfahrt / ❓ unknown) und Action-Buttons
+- `loadRecentRidesAsync()`, `refreshRecentRides()` – Lazy-Load mit/ohne Force-Refresh, rendert Sektion neu
+- `haversineMeters(lat1, lng1, lat2, lng2)` – GPS-Distanz in Metern für Match-Score
+- `isSportCompatible(stravaType, komootSport)` – Strava sport_type → kompatible Komoot-Sports
+- `scoreRouteMatch(activity, route)` – Score 0–125: GPS-Start (≤500m=50, ≤1.5km=25, ≤3km=10), Distanz (±2km=30, ±5km=15, ±10km=5), Höhenmeter-Diff (≤30%=10, ≤60%=5), Sport-Match=10, Name-Overlap=25
+- `matchRideToRoutes(activity, routes)` – returns `{ best, alternatives, all }`. `best` nur wenn Score ≥40
+- `loadRideAssignments()`, `saveRideAssignments()`, `setRideAssignment(activityId, data)` – Persistence in `gravel-ride-assignments`
+- `confirmRideMatch(activityId, routeId)` – legt RideLog-Eintrag aus Strava-Daten an, speichert Assignment, öffnet Routen-Detail
+- `unassignRide(activityId)` – entfernt Assignment + zugehörigen RideLog-Eintrag
+- `skipRide(activityId)` – markiert als Spontanfahrt
+- `openRidePicker(activityId)`, `closeRidePicker()`, `confirmRideMatchFromPicker()`, `filterPickerList(q)` – manuelles Routen-Picker UI (Top 5 nach Score + alphabetische Liste mit Filter)
 
 **mehr.js (Settings):**
-- `renderMehr()` – settings page with profile, FTP, Strava, intervals.icu, Komoot, import, export
+- `renderMehr()` – settings page: **Sync-Sektion ganz oben** (Status pro Quelle + „Alles synchronisieren"-Button), profile, FTP, Strava, intervals.icu, Komoot, import, export
+- `handleSyncAll()` – orchestriert vollen Sync via `syncAll()` mit Button-Progress
 - `handleKomootConnect()` – Komoot login from Mehr tab (email + password form)
 - `exportData()` – download backup as JSON file
 
@@ -147,11 +169,23 @@ All state is global variables in `app.js`, synced to `localStorage`:
 - `loadIntervalsConfig()`, `saveIntervalsConfig()` – credentials persistence (auto-connects with defaults)
 - `isIntervalsConnected()`, `connectIntervals()`, `disconnectIntervals()` – connection management
 - `fetchIntervalsEvents(oldest, newest)` – fetch planned workouts from intervals.icu Events API
-- `syncIntervalsToCalendar()` – main sync: pull events, update workout dates, auto-log Strava activities
+- `syncIntervalsToCalendar(silent = false)` – main sync: pull events, update workout dates, auto-log Strava activities. `silent=true` unterdrückt Alerts (für Auto-Sync)
 - `uploadPlanToIntervals()` – push future workouts to intervals.icu calendar
 - `loadCachedIntervalsActivities()` – restore cached events from localStorage
 
-**strava.js:** `connectStrava()`, `disconnectStrava()`, `handleStravaCallback()`, `refreshStravaToken()`, `fetchStravaActivities()`, `loadStravaActivitiesForLog()`, `selectStravaActivity()`
+**strava.js:**
+- Connection: `connectStrava()`, `disconnectStrava()`, `handleStravaCallback()`, `refreshStravaToken()`, `loadStravaTokens()`, `saveStravaTokens()`, `isStravaConnected()`, `updateStravaUI()`
+- Activities: `fetchStravaActivities()` (per_page=30), `formatStravaActivity()` – mappt jetzt zusätzlich `startLat`, `startLng`, `elevation`, `sportType` für Match-Logik
+- Recent Rides Cache: `fetchRecentRides(forceRefresh = false)` mit 1h-TTL in `strava-recent-rides`, filtert nur Cycling-Aktivitäten (Ride/VirtualRide/GravelRide/MountainBikeRide/EBikeRide)
+- Workout-Logging: `loadStravaActivitiesForLog()`, `selectStravaActivity()`
+
+**sync.js (Sync-Orchestrator):**
+- `loadSyncTimestamps()`, `saveSyncTimestamp(source)`, `getLastSyncMs(source)` – Timestamps in `sync-timestamps`
+- `formatRelativeTime(ms)` – „vor 12 Min", „vor 3 Std", „vor 2 Tagen"
+- `syncStravaOnly()`, `syncIntervalsOnly()`, `syncKomootOnly(progressCallback)` – Wrapper mit Timestamp-Update und Result-Objekt `{ ok, count?, error?, skipped?, reason? }`
+- `syncAll(options)` – Orchestriert alle drei sequentiell. Options: `includeKomoot` (default true), `silent` (default false), `progressCallback(step, info)`. Zeigt am Ende Alert mit Zusammenfassung wenn nicht silent
+- `autoSyncOnStart()` – wird 500 ms nach DOMContentLoaded gerufen. Strava + intervals.icu immer, Komoot nur wenn `Date.now() - lastKomoot > 24h`. Immer silent
+- Konstanten: `SYNC_TIMESTAMPS_KEY`, `KOMOOT_AUTO_SYNC_INTERVAL_MS`
 
 **weather.js:** `fetchWeather(dateStr)`, `getWeatherIcon(code)`, `getWeatherWarning(weather)`
 
@@ -290,7 +324,7 @@ Structure per meal:
 1. Serve via HTTP (e.g., `python -m http.server` or VS Code Live Server) — required because of multi-file JS structure
 2. For Strava OAuth, the redirect URI must match the served URL
 3. Use browser DevTools for debugging — all state is inspectable in `localStorage`
-4. **Cache-Busting:** All CSS/JS includes in index.html use `?v=N` query params. Increment version after changes to force browser reload.
+4. **Cache-Busting:** All CSS/JS includes in index.html use `?v=N` query params. Increment version after changes to force browser reload. Bei neuen JS-Files (z.B. `sync.js`) auch das `<script>`-Tag in `index.html` ergänzen — Reihenfolge wichtig (Abhängigkeiten zuerst).
 
 ### Deployment
 
@@ -316,16 +350,67 @@ After pushing, users should hard-refresh (Ctrl+Shift+R) or wait for cache expiry
 - **Komoot API:** Inoffizielle API, HTTP Basic Auth (E-Mail + Passwort), credentials in localStorage (`komoot-config`). User-ID: `1130745446386`. Details siehe Komoot Sync Flow unten.
 - **Open-Meteo:** Free weather API, no key required. Coordinates: Bremen (53.0793, 8.8017). 7-day forecast with WMO weather codes.
 
+### Combined Sync Flow (sync.js)
+
+`syncAll()` orchestriert die drei Quellen sequentiell mit Fortschritts-Callback und Timestamp-Tracking pro Quelle.
+
+**Auslöser:**
+- **Auto beim App-Start:** `autoSyncOnStart()` läuft 500 ms nach `DOMContentLoaded`. Strava + intervals.icu *immer*, Komoot *nur wenn* `Date.now() - sync-timestamps.komoot > 24h`. Immer `silent: true`.
+- **Manuell „Alles synchronisieren":** Button im Mehr-Tab oben (`handleSyncAll()`).
+- **Manuell „Sync All":** Button im Routen-Tab Header (`handleSyncAllFromRouten()`).
+
+**Reihenfolge in `syncAll()`:**
+1. **Strava** (`syncStravaOnly`) – `fetchRecentRides(true)` invalidiert Cache, refreshed Letzte-Fahrten-Sektion live
+2. **intervals.icu** (`syncIntervalsOnly`) – ruft `syncIntervalsToCalendar(true)` (silent)
+3. **Komoot** (`syncKomootOnly`) – nur wenn `includeKomoot: true`. Ruft `syncKomootRoutes()` mit Progress-Callback `(cur, total) => "Komoot N/M..."`
+
+Pro erfolgreichem Step wird `saveSyncTimestamp(source)` aufgerufen. Am Ende (wenn nicht silent) Alert mit Zusammenfassung pro Quelle (`describeResult`).
+
+**Sync-Status im Mehr-Tab:** Zeigt `formatRelativeTime(ts)` pro Quelle (`gerade eben` / `vor X Min` / `vor X Std` / `vor X Tagen` / `noch nie`).
+
+**Konkurrenzschutz:** `syncAllRunning` Flag verhindert parallele Calls.
+
 ### intervals.icu Sync Flow
 
-1. **Sync-Button** im Kalender-Header oder Mehr-Tab löst `syncIntervalsToCalendar()` aus
+1. **Auslöser:** Auto-Sync via `syncAll()`, „Sync All"-Button (Mehr/Routen) oder einzelner Sync-Button im Mehr-Tab. Funktion: `syncIntervalsToCalendar(silent = false)`
 2. **Events abrufen:** `GET /athlete/{id}/events?oldest=...&newest=...` – liefert geplante Workouts
 3. **Kalender aktualisieren:** Workouts per Name matchen, Datum + Dauer anpassen falls auf intervals.icu verschoben
 4. **Neue Workouts importieren:** Events ohne lokales Match werden als neue Workouts angelegt
 5. **Strava Auto-Log:** `fetchStravaActivities()` holt letzte 30 Aktivitäten, Rad-Aktivitäten werden tagesgenau ungloggten Workouts zugeordnet (bei mehreren: beste Dauer-Übereinstimmung)
 6. **Plan-Upload:** `uploadPlanToIntervals()` sendet zukünftige Workouts als Events via `POST /athlete/{id}/events/bulk`
 
+**`silent` Parameter:** Bei `silent=true` werden alle `alert()`-Calls unterdrückt (für Hintergrund-Sync). Errors werden nur in die Konsole geloggt, der Aufrufer erhält die Exception via `throw`.
+
 **Einschränkung:** Strava-gesourcte Aktivitäten liefern über die intervals.icu Activities API keine Details (`_note: "STRAVA activities are not available via the API"`). Deshalb werden Aktivitätsdaten direkt über die Strava API geholt.
+
+### Letzte Fahrten / Strava → Komoot Match Flow
+
+Anzeige der letzten Strava-Aktivitäten oben im Routen-Tab mit automatischer Zuordnung zur passenden Komoot-Route.
+
+1. **Quelle:** `fetchRecentRides()` in `strava.js` – holt 30 Aktivitäten via `GET /athlete/activities?per_page=30`, filtert auf Cycling (Ride/VirtualRide/GravelRide/MountainBikeRide/EBikeRide). Cache 1h in `strava-recent-rides`
+2. **Anzeige:** Erste 3 Fahrten direkt sichtbar, weitere 12 in einklappbarem Block („Weitere Fahrten")
+3. **Match-Score** (`scoreRouteMatch`): Pro Komoot-Route wird ein Score 0–125 berechnet:
+   - GPS-Startpunkt (Haversine): ≤500m=50, ≤1.5km=25, ≤3km=10
+   - Distanz-Differenz: ±2km=30, ±5km=15, ±10km=5
+   - Höhenmeter-Diff (relativ): ≤30%=10, ≤60%=5
+   - Sport-Kompatibilität (Strava sport_type → Komoot-Sport-Liste): +10
+   - Name-Overlap (Strava-Name ⊂ Routen-Name oder umgekehrt): +25
+4. **Threshold:** Bester Match wird als Vorschlag angezeigt wenn Score ≥40, sonst „❓ Keine Route erkannt"
+5. **User-Aktionen pro Karte:**
+   - **✓ Bestätigen** → `confirmRideMatch()`: legt RideLog-Eintrag an (`id: 'strava-{activityId}'`, Datum/Dauer aus Strava, Default-Feeling 3, Notiz „Aus Strava: {Name}"), speichert Assignment, öffnet Routen-Detail zum Sterne-Bewerten
+   - **Andere Route / Route zuordnen** → `openRidePicker()`: Fullscreen-Picker mit Top-5 nach Score + alphabetischer Liste mit Suchfilter
+   - **Spontanfahrt** → `skipRide()`: markiert als `status: 'skipped'`, blendet Vorschlag aus
+   - **Zuordnung lösen** (auf assigned card): entfernt Assignment + RideLog-Eintrag
+6. **Persistenz:** `gravel-ride-assignments` map: `{ "<stravaActivityId>": { status, routeId?, rideLogEntryId? } }`
+
+**Sport-Mapping (`isSportCompatible`):**
+- `Ride` → racebike, touringbicycle, mtb_easy
+- `GravelRide` → mtb_easy, touringbicycle, racebike, mtb
+- `MountainBikeRide` → mtb, mtb_easy
+- `EBikeRide` → touringbicycle, racebike, mtb_easy
+- `VirtualRide` → keine (Indoor)
+
+**Warum Strava statt Komoot-Recordings als Quelle?** Strava-API ist offiziell und versioniert, liefert reichere Felder (`start_latlng`, `total_elevation_gain`, `sport_type`). Komoot-API ist inoffiziell und langsamer (jede Tour-Detail einzeln). Wahoo schreibt eh in beide Systeme, daher kein Datenverlust.
 
 ### Komoot Sync Flow
 
