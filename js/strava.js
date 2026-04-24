@@ -155,6 +155,8 @@ function formatStravaActivity(activity) {
     const date = new Date(activity.start_date_local);
     const duration = Math.round(activity.moving_time / 60);
     const distance = (activity.distance / 1000).toFixed(1);
+    const startLatLng = Array.isArray(activity.start_latlng) && activity.start_latlng.length === 2
+        ? activity.start_latlng : null;
     return {
         id: activity.id,
         name: activity.name,
@@ -162,14 +164,58 @@ function formatStravaActivity(activity) {
         dateFormatted: formatDate(date.toISOString().split('T')[0]),
         duration,
         distance,
+        elevation: Math.round(activity.total_elevation_gain || 0),
+        startLat: startLatLng ? startLatLng[0] : null,
+        startLng: startLatLng ? startLatLng[1] : null,
         avgPower: activity.average_watts || 0,
         normalizedPower: activity.weighted_average_watts || 0,
         avgHr: activity.average_heartrate || 0,
         maxHr: activity.max_heartrate || 0,
         calories: activity.calories || 0,
         tss: activity.suffer_score || 0,
-        type: activity.type
+        type: activity.type,
+        sportType: activity.sport_type || activity.type
     };
+}
+
+// ---- Recent Rides Cache (1h TTL) ----
+const STRAVA_RIDES_CACHE_KEY = 'strava-recent-rides';
+const STRAVA_RIDES_TTL_MS = 60 * 60 * 1000;
+
+function loadCachedStravaRides() {
+    try {
+        const raw = localStorage.getItem(STRAVA_RIDES_CACHE_KEY);
+        if (!raw) return null;
+        const parsed = JSON.parse(raw);
+        if (!parsed.timestamp || !Array.isArray(parsed.rides)) return null;
+        return parsed;
+    } catch (e) {
+        return null;
+    }
+}
+
+function saveCachedStravaRides(rides) {
+    localStorage.setItem(STRAVA_RIDES_CACHE_KEY, JSON.stringify({
+        timestamp: Date.now(),
+        rides: rides
+    }));
+}
+
+async function fetchRecentRides(forceRefresh = false) {
+    if (!forceRefresh) {
+        const cached = loadCachedStravaRides();
+        if (cached && (Date.now() - cached.timestamp) < STRAVA_RIDES_TTL_MS) {
+            return cached.rides;
+        }
+    }
+    const activities = await fetchStravaActivities();
+    const rides = activities.filter(a =>
+        a.type === 'Ride' || a.type === 'VirtualRide' ||
+        a.type === 'GravelRide' || a.type === 'MountainBikeRide' ||
+        a.type === 'EBikeRide'
+    );
+    saveCachedStravaRides(rides);
+    return rides;
 }
 
 async function loadStravaActivitiesForLog() {
