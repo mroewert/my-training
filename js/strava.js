@@ -5,8 +5,7 @@
 const STRAVA_CLIENT_ID = '193172';
 // client_secret lebt NICHT mehr im Browser. Token-Exchange + Refresh laufen über
 // einen serverseitigen Proxy (Vercel Serverless Function unter /api/...).
-// Nach Vercel-Deploy diese URL durch die echte Project-URL ersetzen.
-const STRAVA_PROXY_BASE = 'https://my-training-strava-proxy.vercel.app';
+const STRAVA_PROXY_BASE = 'https://project-63fue.vercel.app';
 const STRAVA_REDIRECT_URI = window.location.origin + window.location.pathname;
 
 let stravaTokens = null;
