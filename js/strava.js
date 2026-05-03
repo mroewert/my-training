@@ -3,7 +3,10 @@
 // ============================================
 
 const STRAVA_CLIENT_ID = '193172';
-const STRAVA_CLIENT_SECRET = '10ab0ddd492c66638cea82a80777e95db020c401';
+// client_secret lebt NICHT mehr im Browser. Token-Exchange + Refresh laufen über
+// einen serverseitigen Proxy (Vercel Serverless Function unter /api/...).
+// Nach Vercel-Deploy diese URL durch die echte Project-URL ersetzen.
+const STRAVA_PROXY_BASE = 'https://my-training-strava-proxy.vercel.app';
 const STRAVA_REDIRECT_URI = window.location.origin + window.location.pathname;
 
 let stravaTokens = null;
@@ -59,15 +62,10 @@ async function handleStravaCallback() {
 
     if (code) {
         try {
-            const response = await fetch('https://www.strava.com/oauth/token', {
+            const response = await fetch(`${STRAVA_PROXY_BASE}/api/strava-token`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    client_id: STRAVA_CLIENT_ID,
-                    client_secret: STRAVA_CLIENT_SECRET,
-                    code: code,
-                    grant_type: 'authorization_code'
-                })
+                body: JSON.stringify({ code })
             });
             if (!response.ok) throw new Error('Token exchange failed');
             const tokens = await response.json();
@@ -84,15 +82,10 @@ async function handleStravaCallback() {
 async function refreshStravaToken() {
     if (!stravaTokens?.refresh_token) return false;
     try {
-        const response = await fetch('https://www.strava.com/oauth/token', {
+        const response = await fetch(`${STRAVA_PROXY_BASE}/api/strava-refresh`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                client_id: STRAVA_CLIENT_ID,
-                client_secret: STRAVA_CLIENT_SECRET,
-                refresh_token: stravaTokens.refresh_token,
-                grant_type: 'refresh_token'
-            })
+            body: JSON.stringify({ refresh_token: stravaTokens.refresh_token })
         });
         if (!response.ok) throw new Error('Token refresh failed');
         const tokens = await response.json();

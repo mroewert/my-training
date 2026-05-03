@@ -2,9 +2,9 @@
 // INTERVALS.JS – intervals.icu API Integration
 // ============================================
 
-const INTERVALS_ATHLETE_ID = 'i408428';
-const INTERVALS_API_KEY = 'ml7h9q0345twveucvc8apodj';
 const INTERVALS_BASE_URL = 'https://intervals.icu/api/v1';
+// API-Key + Athlete-ID kommen ausschliesslich vom User via Settings-UI (Mehr-Tab).
+// Keine Default-Credentials mehr im Code.
 
 let intervalsConfig = null;
 let intervalsActivities = []; // cached activities (limited data for Strava-sourced)
@@ -18,11 +18,8 @@ function loadIntervalsConfig() {
         const stored = localStorage.getItem('intervals-config');
         if (stored) {
             intervalsConfig = JSON.parse(stored);
-        } else {
-            // Auto-connect with default credentials
-            intervalsConfig = { apiKey: INTERVALS_API_KEY, athleteId: INTERVALS_ATHLETE_ID };
-            localStorage.setItem('intervals-config', JSON.stringify(intervalsConfig));
         }
+        // Kein Auto-Connect mehr: User muss API-Key + Athlete-ID einmalig im Mehr-Tab eingeben.
     } catch (e) {
         console.error('Error loading intervals.icu config:', e);
     }

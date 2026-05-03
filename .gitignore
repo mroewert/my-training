@@ -1,0 +1,31 @@
+# Secrets — niemals committen
+.env
+.env.*
+*.secret
+*.key
+*.pem
+*-secret.*
+secrets.*
+*.local.md
+
+# Lokale Configs (außerhalb dieses Repos, defensiv geblockt)
+strava-config.json
+komoot-config.json
+intervals-config.json
+
+# Vercel
+.vercel/
+.vercel.json.local
+
+# Editor / OS
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+.idea/
+.vscode/
+
+# Node (falls später hinzukommt)
+node_modules/
+npm-debug.log
+yarn-error.log
