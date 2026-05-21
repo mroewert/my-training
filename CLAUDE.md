@@ -293,7 +293,7 @@ Jede Route kann beliebig viele Fahrten-Log-Einträge haben. Pro Fahrt:
 
 ### Nutrition Data Model (in ernaehrung.js)
 
-Nutrition data is **statically embedded** from AI coach MD files in `../ai-nutrition-coach/`. When new MD files are provided, the `nutritionData` and `shoppingData` objects in `ernaehrung.js` must be manually updated.
+Nutrition data is **statically embedded** from coach MD files in `../Essensplaner/coach/Ernaehrung/`. When new MD files are provided, the `nutritionData` and `shoppingData` objects in `ernaehrung.js` must be manually updated.
 
 Structure per meal:
 ```javascript
@@ -345,8 +345,8 @@ After pushing, users should hard-refresh (Ctrl+Shift+R) or wait for cache expiry
 
 ## External APIs
 
-- **Strava API:** OAuth 2.0 flow, client credentials in `strava.js`. Endpoints: authorize, token exchange, athlete activities.
-- **intervals.icu API:** HTTP Basic Auth (`API_KEY:<key>`), credentials in `intervals.js`. Athlete-ID: `i408428`. Endpoints: events (planned workouts), events/bulk (upload), activities (limited for Strava-sourced).
+- **Strava API:** OAuth 2.0 flow. `client_id` ist public in `strava.js`. `client_secret` lebt **nicht** im Browser — Token-Exchange und Refresh laufen über Vercel-Serverless-Functions (`api/strava-token.js`, `api/strava-refresh.js`, ENV-Vars auf Vercel). Endpoints: authorize, token exchange (via Proxy), athlete activities.
+- **intervals.icu API:** HTTP Basic Auth (`API_KEY:<key>`). API-Key + Athlete-ID werden vom User im Mehr-Tab eingetragen (localStorage `intervals-config`). Kein Default mehr im Code. Athlete-ID: `i408428`. Endpoints: events (planned workouts), events/bulk (upload), activities (limited for Strava-sourced).
 - **Komoot API:** Inoffizielle API, HTTP Basic Auth (E-Mail + Passwort), credentials in localStorage (`komoot-config`). User-ID: `1130745446386`. Details siehe Komoot Sync Flow unten.
 - **Open-Meteo:** Free weather API, no key required. Coordinates: Bremen (53.0793, 8.8017). 7-day forecast with WMO weather codes.
 
@@ -434,11 +434,16 @@ Die Datei `../komoot-routen/Fahrradrouten.xlsx` enthielt 12 bereits dokumentiert
 
 ## Security Note
 
-Strava client secret, intervals.icu API key, and Komoot credentials are exposed in client-side code / localStorage. This is a known trade-off of the no-backend architecture. Komoot credentials (`komoot-config` in localStorage) include the plain-text password, required for Basic Auth API calls.
+Status nach Rotation + Vercel-Proxy am 2026-05-03:
+
+- **Strava `client_secret`:** nur noch als ENV-Var in Vercel-Function, **nie** im Browser. Browser-Code ruft `https://project-63fue.vercel.app/api/strava-{token,refresh}`. Niemals als JS-Konstante reintroducieren.
+- **intervals.icu API-Key:** nicht mehr im Code. User-supplied via Mehr-Tab (localStorage). Helper-Scripts laden aus `../intervals-config.json` (Workspace-Root, nicht im Git).
+- **Komoot Credentials:** weiterhin in localStorage (`komoot-config`) inkl. Plain-Text-Passwort — durch Basic-Auth-API zwangsläufig. Bekannte Restschwäche.
+- **Alte Secret-Werte** (vor 2026-05-03) sind kompromittiert (öffentlich in Git-History + GitHub Pages bis zur Rotation). Forks/Scraper können Kopien haben. Aktuelle Werte sind separat (`secrets.local.md` im Workspace-Root, nicht im Git).
 
 ## Nutrition Coach Integration
 
-AI nutrition coach MD files are stored in `../ai-nutrition-coach/` (outside this repo). Currently 3 files:
+AI nutrition coach MD files are stored in `../Essensplaner/coach/Ernaehrung/` (outside this repo). Currently 3 files:
 - `ernaehrung-fruehstueck.md` – Frühstück (Carb Cycling, Vollkorn, Belag-Priorisierung)
 - `ernaehrung-mittagessen.md` – Mittagessen (Skyr-Base, Müsli-Vergleich, Beeren vs. Banane)
 - `ernaehrung-snacks-nachmittag.md` – Snacks (Ruhetag/Milon/Rad-Tag differenziert)
