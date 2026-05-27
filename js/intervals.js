@@ -117,8 +117,8 @@ async function syncIntervalsToCalendar(silent = false) {
     try {
         // Determine date range: from first workout to end of plan
         const sorted = [...workouts].sort((a, b) => new Date(a.date) - new Date(b.date));
-        const oldest = sorted.length > 0 ? sorted[0].date : '2026-02-23';
-        const newest = '2026-06-28'; // After Harzquerfahrt
+        const oldest = sorted.length > 0 ? sorted[0].date : '2026-04-27';
+        const newest = '2026-10-11'; // Nach FTP-Test 03.10.2026 (Plan-Ende KW40)
 
         const events = await fetchIntervalsEvents(oldest, newest);
 

@@ -89,11 +89,12 @@ function formatDurationHours(minutes) {
 
 function getIntensityClass(title) {
     const t = title.toLowerCase();
-    if (t.includes('recovery') || t.includes('social') || t.includes('ausrollen')) return 'recovery';
+    if (t.includes('reha') || t.includes('spazier') || t.includes('recovery') || t.includes('social') || t.includes('ausrollen') || t.includes('ruhe')) return 'recovery';
+    if (t.includes('ftp-test') || t.includes('ftp test') || t.includes('re-test') || t.includes('retest')) return 'test';
     if (t.includes('vo2')) return 'vo2max';
-    if (t.includes('threshold')) return 'threshold';
-    if (t.includes('endurance') || t.includes('gravel')) return 'endurance';
-    if (t.includes('ftp test')) return 'test';
+    if (t.includes('threshold') || t.includes('over-under') || t.includes('over/under')) return 'threshold';
+    if (t.includes('sst') || t.includes('sweet')) return 'sweetspot';
+    if (t.includes('z2') || t.includes('endurance') || t.includes('locker') || t.includes('gravel')) return 'endurance';
     if (t.includes('harzquerfahrt') || t.includes('155km') || t.includes('race')) return 'event';
     return 'sweetspot';
 }
@@ -117,34 +118,44 @@ function getWeeks() {
 }
 
 function getPlanPhases() {
+    // FTP-Aufbau 2026: 188 W -> 210-220 W, FTP-Test 03.10.2026 (KW40)
     return [
-        { id: 'test1', name: 'FTP-Test', icon: '\u26A1', css: 'test', kwRange: 'KW 9', focus: 'Baseline ermitteln' },
-        { id: 'base', name: 'Base Rebuild', icon: '\uD83C\uDFD7\uFE0F', css: 'endurance', kwRange: 'KW 10\u201313', focus: 'Aerobe Basis, Sweet Spot' },
-        { id: 'build', name: 'Build + Climbing', icon: '\u26F0\uFE0F', css: 'sweetspot', kwRange: 'KW 14\u201317', focus: 'Threshold, Climbing-Kraft' },
-        { id: 'peak', name: 'Peak', icon: '\uD83D\uDD25', css: 'threshold', kwRange: 'KW 18\u201321', focus: 'Event-spezifisch, lange Ausfahrten' },
-        { id: 'recovery', name: 'Recovery + Taper', icon: '\uD83E\uDDD8', css: 'recovery', kwRange: 'KW 22\u201325', focus: 'Regeneration, Formerhalt' },
-        { id: 'event', name: 'Harzquerfahrt', icon: '\uD83C\uDFC1', css: 'event', kwRange: 'KW 26', focus: '155 km / 1.700 hm' },
+        { id: 'test1', name: 'Baseline-Test', icon: '\u26A1', css: 'test', kwRange: 'KW 18\u201319', focus: 'Locker-Wo + FTP-Test 05.05.' },
+        { id: 'preop', name: 'Pre-OP Block', icon: '\uD83C\uDFD7\uFE0F', css: 'sweetspot', kwRange: 'KW 20\u201323', focus: 'Form halten, Fu\u00DF schonen' },
+        { id: 'op', name: 'Fu\u00DF-OP', icon: '\uD83E\uDE7A', css: 'recovery', kwRange: 'KW 24', focus: 'OP 08.06. + komplette Ruhe' },
+        { id: 'reha', name: 'Reha-Wiedereinstieg', icon: '\uD83E\uDDD8', css: 'recovery', kwRange: 'KW 25\u201326', focus: 'Spazieren \u2192 erste Touren' },
+        { id: 'rebasis', name: 'Aerobe Re-Basis', icon: '\uD83D\uDEB4', css: 'endurance', kwRange: 'KW 27\u201330', focus: 'Z2-Volumen, Tempo-Touches' },
+        { id: 'sst', name: 'Sweet Spot Block', icon: '\uD83D\uDD25', css: 'sweetspot', kwRange: 'KW 31\u201334', focus: 'SST-Progression + Re-Test KW34' },
+        { id: 'threshold', name: 'Threshold Block', icon: '\u26F0\uFE0F', css: 'threshold', kwRange: 'KW 35\u201337', focus: 'FTP 95\u2013105 %, Over-Under' },
+        { id: 'vo2', name: 'VO2max Block', icon: '\uD83D\uDCA8', css: 'vo2max', kwRange: 'KW 38\u201339', focus: 'High-Density VO2 (R\u00F8nnestad)' },
+        { id: 'test2', name: 'FTP-Test', icon: '\uD83C\uDFC6', css: 'event', kwRange: 'KW 40', focus: 'Test 03.10. \u00B7 Ziel 210\u2013220 W' },
     ];
 }
 
 function getPhaseForWeekNum(kw) {
-    if (kw <= 9) return 'test1';
-    if (kw <= 13) return 'base';
-    if (kw <= 17) return 'build';
-    if (kw <= 21) return 'peak';
-    if (kw <= 25) return 'recovery';
-    return 'event';
+    if (kw <= 19) return 'test1';
+    if (kw <= 23) return 'preop';
+    if (kw <= 24) return 'op';
+    if (kw <= 26) return 'reha';
+    if (kw <= 30) return 'rebasis';
+    if (kw <= 34) return 'sst';
+    if (kw <= 37) return 'threshold';
+    if (kw <= 39) return 'vo2';
+    return 'test2';
 }
 
 function estimateTSS(durationMin, title) {
     const t = title.toLowerCase();
     let intensityFactor = 0.65;
-    if (t.includes('recovery') || t.includes('ausrollen') || t.includes('taper')) intensityFactor = 0.50;
-    else if (t.includes('endurance')) intensityFactor = 0.65;
-    else if (t.includes('sweetspot') || t.includes('climbing')) intensityFactor = 0.82;
+    if (t.includes('reha') || t.includes('spazier')) intensityFactor = 0.40;
+    else if (t.includes('recovery') || t.includes('ausrollen') || t.includes('taper')) intensityFactor = 0.50;
+    else if (t.includes('milon')) intensityFactor = 0.55;
+    else if (t.includes('z2') || t.includes('locker') || t.includes('endurance')) intensityFactor = 0.62;
+    else if (t.includes('sst') || t.includes('sweet') || t.includes('climbing')) intensityFactor = 0.82;
+    else if (t.includes('over-under') || t.includes('over/under')) intensityFactor = 0.92;
     else if (t.includes('threshold')) intensityFactor = 0.92;
     else if (t.includes('vo2')) intensityFactor = 1.05;
-    else if (t.includes('ftp test')) intensityFactor = 0.95;
+    else if (t.includes('ftp-test') || t.includes('ftp test') || t.includes('re-test')) intensityFactor = 0.95;
     else if (t.includes('harzquerfahrt') || t.includes('155km')) intensityFactor = 0.72;
     return Math.round(durationMin * intensityFactor * intensityFactor * 100 / 60);
 }

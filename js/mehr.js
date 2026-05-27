@@ -271,7 +271,7 @@ function renderMehr() {
     html += `
         <div class="app-info">
             R\u00D6WERT \u2014 Gravel Coach<br>
-            Harzquerfahrt 27.06.2026 \u00B7 155 km \u00B7 1.700 hm
+            FTP-Aufbau 2026 \u00B7 Ziel 210\u2013220 W \u00B7 FTP-Test 03.10.2026
             <div class="app-version">v2.0 \u00B7 PWA \u00B7 Vanilla JS</div>
         </div>`;
 

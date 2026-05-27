@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **Röwert - Gravel Coach** is a Progressive Web App (PWA) for ultra-endurance gravel cycling training plan management with Strava integration and AI-powered nutrition coaching. The UI is entirely in German. Mobile-first design optimized for Samsung S22.
 
-**Ziel:** Harzquerfahrt 27.06.2026 · 155 km · 1.700 hm
+**Ziel:** FTP-Aufbau 2026 — FTP 188 W → 210–220 W bis FTP-Test 03.10.2026. Zwischen-Meilenstein: Fuß-OP 08.06.2026 + Reha. (Harzquerfahrt 27.06.2026 wegen OP abgesagt — Archiv unter `../harzquerfahrt-2026/`.)
 
 **Hosted:** GitHub Pages → https://mroewert.github.io/my-training/
 
@@ -306,16 +306,21 @@ Structure per meal:
 }
 ```
 
-### Plan Phases (Harzquerfahrt)
+### Plan Phases (FTP-Aufbau 2026)
+
+Quelle: `../ftp-aufbau-2026/FTP_Aufbauplan_2026.md`. Definiert in `getPlanPhases()` / `getPhaseForWeekNum()` in `js/app.js`.
 
 | Phase | KW | Focus |
 |-------|-----|-------|
-| FTP-Test | KW 9 | Baseline |
-| Base Rebuild | KW 10–13 | Aerobe Basis, Sweet Spot |
-| Build + Climbing | KW 14–17 | Threshold, Climbing-Kraft |
-| Peak | KW 18–21 | Event-spezifisch, lange Ausfahrten |
-| Recovery + Taper | KW 22–25 | Regeneration, Formerhalt |
-| Harzquerfahrt | KW 26 | 155 km / 1.700 hm |
+| Baseline-Test | KW 18–19 | Locker-Wo + FTP-Test 05.05. |
+| Pre-OP Block | KW 20–23 | Form halten, Fuß schonen (Maintenance) |
+| Fuß-OP | KW 24 | OP 08.06. + komplette Ruhe |
+| Reha-Wiedereinstieg | KW 25–26 | Spazieren → erste lockere Touren |
+| Aerobe Re-Basis | KW 27–30 | Z2-Volumen, Tempo-Touches |
+| Sweet Spot Block | KW 31–34 | SST-Progression + FTP-Re-Test KW34 |
+| Threshold Block | KW 35–37 | FTP 95–105 %, Over-Under |
+| VO2max Block | KW 38–39 | High-Density VO2 (Rønnestad) |
+| FTP-Test | KW 40 | Test 03.10. · Ziel 210–220 W |
 
 ## Development
 

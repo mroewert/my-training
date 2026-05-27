@@ -337,13 +337,20 @@ function renderRoadmap(container) {
     const phases = getPlanPhases();
     const currentPhaseId = getPhaseForWeekNum(currentWeekNum);
 
-    // Find event date
+    // Two-stage goal: Fuß-OP (08.06.2026) -> FTP-Test (03.10.2026)
     const allWorkouts = weeks.flat();
-    const eventWorkout = allWorkouts.find(w =>
-        w.title && (w.title.toLowerCase().includes('harzquerfahrt') || w.title.toLowerCase().includes('155km'))
-    );
-    const eventDate = eventWorkout ? new Date(eventWorkout.date) : new Date('2026-06-27');
-    const daysToEvent = Math.max(0, Math.ceil((eventDate - today) / 86400000));
+    const opDate = new Date('2026-06-08');
+    const testDate = new Date('2026-10-03');
+    const daysToOp = Math.ceil((opDate - today) / 86400000);
+    const daysToTest = Math.max(0, Math.ceil((testDate - today) / 86400000));
+    const preOp = daysToOp >= 0;
+    const goalLabel = preOp ? '🩺 Nächster Meilenstein' : '🏆 Saisonziel';
+    const goalTitle = preOp ? 'Fuß-OP' : 'FTP-Test';
+    const goalDate = preOp ? '8. Juni 2026' : '3. Oktober 2026 · 210–220 W';
+    const goalDays = preOp ? daysToOp : daysToTest;
+    const goalSub = preOp
+        ? 'Saisonziel: FTP-Test 03.10.2026 · 210–220 W'
+        : 'Ziel: 210–220 W (von 188 W Baseline)';
 
     // Overall progress
     const totalWorkouts = allWorkouts.length;
@@ -374,10 +381,11 @@ function renderRoadmap(container) {
     // Goal Card
     html += `
         <div class="roadmap-goal">
-            <div class="roadmap-goal-title">\uD83C\uDFC1 Harzquerfahrt</div>
-            <div class="roadmap-goal-date">27. Juni 2026 \u00B7 155 km \u00B7 1.700 hm</div>
-            <div class="roadmap-goal-countdown">${daysToEvent}</div>
+            <div class="roadmap-goal-title">${goalLabel}: ${goalTitle}</div>
+            <div class="roadmap-goal-date">${goalDate}</div>
+            <div class="roadmap-goal-countdown">${goalDays}</div>
             <div class="roadmap-goal-countdown-label">Tage</div>
+            <div class="roadmap-goal-sub">${goalSub}</div>
         </div>`;
 
     // Overall Progress
