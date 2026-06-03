@@ -49,7 +49,7 @@ index_old.html          – Backup of previous single-file version (v1)
 
 | Tab | File | Sub-Views | Description |
 |-----|------|-----------|-------------|
-| **Training** | training.js | Kalender, Woche, Roadmap | Monatskalender (intervals.icu-Style), Wochenansicht mit Soll/Ist, Roadmap bis Harzquerfahrt |
+| **Training** | training.js | Nächste, Woche, Roadmap | **Nächste** = Detail der nächsten 2 anstehenden Trainings (ersetzt Kalender), Wochenansicht mit Soll/Ist, Roadmap mit Phasen + Ist/Soll-Stunden pro KW |
 | **Ernährung** | ernaehrung.js | — | AI Coach Daten (Frühstück, Mittag, Snacks) mit Tagestyp-Toggle und Einkaufsliste |
 | **Analyse** | analyse.js | — | Formkurve, Wochenvolumen Soll/Ist, Statistiken, Leistungsdaten-Trends |
 | **Routen** | routen.js + komoot.js + sync.js | — | **Letzte Fahrten** (Strava-Aktivitäten mit Auto-Match zu Komoot-Routen), klappbare Komoot-Routenliste mit Bewertungen, Filter, Fahrten-Log, Oberflächen-Analyse |
@@ -57,7 +57,7 @@ index_old.html          – Backup of previous single-file version (v1)
 
 **Navigation Flow:**
 - Bottom-Nav: 5 Tabs, onclick-Handler direkt im HTML + JS-Listener
-- Training Sub-Nav: 3 Buttons (Kalender/Woche/Roadmap) umschalten via `switchTrainingView()`
+- Training Sub-Nav: 3 Buttons (Nächste/Woche/Roadmap) umschalten via `switchTrainingView()`. Standard-View beim Start: `next`. (Kalender-Code bleibt als interner Fallback in training.js, ist aber nicht mehr verlinkt.)
 - Workout Detail: Fullscreen-View (`#workout-detail-view`), öffnet via `openWorkoutDetail(id)`
 - Route Detail: Fullscreen-View (`#route-detail-view`), öffnet via `openRouteDetail(id)`
 - Modals: Import (`#modal-import`), Log (`#modal-log`), Edit (`#modal-edit`)
@@ -98,8 +98,9 @@ All state is global variables in `app.js`, synced to `localStorage`:
 
 **training.js (3 Views):**
 - `initTraining()` – find current week, initial render
-- `switchTrainingView(view)` – toggle calendar/week/roadmap
-- `renderCalendar(container)` – month grid with workout blocks
+- `switchTrainingView(view)` – toggle next/week/roadmap
+- `renderNextWorkouts(container)` – Detail-Ansicht der nächsten 2 anstehenden, ungeloggten Trainings (Standard-View); `renderNextWorkoutCard()`, `relativeDayLabel()` Helper
+- `renderCalendar(container)` – month grid with workout blocks (Fallback, nicht mehr in Sub-Nav verlinkt)
 - `renderWeekView(container)` – week detail with cards
 - `renderRoadmap(container)` – timeline with phases and countdown
 - `goToWeek(idx)` – navigate from roadmap to week view
