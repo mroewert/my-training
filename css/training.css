@@ -907,6 +907,12 @@
     font-family: 'JetBrains Mono', monospace;
 }
 
+/* Ist-Stunden (gefahren) farblich nach Erfuellungsgrad */
+.roadmap-week-hours .rw-ist { color: var(--text-secondary); font-weight: 700; }
+.roadmap-week-hours .rw-ist.good { color: var(--status-green); }
+.roadmap-week-hours .rw-ist.ok { color: var(--status-yellow); }
+.roadmap-week-hours .rw-ist.low { color: var(--status-red); }
+
 .roadmap-week-done {
     font-size: 12px;
     color: var(--text-muted);

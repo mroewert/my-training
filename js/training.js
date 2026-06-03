@@ -463,7 +463,10 @@ function renderRoadmap(container) {
     allWorkouts.forEach(w => {
         const dur = parseDuration(w.duration);
         totalPlannedMin += dur;
-        if (completed[w.id]) completedMin += dur;
+        if (completed[w.id]) {
+            const log = activityLogs[w.id];
+            completedMin += (log && log.duration) ? log.duration : dur;
+        }
     });
 
     // Assign weeks to phases
@@ -514,9 +517,17 @@ function renderRoadmap(container) {
         const phaseTotal = phaseWorkouts.length;
         const phasePct = phaseTotal > 0 ? Math.round(phaseDone / phaseTotal * 100) : 0;
 
-        let phaseMinutes = 0;
-        phaseWorkouts.forEach(w => { phaseMinutes += parseDuration(w.duration); });
+        let phaseMinutes = 0, phaseActualMin = 0;
+        phaseWorkouts.forEach(w => {
+            const planned = parseDuration(w.duration);
+            phaseMinutes += planned;
+            if (completed[w.id]) {
+                const log = activityLogs[w.id];
+                phaseActualMin += (log && log.duration) ? log.duration : planned;
+            }
+        });
         const phaseHours = Math.round(phaseMinutes / 60 * 10) / 10;
+        const phaseActualH = Math.round(phaseActualMin / 60 * 10) / 10;
 
         // Is this phase completed?
         const isCompleted = phasePct === 100 && phaseTotal > 0;
@@ -536,7 +547,7 @@ function renderRoadmap(container) {
                     </div>
                     <div class="roadmap-phase-focus">${phase.focus}</div>
                     <div class="roadmap-phase-stats">
-                        <span>\u23F1 ${phaseHours}h</span>
+                        <span>\u23F1 ${phaseActualH}/${phaseHours}h</span>
                         <span>\u2713 ${phaseDone}/${phaseTotal}</span>
                         ${isActive ? '<span style="color:var(--accent-primary);font-weight:700;">\u25C0 Aktuelle Phase</span>' : ''}
                     </div>
@@ -550,14 +561,28 @@ function renderRoadmap(container) {
         pw.forEach(({ week, idx, weekNum, weekDate }) => {
             const isCurrent = weekNum === currentWeekNum && weekDate.getFullYear() === currentYear;
             const weekCompletedCount = week.filter(w => completed[w.id]).length;
-            let weekMin = 0;
-            week.forEach(w => { weekMin += parseDuration(w.duration); });
+            let weekMin = 0, weekActualMin = 0;
+            week.forEach(w => {
+                const planned = parseDuration(w.duration);
+                weekMin += planned;
+                if (completed[w.id]) {
+                    const log = activityLogs[w.id];
+                    weekActualMin += (log && log.duration) ? log.duration : planned;
+                }
+            });
             const weekH = Math.round(weekMin / 60 * 10) / 10;
+            const weekActualH = Math.round(weekActualMin / 60 * 10) / 10;
+            const weekPct = weekMin > 0 ? Math.round(weekActualMin / weekMin * 100) : 0;
+            // Ist-Stunden einfaerben (nur wenn schon gefahren wurde; Zukunft bleibt neutral)
+            let istCls = '';
+            if (weekActualMin > 0) {
+                istCls = weekPct >= 90 ? ' good' : weekPct >= 70 ? ' ok' : ' low';
+            }
 
             html += `
                     <div class="roadmap-week-row${isCurrent ? ' current' : ''}" onclick="goToWeek(${idx})">
                         <span class="roadmap-week-label">KW ${weekNum}</span>
-                        <span class="roadmap-week-hours">${weekH}h</span>
+                        <span class="roadmap-week-hours" title="Gefahren / Geplant"><span class="rw-ist${istCls}">${weekActualH}</span> / ${weekH}h</span>
                         <span class="roadmap-week-done">${weekCompletedCount}/${week.length}</span>
                     </div>`;
         });
