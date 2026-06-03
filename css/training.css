@@ -41,6 +41,71 @@
 }
 
 /* ============================================
+   NÄCHSTE TRAININGS VIEW (Detail der nächsten 2)
+============================================ */
+.next-workouts {
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.next-workout-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px;
+    animation: fadeInUp 0.3s ease both;
+}
+
+.next-workout-card.primary {
+    border-color: var(--accent-primary);
+    box-shadow: 0 0 20px var(--accent-glow);
+}
+
+.next-workout-when {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-bottom: 12px;
+}
+
+.next-workout-rel {
+    font-size: 13px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.next-workout-rel.recovery { color: var(--status-green); }
+.next-workout-rel.endurance { color: var(--status-blue); }
+.next-workout-rel.sweetspot { color: var(--accent-primary); }
+.next-workout-rel.threshold { color: var(--status-red); }
+.next-workout-rel.vo2max { color: var(--status-purple); }
+.next-workout-rel.test { color: var(--status-yellow); }
+.next-workout-rel.event { color: var(--accent-secondary); }
+
+.next-workout-fulldate {
+    font-size: 12px;
+    color: var(--text-muted);
+    font-weight: 600;
+}
+
+/* Hero kompakter im Karten-Kontext */
+.next-workout-card .workout-detail-hero { margin-bottom: 14px; }
+.next-workout-card .workout-detail-title { font-size: 19px; }
+.next-workout-card .workout-detail-desc { margin-bottom: 0; }
+
+/* Sektionen heller, damit sie sich von der Karte abheben */
+.next-workout-card .detail-section {
+    background: var(--bg-card-light);
+    margin-bottom: 10px;
+}
+
+.next-workout-card .detail-section:last-of-type { margin-bottom: 0; }
+.next-workout-card .detail-actions { margin-top: 16px; }
+
+/* ============================================
    CALENDAR VIEW
 ============================================ */
 .calendar-nav {

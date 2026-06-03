@@ -2,7 +2,7 @@
 // TRAINING.JS – Kalender, Woche, Roadmap
 // ============================================
 
-let trainingView = 'calendar'; // 'calendar' | 'week' | 'roadmap'
+let trainingView = 'next'; // 'next' | 'week' | 'roadmap' (Kalender entfernt zugunsten Detail-Ansicht)
 let calendarMonth = new Date().getMonth();
 let calendarYear = new Date().getFullYear();
 let selectedWeekIdx = 0;
@@ -41,9 +41,111 @@ function renderCurrentTrainingView() {
     const container = document.getElementById('training-content');
     if (!container) return;
 
-    if (trainingView === 'calendar') renderCalendar(container);
+    if (trainingView === 'next') renderNextWorkouts(container);
+    else if (trainingView === 'calendar') renderCalendar(container);
     else if (trainingView === 'week') renderWeekView(container);
     else if (trainingView === 'roadmap') renderRoadmap(container);
+}
+
+// ============================================
+// NÄCHSTE TRAININGS VIEW (Detail-Ansicht der nächsten 2 Trainings)
+// ============================================
+function renderNextWorkouts(container) {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    // Nächste 2 anstehende, noch nicht erledigte Trainings (ab heute)
+    const upcoming = [...workouts]
+        .filter(w => {
+            const d = new Date(w.date);
+            d.setHours(0, 0, 0, 0);
+            return d >= today && !completed[w.id];
+        })
+        .sort((a, b) => new Date(a.date) - new Date(b.date))
+        .slice(0, 2);
+
+    if (upcoming.length === 0) {
+        container.innerHTML = `
+            <div class="empty-state">
+                <div class="empty-icon">🎉</div>
+                <div class="empty-text">Keine anstehenden Trainings</div>
+                <div class="empty-link" onclick="switchTrainingView('roadmap')">Zur Roadmap</div>
+            </div>`;
+        return;
+    }
+
+    let html = '<div class="next-workouts">';
+    upcoming.forEach((w, idx) => { html += renderNextWorkoutCard(w, idx); });
+    html += '</div>';
+    container.innerHTML = html;
+}
+
+function renderNextWorkoutCard(w, idx) {
+    const intensity = getIntensityClass(w.title);
+    const dur = parseDuration(w.duration);
+    const tss = estimateTSS(dur, w.title);
+    const rel = relativeDayLabel(w.date);
+
+    let html = `
+        <div class="next-workout-card${idx === 0 ? ' primary' : ''}" style="animation-delay:${idx * 0.08}s">
+            <div class="next-workout-when">
+                <span class="next-workout-rel ${intensity}">${rel}</span>
+                <span class="next-workout-fulldate">${formatDate(w.date)}</span>
+            </div>
+            <div class="workout-detail-hero">
+                <div class="workout-detail-badge">
+                    <span class="badge badge-${intensity}">${intensity}</span>
+                    ${w.intervalsEventId ? '<span class="intervals-icu-badge">intervals.icu</span>' : ''}
+                </div>
+                <div class="workout-detail-title">${w.title}</div>
+                <div class="workout-detail-meta">
+                    <span>⏱ ${w.duration}</span>
+                    <span>📊 ~${tss} TSS</span>
+                </div>
+                ${w.desc ? `<div class="workout-detail-desc">${w.desc}</div>` : ''}
+            </div>`;
+
+    if (w.intervals) {
+        html += nextWorkoutSection('📊', 'Intervalle', `<pre class="intervals-text">${w.intervals}</pre>`);
+    }
+    if (w.nutrition) {
+        html += nextWorkoutSection('🍌', 'Nutrition', `<div class="info-text">${w.nutrition}</div>`);
+    }
+    if (w.technique) {
+        const vid = w.video_url ? `<a href="${w.video_url}" target="_blank" class="btn-video">▶ Video ansehen</a>` : '';
+        html += nextWorkoutSection('🎯', 'Technik', `<div class="info-text">${w.technique}</div>${vid}`);
+    }
+    if (w.coach_notes) {
+        html += nextWorkoutSection('🧑‍🏫', 'Coach Notiz', `<div class="info-text">${w.coach_notes}</div>`);
+    }
+
+    html += `
+            <div class="detail-actions">
+                <button class="btn-action btn-log" onclick="openLog('${w.id}')">Training loggen</button>
+                <button class="btn-action btn-complete" onclick="toggleComplete('${w.id}'); renderCurrentTrainingView()">Erledigt</button>
+            </div>
+        </div>`;
+    return html;
+}
+
+function nextWorkoutSection(icon, title, body) {
+    return `
+        <div class="detail-section">
+            <div class="detail-section-header">
+                <span class="section-icon">${icon}</span> ${title}
+            </div>
+            <div class="detail-section-body">${body}</div>
+        </div>`;
+}
+
+function relativeDayLabel(dateStr) {
+    const today = new Date(); today.setHours(0, 0, 0, 0);
+    const d = new Date(dateStr); d.setHours(0, 0, 0, 0);
+    const diff = Math.round((d - today) / 86400000);
+    if (diff <= 0) return 'Heute';
+    if (diff === 1) return 'Morgen';
+    if (diff === 2) return 'Übermorgen';
+    return `In ${diff} Tagen`;
 }
 
 // ============================================
