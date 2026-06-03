@@ -381,8 +381,9 @@ Pro erfolgreichem Step wird `saveSyncTimestamp(source)` aufgerufen. Am Ende (wen
 2. **Events abrufen:** `GET /athlete/{id}/events?oldest=...&newest=...` – liefert geplante Workouts
 3. **Kalender aktualisieren:** Workouts per Name matchen, Datum + Dauer anpassen falls auf intervals.icu verschoben
 4. **Neue Workouts importieren:** Events ohne lokales Match werden als neue Workouts angelegt
-5. **Strava Auto-Log:** `fetchStravaActivities()` holt letzte 30 Aktivitäten, Rad-Aktivitäten werden tagesgenau ungloggten Workouts zugeordnet (bei mehreren: beste Dauer-Übereinstimmung)
-6. **Plan-Upload:** `uploadPlanToIntervals()` sendet zukünftige Workouts als Events via `POST /athlete/{id}/events/bulk`
+5. **Orphan-Pruning (intervals.icu = Single Source of Truth):** Zukünftige Workouts (`date >= heute`), die kein Gegenstück mehr auf intervals.icu haben, werden lokal entfernt. So verschwinden Altlasten automatisch, wenn der Plan auf intervals.icu geändert/gelöscht wird. **Geschützt:** Vergangenheit (History) + alles Geloggte/Erledigte (`completed`/`activityLogs`). Sicher gegen versehentlichen Wipe: bei `events.length === 0` wird vor dem Pruning bereits `return`ed. Während des Matchens/Anlegens werden alle planzugehörigen IDs in `syncedIds` gesammelt; nur Workouts außerhalb dieses Sets werden gepruned.
+6. **Strava Auto-Log:** `fetchStravaActivities()` holt letzte 30 Aktivitäten, Rad-Aktivitäten werden tagesgenau ungloggten Workouts zugeordnet (bei mehreren: beste Dauer-Übereinstimmung)
+7. **Plan-Upload:** `uploadPlanToIntervals()` sendet zukünftige Workouts als Events via `POST /athlete/{id}/events/bulk`
 
 **`silent` Parameter:** Bei `silent=true` werden alle `alert()`-Calls unterdrückt (für Hintergrund-Sync). Errors werden nur in die Konsole geloggt, der Aufrufer erhält die Exception via `throw`.
 

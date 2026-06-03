@@ -136,6 +136,7 @@ async function syncIntervalsToCalendar(silent = false) {
         // Match intervals.icu events to local workouts by name
         let updated = 0;
         let added = 0;
+        const syncedIds = new Set(); // lokale Workouts, die zum aktuellen intervals.icu-Plan gehoeren
 
         events.forEach(event => {
             const eventDate = event.start_date_local ? event.start_date_local.split('T')[0] : null;
@@ -163,6 +164,7 @@ async function syncIntervalsToCalendar(silent = false) {
                 }
                 // Store intervals.icu event ID for reference
                 match.intervalsEventId = event.id;
+                syncedIds.add(match.id);
 
                 // Update duration if intervals.icu has it
                 if (eventDuration > 0) {
@@ -210,7 +212,24 @@ async function syncIntervalsToCalendar(silent = false) {
                     workouts.push(newWorkout);
                     added++;
                 }
+                syncedIds.add(newWorkout.id);
             }
+        });
+
+        // Orphan-Pruning: intervals.icu ist Single Source of Truth fuer geplante Trainings.
+        // Entferne zukuenftige Workouts, die kein Gegenstueck mehr auf intervals.icu haben.
+        // Geschuetzt: Vergangenheit (History) + alles Geloggte/Erledigte (Trainingsdaten).
+        // Sicher, weil bei events.length === 0 oben bereits returned wurde (kein Wipe bei Sync-Fehler).
+        const now = new Date();
+        const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+        let pruned = 0;
+        workouts = workouts.filter(w => {
+            const isOrphan = w.date >= todayStr
+                && !syncedIds.has(w.id)
+                && !completed[w.id]
+                && !activityLogs[w.id];
+            if (isOrphan) { pruned++; return false; }
+            return true;
         });
 
         // Auto-log Strava activities to matching workouts by date
@@ -270,8 +289,9 @@ async function syncIntervalsToCalendar(silent = false) {
             let msg = 'Sync abgeschlossen!';
             if (updated > 0) msg += ` ${updated} Workouts aktualisiert.`;
             if (added > 0) msg += ` ${added} neue Workouts importiert.`;
+            if (pruned > 0) msg += ` ${pruned} veraltete Workouts entfernt.`;
             if (autoLogged > 0) msg += ` ${autoLogged} Strava-Aktivitaet${autoLogged !== 1 ? 'en' : ''} automatisch geloggt.`;
-            if (updated === 0 && added === 0 && autoLogged === 0) msg += ' Kalender ist bereits aktuell.';
+            if (updated === 0 && added === 0 && pruned === 0 && autoLogged === 0) msg += ' Kalender ist bereits aktuell.';
             alert(msg);
         }
 
