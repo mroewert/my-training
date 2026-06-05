@@ -134,8 +134,8 @@ async function syncAll(options = {}) {
 
     if (!silent) {
         const lines = [
-            'Strava: ' + describeResult(results.strava),
-            'intervals.icu: ' + describeResult(results.intervals),
+            'Fahrten: ' + describeResult(results.strava),
+            'Trainingsplan: ' + describeResult(results.intervals),
             'Komoot: ' + describeResult(results.komoot)
         ];
         alert('Sync abgeschlossen\n\n' + lines.join('\n'));

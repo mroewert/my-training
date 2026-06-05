@@ -34,11 +34,11 @@ function renderMehr() {
             <div class="settings-section-body">
                 <div class="sync-status-grid">
                     <div class="sync-status-row">
-                        <span class="sync-source">Strava</span>
+                        <span class="sync-source">Fahrten</span>
                         <span class="sync-time">${fmt(ts.strava)}</span>
                     </div>
                     <div class="sync-status-row">
-                        <span class="sync-source">intervals.icu</span>
+                        <span class="sync-source">Trainingsplan</span>
                         <span class="sync-time">${fmt(ts.intervals)}</span>
                     </div>
                     <div class="sync-status-row">
@@ -49,7 +49,7 @@ function renderMehr() {
                 <button class="btn-sync-all" id="btn-sync-all" onclick="handleSyncAll()">
                     Alles synchronisieren
                 </button>
-                <div class="sync-hint">Strava und intervals.icu werden bei jedem App-Start automatisch synchronisiert. Komoot 1× pro Tag.</div>
+                <div class="sync-hint">Fahrten und Trainingsplan werden bei jedem App-Start automatisch aus intervals.icu synchronisiert. Komoot 1× pro Tag.</div>
             </div>
         </div>`;
 
@@ -105,7 +105,7 @@ function renderMehr() {
     html += `
         <div class="settings-section">
             <div class="settings-section-header">
-                <span class="section-icon">\uD83D\uDCF6</span> Strava
+                <span class="section-icon">\uD83D\uDCF6</span> Strava <span style="font-weight:400;opacity:0.6;font-size:13px;">(optional, Fallback)</span>
             </div>
             <div class="settings-section-body">
                 <div class="settings-row">
@@ -113,7 +113,7 @@ function renderMehr() {
                         <div class="settings-row-title">${stravaConnected ? 'Verbunden' : 'Nicht verbunden'}</div>
                         <div class="settings-row-sub">${stravaConnected
                             ? 'Verbunden als ' + stravaName
-                            : 'Strava verbinden f\u00FCr automatische Aktivit\u00E4tsdaten'}</div>
+                            : 'Nicht n\u00F6tig \u2014 Fahrtdaten kommen aus intervals.icu. Nur als Fallback verbindbar.'}</div>
                     </div>
                     <div class="settings-row-action">
                         ${stravaConnected
