@@ -351,8 +351,8 @@ After pushing, users should hard-refresh (Ctrl+Shift+R) or wait for cache expiry
 
 ## External APIs
 
-- **Strava API:** OAuth 2.0 flow. `client_id` ist public in `strava.js`. `client_secret` lebt **nicht** im Browser — Token-Exchange und Refresh laufen über Vercel-Serverless-Functions (`api/strava-token.js`, `api/strava-refresh.js`, ENV-Vars auf Vercel). Endpoints: authorize, token exchange (via Proxy), athlete activities.
-- **intervals.icu API:** HTTP Basic Auth (`API_KEY:<key>`). API-Key + Athlete-ID werden vom User im Mehr-Tab eingetragen (localStorage `intervals-config`). Kein Default mehr im Code. Athlete-ID: `i408428`. Endpoints: events (planned workouts), events/bulk (upload), activities (limited for Strava-sourced).
+- **Strava API:** OAuth 2.0 flow. `client_id` ist public in `strava.js`. `client_secret` lebt **nicht** im Browser — Token-Exchange und Refresh laufen über Vercel-Serverless-Functions (`api/strava-token.js`, `api/strava-refresh.js`, ENV-Vars auf Vercel). Endpoints: authorize, token exchange (via Proxy), athlete activities. **Seit 2026-06-05 nur noch Fallback:** Wegen der Strava-API-Abo-Pflicht ab 30.06.2026 ist die Fahrt-Datenquelle auf intervals.icu (direkter Wahoo-Sync) umgestellt. `fetchRecentRides()` nutzt Strava nur, wenn intervals.icu nicht verbunden ist. Strava-Connect-UND OAuth-Code bleiben vorerst erhalten.
+- **intervals.icu API:** HTTP Basic Auth (`API_KEY:<key>`). API-Key + Athlete-ID werden vom User im Mehr-Tab eingetragen (localStorage `intervals-config`). Kein Default mehr im Code. Athlete-ID: `i408428`. Endpoints: events (planned workouts), events/bulk (upload), **activities (primäre Fahrt-Quelle seit 2026-06-05)**, **activity/{id}/streams?types=latlng** (GPS-Startpunkt fürs Komoot-Match — Breite in `data`, Länge in `data2`). Aktivitäts-Felder: `icu_average_watts`, `icu_weighted_avg_watts` (NP), `icu_training_load` (echte TSS), `calories`, `average_heartrate`, `max_heartrate`, `total_elevation_gain`, `trainer`. Funktionen in `intervals.js`: `fetchIntervalsActivities()`, `formatIntervalsActivity()`, `fetchIntervalsStartLatLng()`, `fetchRecentRidesFromIntervals()`.
 - **Komoot API:** Inoffizielle API, HTTP Basic Auth (E-Mail + Passwort), credentials in localStorage (`komoot-config`). User-ID: `1130745446386`. Details siehe Komoot Sync Flow unten.
 - **Open-Meteo:** Free weather API, no key required. Coordinates: Bremen (53.0793, 8.8017). 7-day forecast with WMO weather codes.
 
@@ -388,7 +388,7 @@ Pro erfolgreichem Step wird `saveSyncTimestamp(source)` aufgerufen. Am Ende (wen
 
 **`silent` Parameter:** Bei `silent=true` werden alle `alert()`-Calls unterdrückt (für Hintergrund-Sync). Errors werden nur in die Konsole geloggt, der Aufrufer erhält die Exception via `throw`.
 
-**Einschränkung:** Strava-gesourcte Aktivitäten liefern über die intervals.icu Activities API keine Details (`_note: "STRAVA activities are not available via the API"`). Deshalb werden Aktivitätsdaten direkt über die Strava API geholt.
+**Historischer Hinweis (vor 2026-06-05):** Strava-gesourcte Aktivitäten lieferten über die intervals.icu Activities API keine Details (`_note: "STRAVA activities are not available via the API"`), weshalb Aktivitätsdaten früher direkt über die Strava API geholt wurden. **Seit der Umstellung auf direkten Wahoo→intervals.icu-Sync** sind die Aktivitäten `source: WAHOO` (nicht mehr `STRAVA`) und liefern über die API **volle Details** — daher ist intervals.icu jetzt die primäre Quelle. Der Auto-Log nutzt `fetchIntervalsActivities()`.
 
 ### Letzte Fahrten / Strava → Komoot Match Flow
 
@@ -417,7 +417,7 @@ Anzeige der letzten Strava-Aktivitäten oben im Routen-Tab mit automatischer Zuo
 - `EBikeRide` → touringbicycle, racebike, mtb_easy
 - `VirtualRide` → keine (Indoor)
 
-**Warum Strava statt Komoot-Recordings als Quelle?** Strava-API ist offiziell und versioniert, liefert reichere Felder (`start_latlng`, `total_elevation_gain`, `sport_type`). Komoot-API ist inoffiziell und langsamer (jede Tour-Detail einzeln). Wahoo schreibt eh in beide Systeme, daher kein Datenverlust.
+**Warum intervals.icu statt Komoot-Recordings als Quelle?** intervals.icu-API ist offiziell, liefert reiche Felder (Watt, NP, echte TSS, HR, Höhenmeter) plus GPS via Streams-Endpoint. Komoot-API ist inoffiziell und langsamer (jede Tour-Detail einzeln). Wahoo schreibt direkt nach intervals.icu, daher kein Datenverlust. (Bis 2026-06-05 war Strava die Quelle — wegen der Strava-API-Abo-Pflicht ab 30.06.2026 abgelöst; `fetchRecentRides()` fällt nur noch auf Strava zurück, wenn intervals.icu nicht verbunden ist.)
 
 ### Komoot Sync Flow
 

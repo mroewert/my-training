@@ -200,12 +200,19 @@ async function fetchRecentRides(forceRefresh = false) {
             return cached.rides;
         }
     }
-    const activities = await fetchStravaActivities();
-    const rides = activities.filter(a =>
-        a.type === 'Ride' || a.type === 'VirtualRide' ||
-        a.type === 'GravelRide' || a.type === 'MountainBikeRide' ||
-        a.type === 'EBikeRide'
-    );
+    let rides = [];
+    // Primärquelle: intervals.icu (Wahoo-Daten, Strava-unabhängig).
+    // Fallback: Strava-API – funktioniert nur noch bis zur Abo-Pflicht (30.06.2026).
+    if (typeof isIntervalsConnected === 'function' && isIntervalsConnected()) {
+        rides = await fetchRecentRidesFromIntervals();
+    } else if (isStravaConnected()) {
+        const activities = await fetchStravaActivities();
+        rides = activities.filter(a =>
+            a.type === 'Ride' || a.type === 'VirtualRide' ||
+            a.type === 'GravelRide' || a.type === 'MountainBikeRide' ||
+            a.type === 'EBikeRide'
+        );
+    }
     saveCachedStravaRides(rides);
     return rides;
 }
@@ -214,20 +221,25 @@ async function loadStravaActivitiesForLog() {
     const btn = document.getElementById('btn-load-strava');
     const list = document.getElementById('strava-activities-list');
     btn.textContent = '\u23F3 Laden...';
-    const activities = await fetchStravaActivities();
-    btn.textContent = '\uD83D\uDD04 Strava-Aktivit\u00E4ten laden';
+    // Prim\u00E4rquelle: intervals.icu (Wahoo, Strava-unabh\u00E4ngig). Fallback: Strava-API (bis 30.06.2026).
+    let cycling = [];
+    if (typeof isIntervalsConnected === 'function' && isIntervalsConnected()) {
+        cycling = await fetchIntervalsActivities(30);
+    } else if (isStravaConnected()) {
+        const activities = await fetchStravaActivities();
+        cycling = activities.filter(a =>
+            a.type === 'Ride' || a.type === 'VirtualRide' || a.type === 'GravelRide' || a.type === 'MountainBikeRide'
+        );
+    }
+    btn.textContent = '\uD83D\uDD04 Aktivit\u00E4ten laden';
 
-    if (activities.length === 0) {
+    if (cycling.length === 0) {
         list.innerHTML = '<div style="color:var(--text-muted);font-size:13px;padding:12px;">Keine Aktivit\u00E4ten gefunden</div>';
         return;
     }
 
-    const cycling = activities.filter(a =>
-        a.type === 'Ride' || a.type === 'VirtualRide' || a.type === 'GravelRide' || a.type === 'MountainBikeRide'
-    );
-
     list.innerHTML = cycling.map(a => `
-        <div class="strava-activity-item" onclick="selectStravaActivity(${a.id}, '${a.name.replace(/'/g, "\\'")}', ${a.duration}, ${a.avgPower}, ${a.normalizedPower}, ${a.distance}, ${a.avgHr}, ${a.maxHr}, ${a.calories}, ${a.tss})">
+        <div class="strava-activity-item" onclick="selectStravaActivity('${a.id}', '${a.name.replace(/'/g, "\\'")}', ${a.duration}, ${a.avgPower}, ${a.normalizedPower}, ${a.distance}, ${a.avgHr}, ${a.maxHr}, ${a.calories}, ${a.tss})">
             <div class="strava-activity-name">${a.name}</div>
             <div class="strava-activity-meta">
                 <span>\uD83D\uDCC5 ${a.dateFormatted}</span>

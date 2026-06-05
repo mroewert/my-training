@@ -106,6 +106,108 @@ async function fetchIntervalsEvents(oldest, newest) {
     }
 }
 
+// ---- Fetch Activities (aufgezeichnete Fahrten aus intervals.icu, Strava-unabhängig) ----
+// Seit der Umstellung auf direkten Wahoo→intervals.icu-Sync (Strava-Abo-Pflicht ab 30.06.2026)
+// ist intervals.icu die primäre Quelle für Fahrt-Details. Daten sind reicher als bei Strava
+// (echte TSS via icu_training_load, NP via icu_weighted_avg_watts, echte Kalorien).
+
+const INTERVALS_CYCLING_TYPES = ['Ride', 'VirtualRide', 'GravelRide', 'MountainBikeRide', 'EBikeRide'];
+
+function isIntervalsCyclingActivity(a) {
+    const t = a.type || '';
+    return INTERVALS_CYCLING_TYPES.includes(t) || t.includes('Ride');
+}
+
+// Mappt eine intervals.icu-Aktivität auf dieselbe Form wie formatStravaActivity (strava.js),
+// damit alle Konsumenten (Routen-Match, Auto-Log) unverändert funktionieren.
+function formatIntervalsActivity(a) {
+    const dateStr = (a.start_date_local || '').split('T')[0];
+    const indoor = a.trainer === true;
+    const type = indoor ? 'VirtualRide' : (a.type || 'Ride');
+    const calories = a.calories != null ? a.calories
+                   : (a.icu_joules ? Math.round(a.icu_joules / 1000) : 0);
+    return {
+        id: a.id,                                   // z.B. "i154551007" (String!)
+        name: a.name || 'Fahrt',
+        date: dateStr,
+        dateFormatted: typeof formatDate === 'function' ? formatDate(dateStr) : dateStr,
+        duration: Math.round((a.moving_time || a.elapsed_time || 0) / 60),
+        distance: ((a.distance || 0) / 1000).toFixed(1),
+        elevation: Math.round(a.total_elevation_gain || 0),
+        startLat: null,                             // lazy via Streams (fetchIntervalsStartLatLng)
+        startLng: null,
+        avgPower: Math.round(a.icu_average_watts || 0),
+        normalizedPower: Math.round(a.icu_weighted_avg_watts || 0),
+        avgHr: Math.round(a.average_heartrate || 0),
+        maxHr: Math.round(a.max_heartrate || 0),
+        calories: calories,
+        tss: Math.round(a.icu_training_load || 0),  // echte TSS
+        type: type,
+        sportType: type,
+        trainer: indoor
+    };
+}
+
+async function fetchIntervalsActivities(daysBack = 30) {
+    if (!isIntervalsConnected()) return [];
+    const today = new Date();
+    const newest = today.toISOString().split('T')[0];
+    const oldest = new Date(today.getTime() - daysBack * 86400000).toISOString().split('T')[0];
+    try {
+        const response = await fetch(
+            `${INTERVALS_BASE_URL}/athlete/${intervalsConfig.athleteId}/activities?oldest=${oldest}&newest=${newest}`,
+            { headers: { 'Authorization': getIntervalsAuth() } }
+        );
+        if (!response.ok) {
+            console.error('intervals.icu activities fetch failed:', response.status);
+            return [];
+        }
+        const acts = await response.json();
+        if (!Array.isArray(acts)) return [];
+        // API liefert neueste zuerst
+        return acts.filter(isIntervalsCyclingActivity).map(formatIntervalsActivity);
+    } catch (e) {
+        console.error('Error fetching intervals.icu activities:', e);
+        return [];
+    }
+}
+
+// GPS-Startpunkt einer Aktivität via Streams-Endpoint (für Komoot-Match).
+// intervals.icu legt im latlng-Stream Breite in `data`, Länge in `data2` ab.
+async function fetchIntervalsStartLatLng(activityId) {
+    if (!isIntervalsConnected()) return null;
+    try {
+        const response = await fetch(
+            `${INTERVALS_BASE_URL}/activity/${activityId}/streams?types=latlng`,
+            { headers: { 'Authorization': getIntervalsAuth() } }
+        );
+        if (!response.ok) return null;
+        const streams = await response.json();
+        const ll = Array.isArray(streams) ? streams.find(s => s.type === 'latlng') : null;
+        if (!ll || !Array.isArray(ll.data) || !Array.isArray(ll.data2)) return null;
+        for (let i = 0; i < ll.data.length; i++) {
+            if (ll.data[i] != null && ll.data2[i] != null) {
+                return [ll.data[i], ll.data2[i]];
+            }
+        }
+        return null;
+    } catch (e) {
+        return null;
+    }
+}
+
+// Letzte Fahrten aus intervals.icu inkl. GPS-Startpunkt (für die Routen-Tab-Sektion).
+async function fetchRecentRidesFromIntervals(limit = 15) {
+    const acts = await fetchIntervalsActivities(30);
+    const recent = acts.slice(0, limit);
+    // GPS nur für die angezeigten Fahrten nachladen (begrenzte Anzahl Calls)
+    await Promise.all(recent.map(async ride => {
+        const ll = await fetchIntervalsStartLatLng(ride.id);
+        if (ll) { ride.startLat = ll[0]; ride.startLng = ll[1]; }
+    }));
+    return recent;
+}
+
 // ---- Sync Logic: Pull events from intervals.icu and update app calendar ----
 
 async function syncIntervalsToCalendar(silent = false) {
@@ -232,13 +334,11 @@ async function syncIntervalsToCalendar(silent = false) {
             return true;
         });
 
-        // Auto-log Strava activities to matching workouts by date
+        // Auto-log abgeschlossene Aktivitäten (aus intervals.icu) zu passenden Workouts nach Datum.
+        // Quelle ist jetzt intervals.icu (Wahoo-Daten, Strava-unabhängig) statt der Strava-API.
         let autoLogged = 0;
-        if (isStravaConnected()) {
-            const stravaActivities = await fetchStravaActivities();
-            const cycling = stravaActivities.filter(a =>
-                a.type === 'Ride' || a.type === 'VirtualRide' || a.type === 'GravelRide' || a.type === 'MountainBikeRide'
-            );
+        {
+            const cycling = await fetchIntervalsActivities(60);
 
             cycling.forEach(activity => {
                 // Find unlogged workouts on the same day
@@ -290,7 +390,7 @@ async function syncIntervalsToCalendar(silent = false) {
             if (updated > 0) msg += ` ${updated} Workouts aktualisiert.`;
             if (added > 0) msg += ` ${added} neue Workouts importiert.`;
             if (pruned > 0) msg += ` ${pruned} veraltete Workouts entfernt.`;
-            if (autoLogged > 0) msg += ` ${autoLogged} Strava-Aktivitaet${autoLogged !== 1 ? 'en' : ''} automatisch geloggt.`;
+            if (autoLogged > 0) msg += ` ${autoLogged} Aktivitaet${autoLogged !== 1 ? 'en' : ''} automatisch geloggt.`;
             if (updated === 0 && added === 0 && pruned === 0 && autoLogged === 0) msg += ' Kalender ist bereits aktuell.';
             alert(msg);
         }

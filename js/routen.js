@@ -628,12 +628,13 @@ async function refreshRecentRides() {
 }
 
 function renderRecentRidesSection(routes, isLoading) {
-    const stravaConnected = typeof isStravaConnected === 'function' && isStravaConnected();
-    if (!stravaConnected) {
+    const hasSource = (typeof isIntervalsConnected === 'function' && isIntervalsConnected())
+        || (typeof isStravaConnected === 'function' && isStravaConnected());
+    if (!hasSource) {
         return `
             <div class="recent-rides-block">
                 <h3 class="recent-rides-title">Letzte Fahrten</h3>
-                <div class="recent-rides-hint">Verbinde Strava im Tab "Mehr", um deine letzten Fahrten hier zu sehen.</div>
+                <div class="recent-rides-hint">Verbinde intervals.icu (oder Strava) im Tab "Mehr", um deine letzten Fahrten hier zu sehen.</div>
             </div>`;
     }
 
@@ -643,7 +644,7 @@ function renderRecentRidesSection(routes, isLoading) {
 
     let body;
     if (showLoading) {
-        body = `<div class="recent-rides-hint">Lade Strava-Aktivitäten...</div>`;
+        body = `<div class="recent-rides-hint">Lade Aktivitäten...</div>`;
     } else if (rides.length === 0) {
         body = `<div class="recent-rides-hint">Keine Fahrten gefunden.</div>`;
     } else {
@@ -698,13 +699,13 @@ function renderRecentRideCard(ride, routes, assignment) {
             <div class="ride-actions">
                 <div class="ride-stars-mini">${stars}</div>
                 <button class="ride-action-btn" onclick="event.stopPropagation(); openRouteDetail('${assignment.routeId}')">Bewerten / Details</button>
-                <button class="ride-action-btn ride-action-secondary" onclick="event.stopPropagation(); unassignRide(${ride.id})">Zuordnung lösen</button>
+                <button class="ride-action-btn ride-action-secondary" onclick="event.stopPropagation(); unassignRide('${ride.id}')">Zuordnung lösen</button>
             </div>`;
     } else if (assignment?.status === 'skipped') {
         badge = `<div class="ride-badge ride-badge-spontan">🚴 Spontanfahrt</div>`;
         actions = `
             <div class="ride-actions">
-                <button class="ride-action-btn ride-action-secondary" onclick="event.stopPropagation(); openRidePicker(${ride.id})">Doch zuordnen</button>
+                <button class="ride-action-btn ride-action-secondary" onclick="event.stopPropagation(); openRidePicker('${ride.id}')">Doch zuordnen</button>
             </div>`;
     } else {
         const result = matchRideToRoutes(ride, routes);
@@ -713,16 +714,16 @@ function renderRecentRideCard(ride, routes, assignment) {
             badge = `<div class="ride-badge ride-badge-suggest">🔍 Vorschlag: <strong>${r.name}</strong></div>`;
             actions = `
                 <div class="ride-actions">
-                    <button class="ride-action-btn ride-action-primary" onclick="event.stopPropagation(); confirmRideMatch(${ride.id}, '${r.id}')">✓ Bestätigen</button>
-                    <button class="ride-action-btn" onclick="event.stopPropagation(); openRidePicker(${ride.id})">Andere Route</button>
-                    <button class="ride-action-btn ride-action-secondary" onclick="event.stopPropagation(); skipRide(${ride.id})">Spontanfahrt</button>
+                    <button class="ride-action-btn ride-action-primary" onclick="event.stopPropagation(); confirmRideMatch('${ride.id}', '${r.id}')">✓ Bestätigen</button>
+                    <button class="ride-action-btn" onclick="event.stopPropagation(); openRidePicker('${ride.id}')">Andere Route</button>
+                    <button class="ride-action-btn ride-action-secondary" onclick="event.stopPropagation(); skipRide('${ride.id}')">Spontanfahrt</button>
                 </div>`;
         } else {
             badge = `<div class="ride-badge ride-badge-unknown">❓ Keine Route erkannt</div>`;
             actions = `
                 <div class="ride-actions">
-                    <button class="ride-action-btn ride-action-primary" onclick="event.stopPropagation(); openRidePicker(${ride.id})">Route zuordnen</button>
-                    <button class="ride-action-btn ride-action-secondary" onclick="event.stopPropagation(); skipRide(${ride.id})">Spontanfahrt</button>
+                    <button class="ride-action-btn ride-action-primary" onclick="event.stopPropagation(); openRidePicker('${ride.id}')">Route zuordnen</button>
+                    <button class="ride-action-btn ride-action-secondary" onclick="event.stopPropagation(); skipRide('${ride.id}')">Spontanfahrt</button>
                 </div>`;
         }
     }
@@ -747,12 +748,12 @@ function findRideById(activityId) {
 
 function rideToLogEntry(ride) {
     return {
-        id: 'strava-' + ride.id,
+        id: 'ride-' + ride.id,
         date: ride.date,
         feeling: 3,
         weather: 'sonnig',
         duration: ride.duration,
-        notes: 'Aus Strava: ' + ride.name
+        notes: 'Aus Aufzeichnung: ' + ride.name
     };
 }
 
@@ -836,7 +837,7 @@ function openRidePicker(activityId) {
 
 function renderPickerRow(activityId, route, score) {
     return `
-        <div class="picker-row" data-name="${escapeHtml(route.name.toLowerCase())}" onclick="confirmRideMatchFromPicker(${activityId}, '${route.id}')">
+        <div class="picker-row" data-name="${escapeHtml(route.name.toLowerCase())}" onclick="confirmRideMatchFromPicker('${activityId}', '${route.id}')">
             <div class="picker-row-name">${escapeHtml(route.name)}</div>
             <div class="picker-row-meta">
                 ${getSportLabel(route.sport)} · ${route.distance} km · ${route.elevationUp} hm

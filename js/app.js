@@ -274,7 +274,9 @@ function openLog(id) {
 
     const stravaSelector = document.getElementById('strava-selector');
     const activitiesList = document.getElementById('strava-activities-list');
-    if (isStravaConnected()) {
+    const hasActivitySource = (typeof isIntervalsConnected === 'function' && isIntervalsConnected())
+        || isStravaConnected();
+    if (hasActivitySource) {
         stravaSelector.style.display = 'block';
         activitiesList.innerHTML = '';
     } else {

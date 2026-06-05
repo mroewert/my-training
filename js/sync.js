@@ -41,8 +41,11 @@ function formatRelativeTime(ms) {
 // ---- Single-Source Sync Wrappers ----
 
 async function syncStravaOnly() {
-    if (typeof isStravaConnected !== 'function' || !isStravaConnected()) {
-        return { ok: false, skipped: true, reason: 'nicht verbunden' };
+    // Aktivitätsquelle ist jetzt primär intervals.icu (Wahoo). Strava nur noch Fallback.
+    const haveSource = (typeof isIntervalsConnected === 'function' && isIntervalsConnected())
+        || (typeof isStravaConnected === 'function' && isStravaConnected());
+    if (!haveSource) {
+        return { ok: false, skipped: true, reason: 'keine Aktivitätsquelle' };
     }
     try {
         const rides = await fetchRecentRides(true);
