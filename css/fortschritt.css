@@ -1,0 +1,111 @@
+/* ── Fortschritt-Tab: Körper-Tracker, KFA-Fortschritt, Meilensteine, Verlauf ── */
+
+#fortschritt-content {
+    padding: 16px 16px calc(var(--nav-height) + var(--safe-bottom) + 16px);
+}
+
+.fs-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px;
+    margin-bottom: 12px;
+}
+
+.fs-card-title {
+    font-weight: 700;
+    font-size: 15px;
+    color: var(--text-primary);
+    margin-bottom: 10px;
+}
+
+.fs-card-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 10px;
+}
+
+.fs-goal { font-weight: 700; font-size: 15px; color: var(--text-primary); }
+.fs-big { font-weight: 800; font-size: 22px; font-family: 'JetBrains Mono', monospace; }
+
+.fs-sub { font-size: 12px; color: var(--text-secondary); margin-top: 8px; }
+
+/* Fortschrittsbalken */
+.fs-bar {
+    height: 14px;
+    background: var(--bg-elevated);
+    border-radius: 8px;
+    overflow: hidden;
+}
+.fs-bar-fill {
+    height: 100%;
+    border-radius: 8px;
+    transition: width 0.4s ease;
+}
+
+/* Meilenstein-Timeline (horizontal scroll) */
+.fs-ms-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.fs-ms { display: flex; align-items: flex-start; padding-bottom: 4px; min-width: min-content; }
+.fs-ms-pt {
+    display: flex; flex-direction: column; align-items: center;
+    min-width: 56px; text-align: center;
+}
+.fs-ms-emoji { font-size: 20px; line-height: 1.2; opacity: 0.5; }
+.fs-ms-pt.reached .fs-ms-emoji, .fs-ms-pt.active .fs-ms-emoji { opacity: 1; }
+.fs-ms-kfa { font-size: 12px; font-weight: 700; color: var(--text-muted); font-family: 'JetBrains Mono', monospace; margin-top: 2px; }
+.fs-ms-pt.reached .fs-ms-kfa { color: var(--status-green); }
+.fs-ms-pt.active .fs-ms-kfa { color: var(--accent-secondary); }
+.fs-ms-date { font-size: 10px; color: var(--text-muted); margin-top: 1px; }
+.fs-ms-line {
+    flex: 1; min-width: 24px; height: 2px; background: var(--border);
+    margin-top: 12px;
+}
+.fs-ms-line.reached { background: var(--status-green); }
+
+/* Controls: Button + Zeitraum-Filter */
+.fs-controls { display: flex; gap: 10px; align-items: center; margin-bottom: 12px; }
+.fs-add { flex: 1; }
+.fs-filter { display: flex; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-sm); overflow: hidden; }
+.fs-fbtn {
+    background: transparent; border: none; color: var(--text-secondary);
+    padding: 9px 12px; font-size: 13px; font-weight: 600; cursor: pointer;
+    font-family: inherit;
+}
+.fs-fbtn.active { background: var(--accent-secondary); color: var(--bg-deep); }
+
+/* Chart */
+.fs-legend { display: flex; gap: 14px; justify-content: center; margin-bottom: 8px; flex-wrap: wrap; }
+.fs-lg { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; color: var(--text-secondary); }
+.fs-lg i { width: 12px; height: 3px; display: inline-block; }
+.fs-chart-wrap { display: flex; align-items: stretch; }
+.fs-yax {
+    display: flex; flex-direction: column; justify-content: space-between;
+    font-size: 10px; color: var(--text-muted); font-family: 'JetBrains Mono', monospace;
+    padding: 6px 6px 6px 0; text-align: right; min-width: 34px;
+}
+.fs-svg { width: 100%; height: auto; display: block; overflow: visible; }
+.fs-xax { display: flex; justify-content: space-between; font-size: 10px; color: var(--text-muted); padding-left: 34px; margin-top: 2px; }
+
+.fs-empty { text-align: center; color: var(--text-secondary); font-size: 13px; padding: 28px 16px; }
+
+/* Messungs-Liste */
+.fs-row {
+    display: flex; align-items: center; gap: 12px;
+    padding: 10px 0; border-bottom: 1px solid var(--border); cursor: pointer;
+}
+.fs-row:last-child { border-bottom: none; }
+.fs-row-ico { font-size: 18px; width: 24px; text-align: center; }
+.fs-row-main { flex: 1; min-width: 0; }
+.fs-row-top { font-size: 14px; font-weight: 600; color: var(--text-primary); }
+.fs-row-sub { font-size: 12px; color: var(--text-secondary); margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.fs-row-chev { color: var(--text-muted); font-size: 20px; }
+
+/* Meilenstein-Toast */
+.fs-toast {
+    position: fixed; left: 50%; top: 80px; transform: translateX(-50%);
+    background: var(--status-green); color: #fff; font-weight: 700;
+    padding: 12px 20px; border-radius: var(--radius-sm); z-index: 9999;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.4); animation: fs-pop 0.3s ease;
+}
+@keyframes fs-pop { from { opacity: 0; transform: translateX(-50%) translateY(-10px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
