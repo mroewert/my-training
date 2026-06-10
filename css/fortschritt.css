@@ -101,6 +101,15 @@
 .fs-row-sub { font-size: 12px; color: var(--text-secondary); margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .fs-row-chev { color: var(--text-muted); font-size: 20px; }
 
+/* Export/Import-Leiste */
+.fs-tools { display: flex; gap: 10px; margin-top: 4px; }
+.fs-tool-btn {
+    flex: 1; background: var(--bg-card); border: 1px solid var(--border);
+    color: var(--text-secondary); border-radius: var(--radius-sm);
+    padding: 11px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: inherit;
+}
+.fs-tool-btn:active { background: var(--bg-elevated); }
+
 /* Meilenstein-Toast */
 .fs-toast {
     position: fixed; left: 50%; top: 80px; transform: translateX(-50%);

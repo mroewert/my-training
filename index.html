@@ -26,7 +26,7 @@
     <link rel="stylesheet" href="css/ernaehrung.css?v=1">
     <link rel="stylesheet" href="css/mehr.css?v=2">
     <link rel="stylesheet" href="css/routen.css?v=4">
-    <link rel="stylesheet" href="css/fortschritt.css?v=1">
+    <link rel="stylesheet" href="css/fortschritt.css?v=2">
 </head>
 <body>
 
@@ -302,6 +302,23 @@
         </div>
     </div>
 
+    <!-- Fortschritt Import Modal -->
+    <div class="modal-overlay" id="modal-fsimport">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Fortschritt importieren</h2>
+                <button class="modal-close" onclick="closeFsImport()">✕</button>
+            </div>
+            <div class="modal-body">
+                <p style="font-size:13px;color:var(--text-secondary);margin-bottom:10px;">
+                    JSON einfügen (Format <code>{ ziele, messungen }</code>) — z.&nbsp;B. per „Exportieren" von einem anderen Gerät kopiert.
+                </p>
+                <textarea class="form-input" id="fsimport-text" placeholder='{"ziele": {...}, "messungen": [...]}' style="min-height:140px;font-family:'JetBrains Mono',monospace;font-size:12px;"></textarea>
+                <button class="btn-primary" onclick="importFortschritt()">Importieren</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Scripts -->
     <script src="js/weather.js?v=3"></script>
     <script src="js/strava.js?v=6"></script>
@@ -314,7 +331,7 @@
     <script src="js/ernaehrung.js?v=1"></script>
     <script src="js/mehr.js?v=5"></script>
     <script src="js/fortschritt-seed.js?v=1"></script>
-    <script src="js/fortschritt.js?v=1"></script>
+    <script src="js/fortschritt.js?v=2"></script>
     <script src="js/app.js?v=10"></script>
 </body>
 </html>

@@ -157,12 +157,66 @@ function feiereMeilenstein() {
     setTimeout(() => t.remove(), 3500);
 }
 
+// ── Export / Import (geräteübergreifend, ohne öffentliche Daten) ──
+function exportFortschritt() {
+    if (!koerperMessungen.length && !koerperZiele) { alert('Noch keine Fortschritt-Daten zum Exportieren.'); return; }
+    const data = JSON.stringify({ ziele: koerperZiele, messungen: koerperMessungen }, null, 2);
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(data).then(
+            () => alert('Fortschritt-Daten in die Zwischenablage kopiert.\n\nAuf dem anderen Gerät die App öffnen → Fortschritt → „Importieren" → einfügen.'),
+            () => fsExportFallback(data)
+        );
+    } else {
+        fsExportFallback(data);
+    }
+}
+function fsExportFallback(data) {
+    openFsImport();
+    document.getElementById('fsimport-text').value = data;
+    alert('Automatisches Kopieren nicht möglich — Text im Feld markieren und manuell kopieren.');
+}
+function openFsImport() { document.getElementById('fsimport-text').value = ''; openModal('modal-fsimport'); }
+function closeFsImport() { closeModal('modal-fsimport'); }
+function importFortschritt() {
+    const raw = document.getElementById('fsimport-text').value.trim();
+    if (!raw) { alert('Bitte die exportierten JSON-Daten einfügen.'); return; }
+    let data;
+    try { data = JSON.parse(raw); } catch (e) { alert('Ungültiges JSON: ' + e.message); return; }
+    // Akzeptiert { ziele, messungen } oder direkt ein Array von Messungen
+    let messungen, ziele;
+    if (Array.isArray(data)) { messungen = data; ziele = koerperZiele; }
+    else { messungen = data.messungen; ziele = (data.ziele != null) ? data.ziele : koerperZiele; }
+    if (!Array.isArray(messungen)) { alert('Format nicht erkannt. Erwartet: { ziele, messungen }.'); return; }
+    if ((koerperMessungen.length || koerperZiele) && !confirm('Vorhandene Fortschritt-Daten auf diesem Gerät überschreiben?')) return;
+    koerperMessungen = messungen.map((m, i) => ({
+        id: m.id || ('m' + Date.now() + '_' + i),
+        datum: m.datum,
+        gewicht: Number(m.gewicht),
+        bauchumfang: (m.bauchumfang == null) ? null : Number(m.bauchumfang),
+        kfa: (m.kfa == null) ? null : Number(m.kfa),
+        inbody: !!m.inbody,
+        notiz: m.notiz || '',
+    })).filter(m => m.datum && !isNaN(m.gewicht));
+    if (ziele) koerperZiele = ziele;
+    saveKoerperData();
+    closeFsImport();
+    renderFortschritt();
+    alert(`${koerperMessungen.length} Messungen importiert.`);
+}
+
+function renderTools() {
+    return `<div class="fs-tools">
+        <button class="fs-tool-btn" onclick="exportFortschritt()">⤓ Exportieren</button>
+        <button class="fs-tool-btn" onclick="openFsImport()">⤒ Importieren</button>
+    </div>`;
+}
+
 // ── Render ──
 function renderFortschritt() {
     if (!koerperGeladen) { loadKoerperData(); koerperGeladen = true; }
     const c = document.getElementById('fortschritt-content');
     if (!c) return;
-    if (!koerperZiele) { c.innerHTML = renderOnboarding(); return; }
+    if (!koerperZiele) { c.innerHTML = renderOnboarding() + renderTools(); return; }
 
     const aktuellerKfa = berechneKfaSchaetzung();
     const sorted = sortMess();
@@ -173,7 +227,8 @@ function renderFortschritt() {
         renderMilestones() +
         renderControls() +
         renderChart() +
-        renderMessungenListe();
+        renderMessungenListe() +
+        renderTools();
 }
 
 function renderOnboarding() {
