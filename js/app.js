@@ -183,6 +183,8 @@ function switchTab(tabName) {
         renderAnalyse();
     } else if (tabName === 'fortschritt') {
         renderFortschritt();
+    } else if (tabName === 'reha') {
+        renderReha();
     } else if (tabName === 'ernaehrung') {
         renderErnaehrung();
     } else if (tabName === 'routen') {

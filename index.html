@@ -20,13 +20,14 @@
 
     <!-- Styles -->
     <link rel="stylesheet" href="css/base.css?v=3">
-    <link rel="stylesheet" href="css/nav.css?v=3">
+    <link rel="stylesheet" href="css/nav.css?v=4">
     <link rel="stylesheet" href="css/training.css?v=10">
     <link rel="stylesheet" href="css/analyse.css?v=3">
     <link rel="stylesheet" href="css/ernaehrung.css?v=1">
     <link rel="stylesheet" href="css/mehr.css?v=2">
     <link rel="stylesheet" href="css/routen.css?v=4">
     <link rel="stylesheet" href="css/fortschritt.css?v=2">
+    <link rel="stylesheet" href="css/reha.css?v=1">
 </head>
 <body>
 
@@ -68,6 +69,11 @@
         <div id="fortschritt-content"></div>
     </div>
 
+    <!-- Tab: Reha -->
+    <div class="tab-content" id="tab-reha">
+        <div id="reha-content"></div>
+    </div>
+
     <!-- Tab: Routen -->
     <div class="tab-content" id="tab-routen">
         <div id="routen-content"></div>
@@ -95,6 +101,10 @@
         <button class="nav-item" data-tab="fortschritt" onclick="switchTab('fortschritt')">
             <span class="nav-icon">📈</span>
             <span>Fortschritt</span>
+        </button>
+        <button class="nav-item" data-tab="reha" onclick="switchTab('reha')">
+            <span class="nav-icon">🦶</span>
+            <span>Reha</span>
         </button>
         <button class="nav-item" data-tab="routen" onclick="switchTab('routen')">
             <span class="nav-icon">🗺️</span>
@@ -332,6 +342,7 @@
     <script src="js/mehr.js?v=5"></script>
     <script src="js/fortschritt-seed.js?v=1"></script>
     <script src="js/fortschritt.js?v=2"></script>
-    <script src="js/app.js?v=10"></script>
+    <script src="js/reha.js?v=1"></script>
+    <script src="js/app.js?v=11"></script>
 </body>
 </html>
