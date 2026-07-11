@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Genuss-Übersicht – Michael &amp; Kyra</title>
+<style>
+  :root{--d:#2a2320;--bg:#f6f3ef;--card:#fff;--mut:#6b625b;--acc:#a8621f;--good:#1f7a5a;--bad:#b23b3b}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--d);line-height:1.5}
+  header{background:linear-gradient(135deg,#a8621f,#c98a3f);color:#fff;padding:18px 16px}
+  header h1{margin:0;font-size:20px}
+  header .sub{color:#fbeede;font-size:12.5px;margin-top:4px}
+  main{padding:12px;max-width:720px;margin:0 auto}
+  .card{background:var(--card);border:1px solid #e7e1d9;border-radius:14px;padding:13px 15px;margin:0 0 13px;box-shadow:0 1px 2px rgba(0,0,0,.03)}
+  h2{margin:0 0 4px;font-size:16px}
+  .sec{font-size:13px;color:var(--acc);font-weight:700;text-transform:uppercase;letter-spacing:.4px;margin:2px 0 8px}
+  .item{padding:8px 0;border-bottom:1px solid #f0ece6}
+  .item:last-child{border-bottom:none}
+  .name{font-weight:700;font-size:14.5px}
+  .meta{color:var(--mut);font-size:12.5px;margin-top:2px}
+  .stars{color:#e2a615;font-size:13.5px;letter-spacing:1px}
+  .yes{color:var(--good);font-weight:700}
+  .no{color:var(--bad);font-weight:700}
+  .pill{display:inline-block;font-size:11px;font-weight:700;padding:1px 7px;border-radius:20px;margin-left:4px}
+  .pill.g{background:#e5f3ec;color:var(--good)}
+  .pill.b{background:#fbe9e9;color:var(--bad)}
+  .pill.n{background:#eee9e2;color:var(--mut)}
+  .btn{display:inline-block;background:var(--acc);color:#fff;text-decoration:none;padding:7px 11px;border-radius:8px;font-size:13px;font-weight:600;margin-top:6px}
+  .legend{background:#fbf6ee;border-left:4px solid var(--acc);padding:9px 12px;border-radius:6px;font-size:13px}
+  .avoid{background:#fbeeee;border-left:4px solid var(--bad);padding:9px 12px;border-radius:6px;font-size:13px}
+  footer{padding:16px;text-align:center;color:var(--mut);font-size:11.5px}
+</style>
+</head>
+<body>
+<header>
+  <h1>🍽️ Genuss-Übersicht</h1>
+  <div class="sub">Michael &amp; Kyra · Lieblinge, Bewertungen &amp; besuchte Orte</div>
+</header>
+<main>
+
+  <div class="card legend">
+    <b>Bewertung:</b> ⭐ 1–5 = Qualität/Genuss · <span class="pill g">Nochmal? Ja</span> / <span class="pill b">Nein</span> ist bewusst getrennt von den Sternen.
+  </div>
+
+  <div class="card">
+    <div class="sec">🍺 Getränke</div>
+    <div class="item">
+      <div class="name">Oberbräu Hell 0,0 % <span class="pill g">Standard</span></div>
+      <div class="stars">★★★★☆</div>
+      <div class="meta">Alkoholfreies Helles (Lidl &amp; Edeka) · „Bier" am Trainings-/Ruhetag</div>
+    </div>
+    <div class="item">
+      <div class="name">Grevensteiner Pils</div>
+      <div class="meta">Mag er gerne (positiv) · genannt 02.07.2026</div>
+    </div>
+    <div class="item">
+      <div class="name">IPA (Bierstil)</div>
+      <div class="meta">Mag IPA – aber nicht bevorzugt (geht, kein Favorit-Stil)</div>
+    </div>
+    <div class="item">
+      <div class="name">Complot IPA (Damm) <span class="pill b">nein</span></div>
+      <div class="stars">★☆☆☆☆</div>
+      <div class="meta">Mochte er nicht (Negativ-Ausnahme) · 04.07.2026, Tapa Tapa Barcelona</div>
+    </div>
+    <div class="item">
+      <div class="name">„Sant Climent" Lager (Grahame Pearce)</div>
+      <div class="meta">Neutral – „ok, nicht gut, nicht schlecht" · 07.07.2026, Menorca</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="sec">🥘 Gerichte &amp; Küche</div>
+    <div class="item">
+      <div class="name">Küchenstil</div>
+      <div class="meta">Überwiegend vegetarisch, gerne norddeutsch deftig</div>
+    </div>
+    <div class="item">
+      <div class="name">Seafood Stew (mit ganzem Hummer) <span class="pill b">nicht nochmal</span></div>
+      <div class="stars">★★★★☆</div>
+      <div class="meta">Es Cranc, Fornells/Menorca · 11.07.2026 · Qualität super, aber Hummer zerlegen zu mühsam</div>
+      <div class="meta">➡️ Vorliebe daraus: Seafood ja, aber <b>Richtung Paella</b> (ohne Hummer-Handarbeit)</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="sec">🛒 Produkte &amp; Snacks</div>
+    <div class="item">
+      <div class="meta">ProFuel 8K Neutral · Skyr · Beef Jerky · geröstete Edamame – alle GI-verträglich · Stammgeschäft Edeka</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="sec">📍 Besuchte Orte</div>
+    <div class="item">
+      <div class="name">Es Cranc – Fornells, Menorca <span class="pill g">Nochmal: Ja</span></div>
+      <div class="stars">★★★★★</div>
+      <div class="meta">Fisch/Meeresfrüchte, Michelin-Guide 2026 · mit Kyra · Besuch: 11.07.2026 (mittags)</div>
+      <div class="meta">Beim nächsten Mal Paella/Meeresfrüchte ohne Handarbeit statt ganzem Hummer.</div>
+      <a class="btn" href="https://www.google.com/maps/dir/?api=1&destination=Es+Cranc%2C+Carrer+de+ses+Escoles+31%2C+Fornells%2C+Menorca&travelmode=driving">🗺️ Navigation</a>
+    </div>
+    <div class="item">
+      <div class="name">Tapa Tapa – Barcelona</div>
+      <div class="meta">Tapas-Bar · Besuch: 04.07.2026 · hier das Complot IPA (mochte er nicht)</div>
+      <div class="meta">Essen nicht mehr erinnert – „Top hier" noch offen.</div>
+    </div>
+  </div>
+
+  <div class="card avoid">
+    <b>🚫 Abneigungen (nie empfehlen):</b> Thunfisch · Rote Bete · Kokos · Suppen · Desserts · Süßkartoffeln · Süßigkeiten allgemein · Harzer Käse in Gerichten.<br>
+    <b>GI-Trigger meiden:</b> Sucralose · Guar Gum · Zuckeralkohole.
+  </div>
+
+</main>
+<footer>Stand 11.07.2026 · Quelle: genuss/ (lieblinge.md + locations.md) · wächst durch dein Feedback</footer>
+</body>
+</html>
